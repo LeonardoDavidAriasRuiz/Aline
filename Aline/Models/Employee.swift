@@ -8,24 +8,26 @@
 import Foundation
 import CloudKit
 
-struct Employee: Hashable {
-     var id: String
-     var name: String
-     var lastName: String
-     var restaurantLink: String
-     var record: CKRecord?
+struct Employee: Hashable, Equatable, Identifiable {
+    var id: String
+    var name: String
+    var lastName: String
+    var restaurantId: String
+    var record: CKRecord
     
-    init(id: String, name: String, lastName: String, restaurantLink: String) {
+    private let keys: EmployeeKeys = EmployeeKeys()
+    
+    init(id: String, name: String, lastName: String, restaurantId: String) {
         self.id = id
         self.name = name
         self.lastName = lastName
-        self.restaurantLink = restaurantLink
+        self.restaurantId = restaurantId
         
-        let record = CKRecord(recordType: EmployeeKeys.type.rawValue)
-        record[EmployeeKeys.type.rawValue] = id
-        record[EmployeeKeys.name.rawValue] = name
-        record[EmployeeKeys.lastName.rawValue] = lastName
-        record[EmployeeKeys.restaurantId.rawValue] = restaurantLink
+        let record = CKRecord(recordType: keys.type)
+        record[keys.type] = id
+        record[keys.name] = name
+        record[keys.lastName] = lastName
+        record[keys.restaurantId] = restaurantId
         
         self.record = record
     }
@@ -34,16 +36,26 @@ struct Employee: Hashable {
         self.id = UUID().uuidString
         self.name = ""
         self.lastName = ""
-        self.restaurantLink = ""
+        self.restaurantId = ""
+        self.record = CKRecord(recordType: keys.type)
     }
     
     init(record: CKRecord) {
         self.record = record
-        self.id = record[EmployeeKeys.type.rawValue] as? String ?? ""
-        self.name = record[EmployeeKeys.name.rawValue] as? String ?? ""
-        self.lastName = record[EmployeeKeys.lastName.rawValue] as? String ?? ""
-        self.restaurantLink = record[EmployeeKeys.restaurantId.rawValue] as? String ?? ""
+        self.id = record[keys.type] as? String ?? ""
+        self.name = record[keys.name] as? String ?? ""
+        self.lastName = record[keys.lastName] as? String ?? ""
+        self.restaurantId = record[keys.restaurantId] as? String ?? ""
     }
     
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     
+    static func == (lhs: Employee, rhs: Employee) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.name == rhs.name &&
+        lhs.lastName == rhs.lastName &&
+        lhs.restaurantId == rhs.restaurantId
+    }
 }
