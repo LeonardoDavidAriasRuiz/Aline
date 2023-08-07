@@ -34,6 +34,14 @@ struct ConectionKeys {
     let restaurantId = "restaurantId"
 }
 
+struct EmployeeKeys {
+    let type = "Employees"
+    let id = "id"
+    let name = "name"
+    let lastName = "lastName"
+    let restaurantId = "restaurantId"
+}
+
 struct DepositKeys {
     let type = "Deposits"
     let id = "id"
@@ -52,10 +60,4 @@ enum ExpenseKeys: String {
     case restaurantId
 }
 
-enum EmployeeKeys: String {
-    case type = "Employees"
-    case id
-    case name
-    case lastName
-    case restaurantId
-}
+
