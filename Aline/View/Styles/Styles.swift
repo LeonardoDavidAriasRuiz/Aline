@@ -15,35 +15,7 @@ extension Color {
      static var background: Color = Color("Background")
 }
 
-struct Header: View {
-    let text: String
-    
-    init(_ text: String) {
-        self.text = text
-    }
-    
-    var body: some View {
-        Text(text)
-            .font(.footnote)
-            .textCase(.uppercase)
-            .padding(.leading, 20)
-            .foregroundStyle(.secondary)
-    }
-}
 
-struct Footer: View {
-    let text: String
-    
-    init(_ text: String) {
-        self.text = text
-    }
-    
-    var body: some View {
-        Text(text).font(.footnote)
-            .padding(.leading, 20)
-            .foregroundStyle(.secondary)
-    }
-}
 
 struct EditableName: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
@@ -97,94 +69,7 @@ struct EditableName: View {
     }
 }
 
-struct SheetWithoutScroll<Content: View>: View {
-     let content: () -> Content
-     let color: Color
-     let title: String
-    
-    init(color: Color, title: String, @ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-        self.color = color
-        self.title = title
-    }
-    
-    var body: some View {
-        ZStack {
-            VStack {
-                HStack {}.frame(maxWidth: .infinity, maxHeight: 1).background(.white)
-                Spacer()
-            }
-            
-            VStack(content: content)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Gradient(colors: [color, Color.background, Color.background]))
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
 
-struct FullSheet<Content: View>: View {
-     let content: () -> Content
-     let color: Color
-     let title: String
-    
-    init(color: Color, title: String, @ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-        self.color = color
-        self.title = title
-    }
-    
-    var body: some View {
-        VStack {
-            HStack {}.frame(maxWidth: .infinity, maxHeight: 1).background(.white)
-            ScrollView {
-                VStack(content: content)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
-        }
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct LoadingIfNotReady<Content: View>: View  {
-    @Binding  var done: Bool
-     let content: () -> Content
-    
-    var body: some View {
-        ZStack {
-            content()
-            if !done {
-                LoadingView()
-            }
-        }
-    }
-}
-
-
-
-struct WhiteArea<Content: View>: View {
-     let content: () -> Content
-    
-    init(@ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-    }
-    
-    var body: some View {
-        VStack(content: content)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-    }
-}
 
 struct HeaderAreas: ViewModifier {
     private var padding: CGFloat = 10
