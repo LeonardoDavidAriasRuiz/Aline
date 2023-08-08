@@ -13,7 +13,6 @@ struct EmployeesView: View {
     @EnvironmentObject private var userC: UserViewModel
     @EnvironmentObject private var accentColor: AccentColor
     
-    
     @State private var done: Bool = true
     
     @State private var employees: [Employee] = []
@@ -27,26 +26,34 @@ struct EmployeesView: View {
     @State private var errorOn: Bool = false
     @State private var errorAlert: ErrorAlerts = .dataNotObtained
     
+    private let title: String = "Empleados"
+    private let newEmployeeButtonText: String = "Nuevo empleado"
+    private let saveButtonText: String = "Guardar"
+    private let updateButtonText: String = "Guardar"
+    private let cancelButtonText: String = "Cancelar"
+    private let deleteButtonText: String = "Eliminar"
+    private let nameFieldText: String = "Nombre"
+    private let lastNameFieldText: String = "Apellido"
+    private let editableEmployeeAreaTitleText: String = "Información de empleado"
+    private let deleteAlertTitleText: String = "Eliminar empleado"
+    private let deleteAlertMessageText: String = "Estas seguro de que quieres eliminar a"
+    private let employeeButtonSymbolName: String = "chevron.right"
+    
     var body: some View {
         LoadingIfNotReady(done: $done) {
-            Sheet(title: "Empleados") {
+            Sheet(title: title) {
                 employees.isNotEmpty ? employeesListArea : nil
-                WhiteArea {
-                    Button(action: openEdtableEmployeeArea) {
-                        Text("Nuevo empleado").frame(maxWidth: .infinity)
-                    }
-                    .sheet(isPresented: $editableEmployeeAreaOpened, onDismiss: unselectEmployee) {
-                        editableEmployeeArea
-                    }
-                }
+                newEmployeeButton
             }
             .onChange(of: editableEmployee, validateEmployee)
             .onChange(of: employees, sortEmployees)
+            .sheet(isPresented: $editableEmployeeAreaOpened, onDismiss: unselectEmployee) {
+                editableEmployeeArea
+                    .alert(errorAlert.rawValue, isPresented: $errorOn, actions: {})
+            }
         }
         .tint(Color.orange)
         .onAppear(perform: onAppear)
-        .alert(errorAlert.rawValue, isPresented: $errorOn, actions: {})
-        
     }
     
     private var employeesListArea: some View {
@@ -57,7 +64,8 @@ struct EmployeesView: View {
                         Text(employee.lastName).foregroundStyle(Color.black)
                         Text(employee.name).foregroundStyle(Color.black)
                         Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(Color.black.opacity(0.5))
+                        Image(systemName: employeeButtonSymbolName)
+                            .foregroundStyle(Color.black.opacity(0.5))
                     }
                 }
                 
@@ -69,46 +77,82 @@ struct EmployeesView: View {
     }
     
     private var editableEmployeeArea: some View {
-        Sheet(title: "Empleado") {
+        Sheet(title: title) {
             VStack(alignment: .leading) {
-                Text("Información de empleado")
-                    .bold()
-                    .font(.largeTitle)
-                    .padding(.bottom, 20)
-                WhiteArea {
-                    TextField("Nombre", text: $editableEmployee.name)
-                    Divider()
-                    TextField("Apellido", text: $editableEmployee.lastName)
-                }
-                WhiteArea {
-                    Button(action: create) {
-                        Text("Guardar").frame(maxWidth: .infinity)
-                    }
-                    .disabled(!isNewEmployeeReadyToSave)
-                }
+                editableEmployeeAreaTitle
+                employeeInformationFields
                 
                 if employeeSelected {
-                    
-                    WhiteArea {
-                        Button(action: unselectEmployee) {
-                            Text("Cancelar").frame(maxWidth: .infinity)
-                        }
-                    }
-                    
-                    WhiteArea {
-                        Button(action: deleteEmployeeButtonPressed) {
-                            Text("Eliminar").frame(maxWidth: .infinity)
-                        }
-                        .alert(isPresented: $deleteEmployeeAlert) {
-                            Alert(
-                                title: Text("Eliminar empleado"),
-                                message: Text("Estas seguro de que quieres eliminar a \(editableEmployee.lastName) \(editableEmployee.name)"),
-                                primaryButton: .destructive(Text("Eliminar"), action: deleteEmployee),
-                                secondaryButton: .cancel(Text("Cancelar"))
-                            )
-                        }
-                    }
+                    updateButton
+                    cancelButton
+                    deleteButton
+                } else {
+                    saveButton
                 }
+            }
+        }
+    }
+    
+    private var newEmployeeButton: some View {
+        WhiteArea {
+            Button(action: openEdtableEmployeeArea) {
+                Text(newEmployeeButtonText).frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var editableEmployeeAreaTitle: some View {
+        Text(editableEmployeeAreaTitleText)
+            .bold()
+            .font(.largeTitle)
+            .padding(.bottom, 20)
+    }
+    
+    private var employeeInformationFields: some View {
+        WhiteArea {
+            TextField(nameFieldText, text: $editableEmployee.name)
+            Divider()
+            TextField(lastNameFieldText, text: $editableEmployee.lastName)
+        }
+    }
+    
+    private var saveButton: some View {
+        WhiteArea {
+            Button(action: create) {
+                Text(saveButtonText).frame(maxWidth: .infinity)
+            }
+            .disabled(!isNewEmployeeReadyToSave)
+        }
+    }
+    
+    private var updateButton: some View {
+        WhiteArea {
+            Button(action: update) {
+                Text(updateButtonText).frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var cancelButton: some View {
+        WhiteArea {
+            Button(action: unselectEmployee) {
+                Text(cancelButtonText).frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var deleteButton: some View {
+        WhiteArea {
+            Button(action: deleteEmployeeButtonPressed) {
+                Text(deleteButtonText).frame(maxWidth: .infinity)
+            }
+            .alert(isPresented: $deleteEmployeeAlert) {
+                Alert(
+                    title: Text(deleteAlertTitleText),
+                    message: Text("\(deleteAlertMessageText) \(editableEmployee.lastName) \(editableEmployee.name)"),
+                    primaryButton: .destructive(Text(deleteButtonText), action: deleteEmployee),
+                    secondaryButton: .cancel(Text(cancelButtonText))
+                )
             }
         }
     }
