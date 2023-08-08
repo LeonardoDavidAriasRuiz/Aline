@@ -45,10 +45,12 @@
 		A712C47C2A828CFC001B9C50 /* ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A712C47B2A828CFC001B9C50 /* ErrorAlerts.swift */; };
 		A72A46742A4E65D5008CA2EE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72A46732A4E65D5008CA2EE /* LoadingView.swift */; };
 		A76BD6D62A66B703007043CC /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76BD6D52A66B703007043CC /* Keys.swift */; };
-		A78A23CE2A4D2FB90074E61C /* RestaurantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A78A23CD2A4D2FB90074E61C /* RestaurantsView.swift */; };
 		A79687142A6982FF00EA29CE /* DepositView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79687132A6982FF00EA29CE /* DepositView.swift */; };
 		A79687172A69981B00EA29CE /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79687162A69981B00EA29CE /* AccentColor.swift */; };
 		A79E11162A798EE3004D59C8 /* EditableEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E11152A798EE3004D59C8 /* EditableEmail.swift */; };
+		A7A45D2B2A82CB4A00871C62 /* UserInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */; };
+		A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */; };
+		A7A45D2F2A82CCFB00871C62 /* ConectionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */; };
 		A7A9F7BD2A5F9869000F7554 /* DepositViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A9F7BC2A5F9869000F7554 /* DepositViewModel.swift */; };
 		A7B2D00A2A58F8760087FE74 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B2D0092A58F8760087FE74 /* RestaurantView.swift */; };
 		A7BB726C2A73825900FFF5AC /* MailCore2 in Frameworks */ = {isa = PBXBuildFile; productRef = A7BB726B2A73825900FFF5AC /* MailCore2 */; };
@@ -125,10 +127,12 @@
 		A747B77B2A6AEEBA00FBB2E4 /* AlineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A747B77C2A6AEEBA00FBB2E4 /* AlineUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlineUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A76BD6D52A66B703007043CC /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
-		A78A23CD2A4D2FB90074E61C /* RestaurantsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsView.swift; sourceTree = "<group>"; };
 		A79687132A6982FF00EA29CE /* DepositView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepositView.swift; sourceTree = "<group>"; };
 		A79687162A69981B00EA29CE /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
 		A79E11152A798EE3004D59C8 /* EditableEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableEmail.swift; sourceTree = "<group>"; };
+		A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInformationView.swift; sourceTree = "<group>"; };
+		A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsListView.swift; sourceTree = "<group>"; };
+		A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionsListView.swift; sourceTree = "<group>"; };
 		A7A9F7BC2A5F9869000F7554 /* DepositViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepositViewModel.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		A7B2D0092A58F8760087FE74 /* RestaurantView.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 0; };
 		A7BB726E2A7382AC00FFF5AC /* MailSMTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSMTP.swift; sourceTree = "<group>"; };
@@ -316,7 +320,7 @@
 			isa = PBXGroup;
 			children = (
 				7E51BC7729D5647D00D6D33C /* AccountView.swift */,
-				A70C61C62A7ACBF3005D640E /* ConectionsReceivedView.swift */,
+				A7A45D292A82CB2100871C62 /* AccountViews */,
 				A7C300BD2A735DF3006439B8 /* Restaurants */,
 			);
 			path = Cuenta;
@@ -389,6 +393,17 @@
 			path = Configurations;
 			sourceTree = "<group>";
 		};
+		A7A45D292A82CB2100871C62 /* AccountViews */ = {
+			isa = PBXGroup;
+			children = (
+				A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */,
+				A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */,
+				A70C61C62A7ACBF3005D640E /* ConectionsReceivedView.swift */,
+				A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */,
+			);
+			path = AccountViews;
+			sourceTree = "<group>";
+		};
 		A7BB726D2A73827100FFF5AC /* MailSender */ = {
 			isa = PBXGroup;
 			children = (
@@ -403,7 +418,6 @@
 		A7C300BD2A735DF3006439B8 /* Restaurants */ = {
 			isa = PBXGroup;
 			children = (
-				A78A23CD2A4D2FB90074E61C /* RestaurantsView.swift */,
 				A7B2D0092A58F8760087FE74 /* RestaurantView.swift */,
 				A7C300BE2A735E06006439B8 /* Conection */,
 			);
@@ -571,9 +585,9 @@
 				A712C47C2A828CFC001B9C50 /* ErrorAlerts.swift in Sources */,
 				A7B2D00A2A58F8760087FE74 /* RestaurantView.swift in Sources */,
 				7E51BC5229D51C9A00D6D33C /* TipsView.swift in Sources */,
-				A78A23CE2A4D2FB90074E61C /* RestaurantsView.swift in Sources */,
 				7E51BC6829D5398400D6D33C /* Contador.swift in Sources */,
 				A7E185C42A81CE4300C71501 /* Sheet.swift in Sources */,
+				A7A45D2B2A82CB4A00871C62 /* UserInformationView.swift in Sources */,
 				A7C300C02A735E2E006439B8 /* ConectionsView.swift in Sources */,
 				A7BB72752A74E29900FFF5AC /* VerifyNewEmail.swift in Sources */,
 				7E80B12B29DDEED0006CAC82 /* CashOutView.swift in Sources */,
@@ -584,9 +598,11 @@
 				A7E185C82A81D1A300C71501 /* WhiteArea.swift in Sources */,
 				7E51BC5429D51CAA00D6D33C /* DepositsView.swift in Sources */,
 				7E51BC5829D51CD300D6D33C /* EmployeesView.swift in Sources */,
+				A7A45D2F2A82CCFB00871C62 /* ConectionsListView.swift in Sources */,
 				7E51BC7D29D5660000D6D33C /* SignInView.swift in Sources */,
 				7E51BC7529D55EE800D6D33C /* UserViewModel.swift in Sources */,
 				7E6837A429D865D400356B52 /* iCloudOffView.swift in Sources */,
+				A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */,
 				7E782A5329D4BDC200556F99 /* MenuView.swift in Sources */,
 				A7A9F7BD2A5F9869000F7554 /* DepositViewModel.swift in Sources */,
 				7E51BC7B29D565F400D6D33C /* LogInView.swift in Sources */,

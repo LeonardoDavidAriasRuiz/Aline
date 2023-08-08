@@ -15,9 +15,11 @@ class ConectionViewModel: ObservableObject {
     
     func save(_ conection: Conection, completion: @escaping (Result<CKRecord, Error>) -> Void) {
         let record: CKRecord = CKRecord(recordType: conectionKeys.type)
+        record[conectionKeys.id] = conection.id
         record[conectionKeys.email] = conection.email
         record[conectionKeys.isAdmin] = conection.isAdmin
         record[conectionKeys.restaurantId] = conection.restaurantId
+        record[conectionKeys.restaurantName] = conection.restaurantName
         
         dataBase.save(record) { (record, error) in
             if let record = record {
@@ -50,7 +52,7 @@ class ConectionViewModel: ObservableObject {
         dataBase.add(queryOperation)
     }
     
-    func fetchReceivedConections(for email: String, in restaurantId: String, completion: @escaping (Result<[Conection], Error>) -> Void) {
+    func fetchReceivedConections(for email: String, completion: @escaping (Result<[Conection], Error>) -> Void) {
         var conections: [Conection] = []
         
         let predicate = NSPredicate(format: "\(conectionKeys.email) == %@", email)
@@ -60,8 +62,6 @@ class ConectionViewModel: ObservableObject {
         queryOperation.recordMatchedBlock = { (_, result) in
             switch result {
                 case .success(let record):
-                    guard let recordRestaurantId: String = record[self.conectionKeys.restaurantId],
-                          recordRestaurantId == restaurantId else { return }
                     conections.append(Conection(record: record))
                 case .failure(let error):
                     completion(.failure(error))

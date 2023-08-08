@@ -32,6 +32,7 @@ struct ConectionKeys {
     let email = "email"
     let isAdmin = "isAdmin"
     let restaurantId = "restaurantId"
+    let restaurantName = "restaurantName"
 }
 
 struct EmployeeKeys {

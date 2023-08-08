@@ -15,28 +15,32 @@ struct Conection: Hashable, Equatable {
     var email: String
     var isAdmin: Bool
     var restaurantId: String
+    var restaurantName: String
     var record: CKRecord
     
-    init(email: String, isAdmin: Bool, restaurantId: String) {
+    init(email: String, isAdmin: Bool, restaurantId: String, restaurantName: String) {
         self.id = UUID().uuidString
         self.email = email
         self.isAdmin = isAdmin
         self.restaurantId = restaurantId
+        self.restaurantName = restaurantName
         self.record = CKRecord(recordType: keys.type)
     }
     
-    init(restaurantId: String) {
+    init(restaurant:  Restaurant) {
         self.id = UUID().uuidString
         self.email = ""
         self.isAdmin = false
-        self.restaurantId = restaurantId
+        self.restaurantId = restaurant.id
+        self.restaurantName = restaurant.name
         self.record = CKRecord(recordType: keys.type)
     }
     
     init(record: CKRecord) {
-        self.email = record[keys.email] as? String ?? ""
-        self.isAdmin = record[keys.isAdmin] as? Bool ?? false
-        self.restaurantId = record[keys.restaurantId] as? String ?? ""
+        self.email = record[keys.email] ?? ""
+        self.isAdmin = record[keys.isAdmin] ?? false
+        self.restaurantId = record[keys.restaurantId] ?? ""
+        self.restaurantName = record[keys.restaurantName] ?? ""
         self.record = record
     }
     
@@ -45,9 +49,10 @@ struct Conection: Hashable, Equatable {
     }
     
     static func ==(lhs: Conection, rhs: Conection) -> Bool {
-       lhs.id == rhs.id &&
-       lhs.email == rhs.email &&
-       lhs.isAdmin == rhs.isAdmin &&
-       lhs.restaurantId == rhs.restaurantId
-   }
+        lhs.id == rhs.id &&
+        lhs.email == rhs.email &&
+        lhs.isAdmin == rhs.isAdmin &&
+        lhs.restaurantId == rhs.restaurantId &&
+        lhs.restaurantName == rhs.restaurantName
+    }
 }

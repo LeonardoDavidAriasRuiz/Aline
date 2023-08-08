@@ -11,7 +11,7 @@ struct NewConectionView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     
-    @State private var conection: Conection = Conection(restaurantId: "")
+    @State private var conection: Conection = Conection(restaurant: Restaurant())
     @State private var isSendButtonDisabled: Bool = true
     @State private var isAlreadyUser: Bool = false
     @State private var dataNotObtained: Bool = false
@@ -61,6 +61,7 @@ struct NewConectionView: View {
             let email = conection.email
             let emailInfo: ConectionInvitation = ConectionInvitation()
             conection.restaurantId = restaurant.id
+            conection.restaurantName = restaurant.name
             
             conectionVM.save(conection) { result in
                 switch result {
