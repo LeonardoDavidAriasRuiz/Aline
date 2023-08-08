@@ -42,8 +42,10 @@ struct EmployeesView: View {
     var body: some View {
         LoadingIfNotReady(done: $done) {
             Sheet(title: title) {
-                employees.isNotEmpty ? employeesListArea : nil
-                newEmployeeButton
+                WhiteArea {
+                    employees.isNotEmpty ? employeesListArea : nil
+                    newEmployeeButton
+                }
             }
             .onChange(of: editableEmployee, validateEmployee)
             .onChange(of: employees, sortEmployees)
@@ -57,7 +59,7 @@ struct EmployeesView: View {
     }
     
     private var employeesListArea: some View {
-        WhiteArea {
+        VStack {
             ForEach(employees, id: \.self) { employee in
                 Button(action: {selectEmployee(employee)}) {
                     HStack {
@@ -68,10 +70,7 @@ struct EmployeesView: View {
                             .foregroundStyle(Color.black.opacity(0.5))
                     }
                 }
-                
-                if employees.last != employee {
-                    Divider()
-                }
+                Divider()
             }
         }
     }
@@ -94,10 +93,8 @@ struct EmployeesView: View {
     }
     
     private var newEmployeeButton: some View {
-        WhiteArea {
-            Button(action: openEdtableEmployeeArea) {
-                Text(newEmployeeButtonText).frame(maxWidth: .infinity)
-            }
+        Button(action: openEdtableEmployeeArea) {
+            Text(newEmployeeButtonText).frame(maxWidth: .infinity)
         }
     }
     

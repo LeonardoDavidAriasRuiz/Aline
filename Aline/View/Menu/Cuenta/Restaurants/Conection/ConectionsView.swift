@@ -67,14 +67,12 @@ struct ConectionsView: View {
                                 Image(systemName: "chevron.right").foregroundStyle(Color.blue.secondary)
                             }
                         }
-                        if sentConections.isNotEmpty {
-                            Divider()
-                        }
+                        Divider()
                     }
                 }
                 
                 NavigationLink(destination: NewConectionView(conections: $sentConections, usersEmails: getUsersEmails(), restaurant: restaurant)) {
-                    Text("Invitar a usuario").frame(maxWidth: .infinity)
+                    Text("Invitar").frame(maxWidth: .infinity)
                 }
             }
             Footer("Usuarios que estan conectados al restaurante.")

@@ -22,7 +22,7 @@ struct RestaurantsListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Footer("Restaurantes")
+            Header("Restaurantes")
             WhiteArea {
                 adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
                 emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
@@ -31,17 +31,13 @@ struct RestaurantsListView: View {
                         RestaurantView(restaurant: Restaurant())
                     }
             }
-            Footer("Aquí se muestra los restaurantes a los que estas enlazado.")
         }
         .onAppear(perform: getRestaurants)
     }
     
     private var newRestaurantsButton: some View {
-        VStack {
-            Divider()
-            Button(action: openNewRestaurantArea) {
-                Text("Nuevo restaurante")
-            }
+        Button(action: openNewRestaurantArea) {
+            Text("Nuevo")
         }
     }
     
@@ -60,10 +56,7 @@ struct RestaurantsListView: View {
                         Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
                     }
                 }
-                if restaurant != adminRestaurants.last {
-                    Divider()
-                }
-                
+                Divider()
             }
         }
     }
@@ -82,9 +75,7 @@ struct RestaurantsListView: View {
                         Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
                     }
                 }
-                if restaurant != adminRestaurants.last {
-                    Divider()
-                }
+                Divider()
             }
         }
     }

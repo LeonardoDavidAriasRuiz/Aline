@@ -398,8 +398,8 @@
 			children = (
 				A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */,
 				A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */,
-				A70C61C62A7ACBF3005D640E /* ConectionsReceivedView.swift */,
 				A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */,
+				A70C61C62A7ACBF3005D640E /* ConectionsReceivedView.swift */,
 			);
 			path = AccountViews;
 			sourceTree = "<group>";

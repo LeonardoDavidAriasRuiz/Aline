@@ -1,5 +1,5 @@
 //
-//  ConectionsReceivedView.swift
+//  ConectionReceivedView.swift
 //  Aline
 //
 //  Created by Leonardo on 02/08/23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ConectionsReceivedView: View {
+struct ConectionReceivedView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
@@ -43,7 +43,7 @@ struct ConectionsReceivedView: View {
                 
                 WhiteArea {
                     Button(action: acceptInvitation) {
-                        Text("Aceptar invitación")
+                        Text("Aceptar")
                             .foregroundStyle(Color.green)
                             .frame(maxWidth: .infinity)
                     }
@@ -51,7 +51,7 @@ struct ConectionsReceivedView: View {
                 
                 WhiteArea {
                     Button(action: declineIvitation) {
-                        Text("Rechazar invitación")
+                        Text("Rechazar")
                             .foregroundStyle(Color.red)
                             .frame(maxWidth: .infinity)
                     }
