@@ -20,7 +20,7 @@ struct EmployeesView: View {
     @State private var editableEmployee = Employee()
     
     @State private var employeeSelected: Bool = false
-    @State private var newEmployeeAreaOpened: Bool = false
+    @State private var editableEmployeeAreaOpened: Bool = false
     @State private var isNewEmployeeReadyToSave: Bool = false
     
     @State private var deleteEmployeeAlert: Bool = false
@@ -32,14 +32,11 @@ struct EmployeesView: View {
             Sheet(title: "Empleados") {
                 employees.isNotEmpty ? employeesListArea : nil
                 WhiteArea {
-                    Button(action: openNewEmployeeArea) {
+                    Button(action: openEdtableEmployeeArea) {
                         Text("Nuevo empleado").frame(maxWidth: .infinity)
                     }
-                    .sheet(isPresented: $newEmployeeAreaOpened, onDismiss: unselectEmployee) {
-                        newEmployeeArea
-                    }
-                    .sheet(isPresented: $employeeSelected, onDismiss: unselectEmployee) {
-                        editEmployeeArea
+                    .sheet(isPresented: $editableEmployeeAreaOpened, onDismiss: unselectEmployee) {
+                        editableEmployeeArea
                     }
                 }
             }
@@ -51,8 +48,6 @@ struct EmployeesView: View {
         .alert(errorAlert.rawValue, isPresented: $errorOn, actions: {})
         
     }
-    
-    
     
     private var employeesListArea: some View {
         WhiteArea {
@@ -73,32 +68,10 @@ struct EmployeesView: View {
         }
     }
     
-    private var newEmployeeArea: some View {
-        Sheet(title: "Nuevo empleado") {
+    private var editableEmployeeArea: some View {
+        Sheet(title: "Empleado") {
             VStack(alignment: .leading) {
-                Text("Nuevo empleado")
-                    .bold()
-                    .font(.largeTitle)
-                    .padding(.bottom, 20)
-                WhiteArea {
-                    TextField("Nombre", text: $editableEmployee.name)
-                    Divider()
-                    TextField("Apellido", text: $editableEmployee.lastName)
-                }
-                WhiteArea {
-                    Button(action: create) {
-                        Text("Guardar").frame(maxWidth: .infinity)
-                    }
-                    .disabled(!isNewEmployeeReadyToSave)
-                }
-            }
-        }
-    }
-    
-    private var editEmployeeArea: some View {
-        Sheet(title: "Editar empleado") {
-            VStack(alignment: .leading) {
-                Text("Editar empleado")
+                Text("Información de empleado")
                     .bold()
                     .font(.largeTitle)
                     .padding(.bottom, 20)
@@ -114,43 +87,46 @@ struct EmployeesView: View {
                     .disabled(!isNewEmployeeReadyToSave)
                 }
                 
-                WhiteArea {
-                    Button(action: unselectEmployee) {
-                        Text("Cancelar").frame(maxWidth: .infinity)
+                if employeeSelected {
+                    
+                    WhiteArea {
+                        Button(action: unselectEmployee) {
+                            Text("Cancelar").frame(maxWidth: .infinity)
+                        }
                     }
-                }
-                
-                WhiteArea {
-                    Button(action: deleteEmployeeButtonPressed) {
-                        Text("Eliminar").frame(maxWidth: .infinity)
-                    }
-                    .alert(isPresented: $deleteEmployeeAlert) {
-                        Alert(
-                            title: Text("Eliminar empleado"),
-                            message: Text("Estas seguro de que quieres eliminar a \(editableEmployee.lastName) \(editableEmployee.name)"),
-                            primaryButton: .destructive(Text("Eliminar"), action: deleteEmployee),
-                            secondaryButton: .cancel(Text("Cancelar"))
-                        )
+                    
+                    WhiteArea {
+                        Button(action: deleteEmployeeButtonPressed) {
+                            Text("Eliminar").frame(maxWidth: .infinity)
+                        }
+                        .alert(isPresented: $deleteEmployeeAlert) {
+                            Alert(
+                                title: Text("Eliminar empleado"),
+                                message: Text("Estas seguro de que quieres eliminar a \(editableEmployee.lastName) \(editableEmployee.name)"),
+                                primaryButton: .destructive(Text("Eliminar"), action: deleteEmployee),
+                                secondaryButton: .cancel(Text("Cancelar"))
+                            )
+                        }
                     }
                 }
             }
         }
     }
     
-    private func openNewEmployeeArea() {
+    private func openEdtableEmployeeArea() {
         withAnimation {
-            newEmployeeAreaOpened = true
+            editableEmployeeAreaOpened = true
         }
     }
     
-    private func closeNewEmployeeArea() {
+    private func closeEditableEmployeeArea() {
         withAnimation {
-            newEmployeeAreaOpened = false
+            editableEmployeeAreaOpened = false
             editableEmployee = Employee()
         }
     }
     
-    func create() {
+    private func create() {
         withAnimation {
             done = false
             editableEmployee.restaurantId = restaurantVM.currentRestaurantId
@@ -166,10 +142,10 @@ struct EmployeesView: View {
             }
             editableEmployee = Employee()
         }
-        closeNewEmployeeArea()
+        closeEditableEmployeeArea()
     }
     
-    func sortEmployees() {
+    private func sortEmployees() {
         withAnimation {
             employees.sort { $0.lastName < $1.lastName }
         }
@@ -185,18 +161,19 @@ struct EmployeesView: View {
         }
     }
     
-    func selectEmployee(_ employee: Employee) {
+    private func selectEmployee(_ employee: Employee) {
         withAnimation {
             self.editableEmployee = employee
             employeeSelected = true
+            openEdtableEmployeeArea()
             
         }
     }
     
-    func unselectEmployee() {
+    private func unselectEmployee() {
         withAnimation {
             employeeSelected = false
-            editableEmployee = Employee()
+            closeEditableEmployeeArea()
         }
     }
     
@@ -218,11 +195,11 @@ struct EmployeesView: View {
         }
     }
     
-    func deleteEmployeeButtonPressed() {
+    private func deleteEmployeeButtonPressed() {
         deleteEmployeeAlert = true
     }
     
-    func deleteEmployee() {
+    private func deleteEmployee() {
         withAnimation {
             done = false
             employeeVM.delete(editableEmployee) { result in
@@ -240,7 +217,7 @@ struct EmployeesView: View {
         }
     }
     
-    func onAppear() {
+    private func onAppear() {
         done = false
         accentColor.orange()
         employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
