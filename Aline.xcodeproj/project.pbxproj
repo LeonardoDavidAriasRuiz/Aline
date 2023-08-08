@@ -58,6 +58,7 @@
 		A7C300C22A736232006439B8 /* ConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C300C12A736232006439B8 /* ConectionView.swift */; };
 		A7CE7CCD2A73527F00CFC930 /* ConectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */; };
 		A7D7E0ED2A79E08200886BC8 /* NewConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */; };
+		A7E185C42A81CE4300C71501 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E185C32A81CE4300C71501 /* Sheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +134,7 @@
 		A7C329A92A69A23B002B4E41 /* Aline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionViewModel.swift; sourceTree = "<group>"; };
 		A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConectionView.swift; sourceTree = "<group>"; };
+		A7E185C32A81CE4300C71501 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -294,6 +296,7 @@
 			children = (
 				7E51BC6B29D540AD00D6D33C /* Styles.swift */,
 				A79E11152A798EE3004D59C8 /* EditableEmail.swift */,
+				A7E185C32A81CE4300C71501 /* Sheet.swift */,
 			);
 			path = Styles;
 			sourceTree = "<group>";
@@ -556,6 +559,7 @@
 				7E51BC5229D51C9A00D6D33C /* TipsView.swift in Sources */,
 				A78A23CE2A4D2FB90074E61C /* RestaurantsView.swift in Sources */,
 				7E51BC6829D5398400D6D33C /* Contador.swift in Sources */,
+				A7E185C42A81CE4300C71501 /* Sheet.swift in Sources */,
 				A7C300C02A735E2E006439B8 /* ConectionsView.swift in Sources */,
 				A7BB72752A74E29900FFF5AC /* VerifyNewEmail.swift in Sources */,
 				7E80B12B29DDEED0006CAC82 /* CashOutView.swift in Sources */,

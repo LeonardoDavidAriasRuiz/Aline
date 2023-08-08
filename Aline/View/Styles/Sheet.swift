@@ -7,12 +7,27 @@
 
 import SwiftUI
 
-struct Sheet: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct Sheet<Content: View>: View {
+     let title: String
+     let content: () -> Content
+    
+    init(title: String, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        self.title = title
     }
-}
-
-#Preview {
-    Sheet()
+    
+    var body: some View {
+        VStack {
+            ScrollView {
+                VStack(content: content)
+                    .frame(maxWidth: 800)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.background)
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.large)
+    }
 }
