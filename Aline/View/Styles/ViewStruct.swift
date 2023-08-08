@@ -36,15 +36,3 @@ struct Footer: View {
             .foregroundStyle(.secondary)
     }
 }
-
-#Preview {
-    Sheet(title: "Header") {
-        VStack(alignment: .leading) {
-            Header("Header")
-            WhiteArea {
-                Text("Body")
-            }
-            Footer("Footer")
-        }
-    }
-}

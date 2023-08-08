@@ -69,8 +69,6 @@ struct EditableName: View {
     }
 }
 
-
-
 struct HeaderAreas: ViewModifier {
     private var padding: CGFloat = 10
     private var background: Color = Color.white
@@ -81,16 +79,6 @@ struct HeaderAreas: ViewModifier {
             .padding(padding)
             .background(background)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-    }
-}
-
-struct WallColor: ViewModifier {
-     let color: String
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(color))
     }
 }
 
@@ -106,16 +94,6 @@ struct ButtonColor: ViewModifier {
     }
 }
 
-struct TextFieldLogIn: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(.horizontal, 30)
-            .padding(.vertical, 10)
-            .background(Color.background)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .padding(.bottom, 10)
-    }
-}
 
 struct TextFieldSpendings: ViewModifier {
     func body(content: Content) -> some View {
@@ -126,14 +104,3 @@ struct TextFieldSpendings: ViewModifier {
             .clipShape(RoundedRectangle(cornerRadius: 15))
     }
 }
-
-
-
-
-
-//ForEach(Array(userVM.restaurants.enumerated()), id: \.element) { (index, restaurant) in
-//    content
-//    if index != userVM.restaurants.count - 1 {
-//        Divider()
-//    }
-//}

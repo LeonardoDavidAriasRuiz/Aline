@@ -23,12 +23,3 @@ struct WhiteArea<Content: View>: View {
             .clipShape(RoundedRectangle(cornerRadius: 15))
     }
 }
-
-#Preview {
-    Sheet(title: "WhiteArea") {
-        WhiteArea {
-            Text("WhiteArea")
-        }
-        
-    }
-}
