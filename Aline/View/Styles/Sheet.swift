@@ -17,16 +17,14 @@ struct Sheet<Content: View>: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack(content: content)
-                    .frame(maxWidth: 800)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
+        ScrollView {
+            VStack(content: content)
+                .frame(maxWidth: 800)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.background)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
     }
