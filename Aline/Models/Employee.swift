@@ -9,13 +9,31 @@ import Foundation
 import CloudKit
 
 struct Employee: Hashable, Equatable, Identifiable {
+    private let keys: EmployeeKeys = EmployeeKeys()
+    
     var id: String
     var name: String
     var lastName: String
     var restaurantId: String
-    var record: CKRecord
     
-    private let keys: EmployeeKeys = EmployeeKeys()
+    private var _record: CKRecord
+    
+    var record: CKRecord {
+        get {
+            _record[keys.id] = id
+            _record[keys.name] = name
+            _record[keys.lastName] = lastName
+            _record[keys.restaurantId] = restaurantId
+            return _record
+        }
+        set(newRecord) {
+            id = record[keys.type] ?? ""
+            name = record[keys.name] ?? ""
+            lastName = record[keys.lastName] ?? ""
+            restaurantId = record[keys.restaurantId] ?? ""
+            _record = newRecord
+        }
+    }
     
     init(id: String, name: String, lastName: String, restaurantId: String) {
         self.id = id
@@ -29,7 +47,7 @@ struct Employee: Hashable, Equatable, Identifiable {
         record[keys.lastName] = lastName
         record[keys.restaurantId] = restaurantId
         
-        self.record = record
+        self._record = record
     }
     
     init() {
@@ -37,15 +55,15 @@ struct Employee: Hashable, Equatable, Identifiable {
         self.name = ""
         self.lastName = ""
         self.restaurantId = ""
-        self.record = CKRecord(recordType: keys.type)
+        self._record = CKRecord(recordType: keys.type)
     }
     
     init(record: CKRecord) {
-        self.record = record
-        self.id = record[keys.type] as? String ?? ""
-        self.name = record[keys.name] as? String ?? ""
-        self.lastName = record[keys.lastName] as? String ?? ""
-        self.restaurantId = record[keys.restaurantId] as? String ?? ""
+        self._record = record
+        self.id = record[keys.type] ?? ""
+        self.name = record[keys.name] ?? ""
+        self.lastName = record[keys.lastName] ?? ""
+        self.restaurantId = record[keys.restaurantId] ?? ""
     }
     
     func hash(into hasher: inout Hasher) {

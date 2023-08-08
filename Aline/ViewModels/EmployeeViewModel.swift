@@ -37,8 +37,8 @@ class EmployeeViewModel: ObservableObject {
     }
     
      func addEmployee(_ employee: Employee) {
-        employee.record![restaurantLinkKey] = currentRestaurantLink
-        saveEmployee(employee.record!)
+        employee.record[restaurantLinkKey] = currentRestaurantLink
+        saveEmployee(employee.record)
     }
     
      func updateEmployee(_ employee: Employee) {

@@ -102,7 +102,7 @@ class RestaurantViewModel: ObservableObject {
     
     private func saveRestaurant(_ record: CKRecord) {
         dataBase.save(record) { _, error in
-            guard let error = error else { return }
+            guard let _ = error else { return }
         }
     }
     
