@@ -16,7 +16,6 @@ class EmployeeViewModel: ObservableObject {
     
     func delete(_ employee: Employee, completion: @escaping (Result<Bool, Error>) -> Void) {
         dataBase.delete(withRecordID: employee.record.recordID) { (_, error) in
-            guard let _ = error else { return }
             if let error = error {
                 completion(.failure(error))
             } else {
