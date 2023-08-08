@@ -14,11 +14,11 @@ class RestaurantViewModel: ObservableObject {
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let restaurantKeys = RestaurantKeys()
     
-    @Published  var restaurant: Restaurant = Restaurant()
-    @Published  var currentRestaurantId: String = ""
-    @Published public var adminRestaurants: [Restaurant] = []
-    @Published public var emploRestaurants: [Restaurant] = []
-    @Published  var dataNotObtained: Bool = false
+    @Published var restaurant: Restaurant = Restaurant()
+    @Published var currentRestaurantId: String = ""
+    @Published var adminRestaurants: [Restaurant] = []
+    @Published var emploRestaurants: [Restaurant] = []
+    @Published var dataNotObtained: Bool = false
     
     func save(_ restaurant: Restaurant, isNew: Bool) {
         let record = isNew ? CKRecord(recordType: restaurantKeys.type) : restaurant.record
@@ -27,7 +27,10 @@ class RestaurantViewModel: ObservableObject {
         record[restaurantKeys.email] = restaurant.email
         record[restaurantKeys.adminUsersIds] = restaurant.adminUsersIds
         record[restaurantKeys.emploUsersIds] = restaurant.emploUsersIds
-        saveRestaurant(record)
+        
+        dataBase.save(record) { _, error in
+            guard let _ = error else { return }
+        }
     }
     
     func fetchRestaurant(with id: String, completion: @escaping (Result<Restaurant, Error>) -> Void) {
@@ -44,7 +47,7 @@ class RestaurantViewModel: ObservableObject {
                     completion(.failure(error))
             }
         }
-        addQueryOperation(queryOperation)
+        dataBase.add(queryOperation)
     }
     
     func fetchRestaurants(for restaurantsList: [String], completion: @escaping (Result<[Restaurant], Error>) -> Void) {
@@ -66,7 +69,7 @@ class RestaurantViewModel: ObservableObject {
         queryOperation.queryResultBlock = { result in
             completion(.success(restaurants))
         }
-        addQueryOperation(queryOperation)
+        dataBase.add(queryOperation)
         
     }
     
@@ -90,7 +93,7 @@ class RestaurantViewModel: ObservableObject {
         queryOperation.queryResultBlock = { result in
             completion(.success(restaurants))
         }
-        addQueryOperation(queryOperation)
+        dataBase.add(queryOperation)
         
     }
     
@@ -98,16 +101,6 @@ class RestaurantViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.restaurant = restaurant
         }
-    }
-    
-    private func saveRestaurant(_ record: CKRecord) {
-        dataBase.save(record) { _, error in
-            guard let _ = error else { return }
-        }
-    }
-    
-    private func addQueryOperation(_ queryOperation: CKQueryOperation) {
-        dataBase.add(queryOperation)
     }
     
     func getRestaurants(adminRestaurantsIds: [String], emploRestaurantsIds: [String]) {

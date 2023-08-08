@@ -359,8 +359,8 @@
 			children = (
 				7E51BC7429D55EE800D6D33C /* UserViewModel.swift */,
 				7E697E2729D66BF500C500FA /* RestaurantViewModel.swift */,
-				7ED03AAC29E64FEE00707A18 /* ExpenseViewModel.swift */,
 				7E80B14629DFF03A006CAC82 /* EmployeeViewModel.swift */,
+				7ED03AAC29E64FEE00707A18 /* ExpenseViewModel.swift */,
 				A7A9F7BC2A5F9869000F7554 /* DepositViewModel.swift */,
 				A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */,
 			);

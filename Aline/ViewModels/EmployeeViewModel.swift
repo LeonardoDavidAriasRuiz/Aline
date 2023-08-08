@@ -10,91 +10,53 @@ import SwiftUI
 
 class EmployeeViewModel: ObservableObject {
     
-    @EnvironmentObject private var userController: UserViewModel
-    
-    @Published var currentRestaurantLink: String = ""
-    @Published var employees: [Employee] = []
     
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
-    private let recordType = "Empleados"
-    private let idkKey = "id"
-    private let nameKey = "name"
-    private let lastNameKey = "lastName"
-    private let restaurantLinkKey = "restaurantLink"
+    private let employeeKeys: EmployeeKeys = EmployeeKeys()
     
-     func deleteEmployee(_ employee: Employee) {
-        let predicate = NSPredicate(format: "\(idkKey) == %@", employee.id)
-        let query = CKQuery(recordType: recordType, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
-        
-        queryOperation.recordMatchedBlock = {(_, result) in
-            guard case .success(let record) = result else { return }
-            self.dataBase.delete(withRecordID: record.recordID) { (recordID, _) in
-                self.fetchEmployees()
-            }
-        }
-        addQueryOperation(queryOperation)
-    }
-    
-     func addEmployee(_ employee: Employee) {
-        employee.record[restaurantLinkKey] = currentRestaurantLink
-        saveEmployee(employee.record)
-    }
-    
-     func updateEmployee(_ employee: Employee) {
-        let predicate = NSPredicate(format: "\(idkKey) == %@", employee.id)
-        let query = CKQuery(recordType: recordType, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
-        
-        queryOperation.recordMatchedBlock = { [weak self] (_, result) in
-            guard case .success(let record) = result else { return }
-            record[self?.nameKey ?? ""] = employee.name
-            record[self?.lastNameKey ?? ""] = employee.lastName
-            self?.saveEmployee(record)
-        }
-        
-        addQueryOperation(queryOperation) 
-    }
-    
-     func fetchEmployees() {
-        
-        let predicate = NSPredicate(format: "\(restaurantLinkKey) == %@", currentRestaurantLink)
-        let query = CKQuery(recordType: recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor (key: lastNameKey, ascending: true)]
-        let queryOperation = CKQueryOperation(query: query)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.employees = []
-        }
-        
-        queryOperation.recordMatchedBlock = { [weak self] (_, result) in
-            guard case .success(let record) = result else { return }
+    func delete(_ employee: Employee) {
+        dataBase.delete(withRecordID: employee.record.recordID) { (_, error) in
+            guard let _ = error else { return }
             
-            let empleado = Employee(record: record)
-            
-            DispatchQueue.main.async {
-                self?.employees.append(empleado)
+        }
+    }
+    
+    func fetchEmployees(for restaurantId: String, completion: @escaping (Result<[Employee], Error>) -> Void) {
+        var employees: [Employee] = []
+        
+        let predicate = NSPredicate(format: "\(employeeKeys.restaurantId) == %@", restaurantId)
+        let query = CKQuery(recordType: employeeKeys.type, predicate: predicate)
+        query.sortDescriptors = [NSSortDescriptor (key: employeeKeys.lastName, ascending: true)]
+        let queryOperation = CKQueryOperation(query: query)
+        
+        queryOperation.recordMatchedBlock = { (_, result) in
+            switch result {
+                case .success(let record):
+                    employees.append(Employee(record: record))
+                case .failure(let error):
+                    completion(.failure(error))
             }
         }
         
         queryOperation.queryResultBlock = { _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.employees = self?.employees ?? []
+            completion(.success(employees))
+        }
+        dataBase.add(queryOperation)
+    }
+    
+    func save(_ employee: Employee, isNew: Bool, completion: @escaping (Result<Employee, Error>) -> Void) {
+        let record = isNew ? CKRecord(recordType: employeeKeys.type) : employee.record
+        record[employeeKeys.id] = employee.id
+        record[employeeKeys.name] = employee.name
+        record[employeeKeys.lastName] = employee.lastName
+        record[employeeKeys.restaurantId] = employee.restaurantId
+        
+        dataBase.save(record) { record, error in
+            if let record = record {
+                completion(.success(Employee(record: record)))
+            } else if let error = error {
+                completion(.failure(error))
             }
         }
-        
-        addQueryOperation(queryOperation)
-        
-    }
-    
-    private func saveEmployee(_ record: CKRecord) {
-        dataBase.save(record) { [weak self] record, _ in
-            guard let _ = record else { return }
-            self?.fetchEmployees()
-        }
-    }
-    
-    private func addQueryOperation(_ queryOperation: CKQueryOperation) {
-        dataBase.add(queryOperation)
     }
 }
