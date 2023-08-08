@@ -14,10 +14,14 @@ class EmployeeViewModel: ObservableObject {
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let employeeKeys: EmployeeKeys = EmployeeKeys()
     
-    func delete(_ employee: Employee) {
+    func delete(_ employee: Employee, completion: @escaping (Result<Bool, Error>) -> Void) {
         dataBase.delete(withRecordID: employee.record.recordID) { (_, error) in
             guard let _ = error else { return }
-            
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(true))
+            }
         }
     }
     

@@ -24,8 +24,8 @@ struct EmployeesView: View {
     @State private var newEmployeeAreaOpened: Bool = false
     @State private var editEmployeeAreaOpened: Bool = false
     @State private var isNewEmployeeReadyToSave: Bool = false
-    
-    private let emptyFieldAlertTitle: String = "Completa el nombre y apellido"
+    @State private var errorOn: Bool = false
+    @State private var errorAlert: ErrorAlerts = .dataNotObtained
     
     var body: some View {
         LoadingIfNotReady(done: $done) {
@@ -36,36 +36,19 @@ struct EmployeesView: View {
                         Text("Nuevo empleado").frame(maxWidth: .infinity)
                     }
                     .sheet(isPresented: $newEmployeeAreaOpened, onDismiss: unselectEmployee) {
-                        Sheet(title: "Nuevo empleado") {
-                            VStack(alignment: .leading) {
-                                Text("Nuevo empleado")
-                                    .bold()
-                                    .font(.largeTitle)
-                                    .padding(.bottom, 20)
-                                WhiteArea {
-                                    TextField("Nombre", text: $editableEmployee.name)
-                                    Divider()
-                                    TextField("Apellido", text: $editableEmployee.lastName)
-                                }
-                                WhiteArea {
-                                    Button(action: create) {
-                                        Text("Guardar").frame(maxWidth: .infinity)
-                                    }
-                                    .disabled(!isNewEmployeeReadyToSave)
-                                }
-                            }
-                        }
+                        newEmployeeArea
+                    }
+                    .sheet(isPresented: $employeeSelected, onDismiss: unselectEmployee) {
+                        editEmployeeArea
                     }
                 }
             }
-            .onChange(of: editableEmployee.name, validateEmployee)
-            .onChange(of: editableEmployee.lastName, validateEmployee)
+            .onChange(of: editableEmployee, validateEmployee)
             .onChange(of: employees, sortEmployees)
         }
         .onAppear(perform: onAppear)
         .alert("Completa el nombre y apellido", isPresented: $fieldsEmptyAlert, actions: {})
-        .alert("No se pudieron obtener los datos.", isPresented: $dataNotObtained, actions: {})
-        .alert("No se pudo guardar el empleado.", isPresented: $employeeNotSaved, actions: {})
+        .alert(errorAlert.rawValue, isPresented: $errorOn, actions: {})
         .alert(isPresented: $deleteEmployeeAlert) {
             Alert(
                 title: Text("Eliminar empleado"),
@@ -76,28 +59,7 @@ struct EmployeesView: View {
         }
     }
     
-    private func validateEmployee() {
-        withAnimation {
-            if editableEmployee.name.isNotEmpty, editableEmployee.lastName.isNotEmpty {
-                isNewEmployeeReadyToSave = true
-            } else {
-                isNewEmployeeReadyToSave = false
-            }
-        }
-    }
     
-    private func openNewEmployeeArea() {
-        withAnimation {
-            newEmployeeAreaOpened = true
-        }
-    }
-    
-    private func closeNewEmployeeArea() {
-        withAnimation {
-            newEmployeeAreaOpened = false
-            editableEmployee = Employee()
-        }
-    }
     
     private var employeesListArea: some View {
         WhiteArea {
@@ -110,42 +72,66 @@ struct EmployeesView: View {
                         Image(systemName: "chevron.right").foregroundStyle(Color.black.opacity(0.5))
                     }
                 }
-                .sheet(isPresented: $employeeSelected, onDismiss: unselectEmployee) {
-                    Sheet(title: "Editar empleado") {
-                        VStack(alignment: .leading) {
-                            Text("Editar empleado")
-                                .bold()
-                                .font(.largeTitle)
-                                .padding(.bottom, 20)
-                            WhiteArea {
-                                TextField("Nombre", text: $editableEmployee.name)
-                                Divider()
-                                TextField("Apellido", text: $editableEmployee.lastName)
-                            }
-                            WhiteArea {
-                                Button(action: create) {
-                                    Text("Guardar").frame(maxWidth: .infinity)
-                                }
-                                .disabled(!isNewEmployeeReadyToSave)
-                            }
-                            
-                            WhiteArea {
-                                Button(action: unselectEmployee) {
-                                    Text("Cancelar").frame(maxWidth: .infinity)
-                                }
-                            }
-                            
-                            WhiteArea {
-                                Button(action: deleteEmployeeButtonPressed) {
-                                    Text("Eliminar").frame(maxWidth: .infinity)
-                                }
-                            }
-                        }
-                    }
-                }
+                
                 
                 if employees.last != employee {
                     Divider()
+                }
+            }
+        }
+    }
+    
+    private var newEmployeeArea: some View {
+        Sheet(title: "Nuevo empleado") {
+            VStack(alignment: .leading) {
+                Text("Nuevo empleado")
+                    .bold()
+                    .font(.largeTitle)
+                    .padding(.bottom, 20)
+                WhiteArea {
+                    TextField("Nombre", text: $editableEmployee.name)
+                    Divider()
+                    TextField("Apellido", text: $editableEmployee.lastName)
+                }
+                WhiteArea {
+                    Button(action: create) {
+                        Text("Guardar").frame(maxWidth: .infinity)
+                    }
+                    .disabled(!isNewEmployeeReadyToSave)
+                }
+            }
+        }
+    }
+    
+    private var editEmployeeArea: some View {
+        Sheet(title: "Editar empleado") {
+            VStack(alignment: .leading) {
+                Text("Editar empleado")
+                    .bold()
+                    .font(.largeTitle)
+                    .padding(.bottom, 20)
+                WhiteArea {
+                    TextField("Nombre", text: $editableEmployee.name)
+                    Divider()
+                    TextField("Apellido", text: $editableEmployee.lastName)
+                }
+                WhiteArea {
+                    Button(action: create) {
+                        Text("Guardar").frame(maxWidth: .infinity)
+                    }
+                    .disabled(!isNewEmployeeReadyToSave)
+                }
+                
+                WhiteArea {
+                    Button(action: unselectEmployee) {
+                        Text("Cancelar").frame(maxWidth: .infinity)
+                    }
+                }
+                
+                WhiteArea {
+                    Button(action: deleteEmployeeButtonPressed) {
+                        Text("Eliminar").frame(maxWidth: .infinity)
+                    }
                 }
             }
         }
@@ -162,8 +148,18 @@ struct EmployeesView: View {
     }
     
     func deleteEmployee() {
-        employeeVM.delete(editableEmployee)
-        
+        employeeVM.delete(editableEmployee) { result in
+            switch result {
+                case .success:
+                    employees.removeAll { employee in
+                        employee == editableEmployee
+                    }
+                    unselectEmployee()
+                case .failure:
+                    errorOn = true
+                    errorAlert = .notDeleted
+            }
+        }
     }
     
     func deleteEmployeeButtonPressed() {
@@ -214,7 +210,8 @@ struct EmployeesView: View {
                             employees.append(employee)
                             done = true
                         default:
-                            employeeNotSaved = true
+                            errorOn = true
+                            errorAlert = .notSaved
                     }
                 }
                 editableEmployee = Employee()
@@ -222,6 +219,29 @@ struct EmployeesView: View {
                 fieldsEmptyAlert = true
             }
             closeNewEmployeeArea()
+        }
+    }
+    
+    private func validateEmployee() {
+        withAnimation {
+            if editableEmployee.name.isNotEmpty, editableEmployee.lastName.isNotEmpty {
+                isNewEmployeeReadyToSave = true
+            } else {
+                isNewEmployeeReadyToSave = false
+            }
+        }
+    }
+    
+    private func openNewEmployeeArea() {
+        withAnimation {
+            newEmployeeAreaOpened = true
+        }
+    }
+    
+    private func closeNewEmployeeArea() {
+        withAnimation {
+            newEmployeeAreaOpened = false
+            editableEmployee = Employee()
         }
     }
     
@@ -234,7 +254,8 @@ struct EmployeesView: View {
                     self.employees = employees
                     done = true
                 case .failure:
-                    dataNotObtained = true
+                    errorOn = true
+                    errorAlert = .dataNotObtained
             }
         }
     }
