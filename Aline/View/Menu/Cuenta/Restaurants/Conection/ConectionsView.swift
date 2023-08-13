@@ -75,7 +75,6 @@ struct ConectionsView: View {
                     Text("Invitar").frame(maxWidth: .infinity)
                 }
             }
-            Footer("Usuarios que estan conectados al restaurante.")
         }
     }
     
