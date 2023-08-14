@@ -35,6 +35,49 @@ struct RestaurantsListView: View {
         .onAppear(perform: getRestaurants)
     }
     
+    private var newRestaurantArea: some View {
+        Sheet(title: "Nuevo Restaurante") {
+            VStack(alignment: .leading) {
+                newRestaurantAreaTitle
+                nameTextField
+                saveButton
+                cancelButton
+            }
+        }
+    }
+    
+    private var newRestaurantAreaTitle: some View {
+        Text("Nuevo restaurante")
+            .bold()
+            .font(.largeTitle)
+    }
+    
+    private var nameTextField: some View {
+        WhiteArea {
+            TextField("Nombre", text: $newRestaurant.name)
+                .foregroundStyle(.secondary)
+        }
+    }
+    
+    private var saveButton: some View {
+        WhiteArea {
+            Button(action: {}) {
+                Text("Guardar").frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity)
+                    .disabled(updateButtonDisabled)
+            }
+        }
+    }
+    
+    private var cancelButton: some View {
+        WhiteArea {
+            Button(action: closeNewRestaurantArea) {
+                Text("Cancelar")
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
     private var newRestaurantsButton: some View {
         Button(action: openNewRestaurantArea) {
             Text("Nuevo")
