@@ -49,6 +49,8 @@
 		A76BD6D62A66B703007043CC /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76BD6D52A66B703007043CC /* Keys.swift */; };
 		A79687142A6982FF00EA29CE /* DepositView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79687132A6982FF00EA29CE /* DepositView.swift */; };
 		A79687172A69981B00EA29CE /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79687162A69981B00EA29CE /* AccentColor.swift */; };
+		A79E077F2A8D408D007C0195 /* BoolsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E077E2A8D408D007C0195 /* BoolsExtension.swift */; };
+		A79E07822A8D4E99007C0195 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E07812A8D4E99007C0195 /* Camera.swift */; };
 		A79E11162A798EE3004D59C8 /* EditableEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E11152A798EE3004D59C8 /* EditableEmail.swift */; };
 		A7A45D2B2A82CB4A00871C62 /* UserInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */; };
 		A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */; };
@@ -133,6 +135,8 @@
 		A76BD6D52A66B703007043CC /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		A79687132A6982FF00EA29CE /* DepositView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepositView.swift; sourceTree = "<group>"; };
 		A79687162A69981B00EA29CE /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
+		A79E077E2A8D408D007C0195 /* BoolsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolsExtension.swift; sourceTree = "<group>"; };
+		A79E07812A8D4E99007C0195 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		A79E11152A798EE3004D59C8 /* EditableEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableEmail.swift; sourceTree = "<group>"; };
 		A7A45D2A2A82CB4A00871C62 /* UserInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInformationView.swift; sourceTree = "<group>"; };
 		A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsListView.swift; sourceTree = "<group>"; };
@@ -201,6 +205,7 @@
 				A74530642A5F735400D7D890 /* Models */,
 				A74530662A5F954C00D7D890 /* ViewModels */,
 				A79687152A69978500EA29CE /* Configurations */,
+				A79E07802A8D4E1B007C0195 /* Camera */,
 				A7BB726D2A73827100FFF5AC /* MailSender */,
 				7E4460DC29D49EFE00CC13A8 /* Preview Content */,
 			);
@@ -399,6 +404,14 @@
 			path = Configurations;
 			sourceTree = "<group>";
 		};
+		A79E07802A8D4E1B007C0195 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				A79E07812A8D4E99007C0195 /* Camera.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 		A7A45D292A82CB2100871C62 /* AccountViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -594,6 +607,7 @@
 				7E51BC6829D5398400D6D33C /* Contador.swift in Sources */,
 				A7E185C42A81CE4300C71501 /* Sheet.swift in Sources */,
 				A7A45D2B2A82CB4A00871C62 /* UserInformationView.swift in Sources */,
+				A79E07822A8D4E99007C0195 /* Camera.swift in Sources */,
 				A7460F0F2A8996B400760BF3 /* EditableName.swift in Sources */,
 				A7C300C02A735E2E006439B8 /* ConectionsView.swift in Sources */,
 				A7BB72752A74E29900FFF5AC /* VerifyNewEmail.swift in Sources */,
@@ -800,6 +814,7 @@
 				INFOPLIST_FILE = "Aline-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Aline;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -841,6 +856,7 @@
 				INFOPLIST_FILE = "Aline-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Aline;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
