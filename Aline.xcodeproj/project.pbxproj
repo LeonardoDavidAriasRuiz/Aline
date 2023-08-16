@@ -323,6 +323,7 @@
 				A7E185C92A81D1BA00C71501 /* ViewStruct.swift */,
 				A7460F0E2A8996B400760BF3 /* EditableName.swift */,
 				A7460F102A89979500760BF3 /* AlineColors.swift */,
+				A79E077E2A8D408D007C0195 /* BoolsExtension.swift */,
 			);
 			path = Styles;
 			sourceTree = "<group>";
@@ -635,6 +636,7 @@
 				7E697E0029D60B7400C500FA /* Restaurant.swift in Sources */,
 				A7BB72712A741B9A00FFF5AC /* VerifyLoginEmail.swift in Sources */,
 				7E228BC029E12F2800C363FB /* Expense.swift in Sources */,
+				A79E077F2A8D408D007C0195 /* BoolsExtension.swift in Sources */,
 				A7C300C22A736232006439B8 /* ConectionView.swift in Sources */,
 				7E697E2829D66BF500C500FA /* RestaurantViewModel.swift in Sources */,
 				7E51BC7829D5647D00D6D33C /* AccountView.swift in Sources */,

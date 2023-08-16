@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+extension Bool {
+    mutating func setTrue() {
+        self = true
+    }
+    
+    mutating func setFalse() {
+        self = false
+    }
+}
