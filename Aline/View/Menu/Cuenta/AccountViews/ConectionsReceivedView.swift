@@ -34,7 +34,7 @@ struct ConectionReceivedView: View {
                 WhiteArea {
                     userInfo(title: nameText, value: restaurant.name)
                     Divider()
-                    userInfo(title: emailText, value: restaurant.email)
+                    userInfo(title: emailText, value: restaurant.email.isNotEmpty ? restaurant.email : "---")
                     Divider()
                     userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
                 }
