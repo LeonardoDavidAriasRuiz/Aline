@@ -52,6 +52,7 @@ class EmployeeViewModel: ObservableObject {
         record[employeeKeys.id] = employee.id
         record[employeeKeys.name] = employee.name
         record[employeeKeys.lastName] = employee.lastName
+        record[employeeKeys.isActive] = employee.isActive
         record[employeeKeys.restaurantId] = employee.restaurantId
         
         dataBase.save(record) { record, error in
