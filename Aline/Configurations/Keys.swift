@@ -40,6 +40,7 @@ struct EmployeeKeys {
     let id = "id"
     let name = "name"
     let lastName = "lastName"
+    let isActive = "isActive"
     let restaurantId = "restaurantId"
 }
 
