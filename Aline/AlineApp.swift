@@ -37,10 +37,8 @@ struct AlineApp: App {
                         .environmentObject(accentColor)
                         .environmentObject(depositVM)
                         .environmentObject(conectionVM)
-                        .preferredColorScheme(ColorScheme.light)
                 } else {
                     LoadingView()
-                        .preferredColorScheme(ColorScheme.light)
                         .onReceive(timer, perform: { _ in
                             step = step == 10 ? 0 : step+1
                             if step == 10 {
@@ -51,7 +49,7 @@ struct AlineApp: App {
                 if !networkMonitor.isConnected {
                     NoWifiConected()
                 }
-            }
+            }.preferredColorScheme(ColorScheme.light)
         }
     }
 }
