@@ -84,8 +84,6 @@ struct MenuView: View {
 }
 
 fileprivate struct MenuOption<Content: View>: View {
-    
-    @EnvironmentObject private var accentColor: AccentColor
     let title: String
     let content: () -> Content
     
@@ -107,6 +105,7 @@ fileprivate struct MenuOption<Content: View>: View {
         "Cuenta" :        OptionTitleView(color: .green,  title: "Cuenta",          icon: "person.crop.circle")
     ]
 }
+
 fileprivate struct OptionTitleView: View {
     let color: Color
     let title: String
