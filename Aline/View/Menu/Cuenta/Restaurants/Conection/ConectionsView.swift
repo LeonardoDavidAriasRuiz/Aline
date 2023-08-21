@@ -24,7 +24,7 @@ struct ConectionsView: View {
     var body: some View {
         list
             .onAppear(perform: getConections)
-            .alert("No se pudieron obtener los datos.", isPresented: $dataNotObtained, actions: {})
+            .alertInfo(.dataObtainingError, show: $dataNotObtained)
     }
     
     var list: some View {

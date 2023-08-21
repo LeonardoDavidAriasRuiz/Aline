@@ -251,8 +251,7 @@ struct EmployeesView: View {
                         unselectEmployee()
                     case .failure:
                         errorOn = true
-                        errorAlert = .notDeleted
-                        done = true
+                        errorAlert = .deletingError
                 }
             }
         }

@@ -8,15 +8,15 @@
 import SwiftUI
 
 extension View {
-    func alertAline(_ alertType: AlertType, show: Binding<Bool>) -> some View {
+    func alertInfo(_ alertType: AlertType, show: Binding<Bool>) -> some View {
         self.alert(alertType.message, isPresented: show, actions: {})
     }
     
-    func alertAline(_ alertType: AlertType, show: Binding<Bool>, action: () -> Void)  -> some View {
+    func alertDelete(_ alertType: AlertType, show: Binding<Bool>, action: @escaping () -> Void)  -> some View {
         self.alert(isPresented: show) {
-            AlertType(title: alertType.message,
+            Alert(title: Text(alertType.message),
                   primaryButton: .destructive(Text("Eliminar"), action: action),
-                  secondaryButton: .cancel("Cancelar"))
+                  secondaryButton: .cancel(Text("Cancelar")))
         }
     }
 }

@@ -59,8 +59,8 @@ struct EditableEmail: View {
             }
         }
         .modifier(ButtonColor(color: isEmailWithCodeSent ? Color.red : Color.blue ))
-        .alert("El código se ha reenviado.", isPresented: $isEmailWithCodeResent, actions: {})
-        .alert("El código no coincide con el que se envió al email.", isPresented: $isWrongCodeAlertActive, actions: {})
+        .alertInfo(.verificationCodeResent, show: $isEmailWithCodeResent)
+        .alertInfo(.verificationCodeMismatch, show: $isWrongCodeAlertActive)
     }
     
     private var updateButton: some View {

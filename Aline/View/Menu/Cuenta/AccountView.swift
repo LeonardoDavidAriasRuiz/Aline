@@ -26,7 +26,7 @@ struct AccountView: View {
             }
             .tint(tint)
             .onAppear(perform: accentColor.green)
-            .alert("No se pudieron obtener los datos.", isPresented: $dataNotObtained, actions: {})
+            .alertInfo(.dataObtainingError, show: $dataNotObtained)
         }
     }
 }

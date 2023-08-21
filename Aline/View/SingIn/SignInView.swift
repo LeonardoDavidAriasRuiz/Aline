@@ -41,7 +41,7 @@ struct SignInView: View {
             }
         }
         .onAppear(perform: authenticateUser)
-        .alert("No se pudo iniciar sesión.", isPresented: $alert, actions: {})
+        .alertInfo(.signingInError, show: $alert)
     }
     
     func authenticateUser() {

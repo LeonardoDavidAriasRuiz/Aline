@@ -40,7 +40,7 @@ struct ConectionSentView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .alert("No se pudo cancelar la invitación, intenta más tarde.", isPresented: $isNotAbleToDeleteAlert, actions: {})
+            .alertInfo(.invitationCancelingError, show: $isNotAbleToDeleteAlert)
         }
     }
     

@@ -30,7 +30,7 @@ struct MenuView: View {
             
         }
         .onChange(of: restaurantVM.currentRestaurantId, setRestaurant)
-        .alert("No se pudieron obtener los datos.", isPresented: $restaurantVM.dataNotObtained, actions: {})
+        .alertInfo(.dataObtainingError, show: $restaurantVM.dataNotObtained)
     }
     
     private var restaurantPicker: some View {

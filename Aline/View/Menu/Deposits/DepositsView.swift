@@ -42,7 +42,6 @@ struct DepositsView: View {
         }
         .tint(tint)
         .onAppear(perform: onAppear)
-        .alert(errorMessage, isPresented: $cloudKitOperationError, actions: {})
     }
     
     private var depositsListArea: some View {
