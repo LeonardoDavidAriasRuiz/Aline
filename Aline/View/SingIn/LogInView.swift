@@ -88,7 +88,7 @@ struct LogInView: View {
                     }
                 }
                 .modifier(ButtonColor(color: emailSent ? codeValid ? Color.green : Color.red : Color.blue ))
-                .alert("El código no coincide con el que se envió al email.", isPresented: $wrongCodeAlertActive, actions: {})
+                .alertInfo(.verificationCodeMismatch, show: $wrongCodeAlertActive)
             }
         }
     }
