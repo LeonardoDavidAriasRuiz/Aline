@@ -13,13 +13,7 @@ struct ContentView: View {
     @EnvironmentObject private var userVM: UserViewModel
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     
-    @State private var currentRestaurantIsAdmin: Bool = false
-    @State private var currentRestaurantId: String = ""
-    @State private var adminRestaurants: [Restaurant] = []
-    @State private var emploRestaurants: [Restaurant] = []
     @State private var dataNotObtained: Bool = false
-    
-    
     
     var body: some View {
         VStack {
