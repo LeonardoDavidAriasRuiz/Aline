@@ -44,6 +44,7 @@
 		A70C61C72A7ACBF3005D640E /* ConectionsReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70C61C62A7ACBF3005D640E /* ConectionsReceivedView.swift */; };
 		A712C47C2A828CFC001B9C50 /* ErrorAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A712C47B2A828CFC001B9C50 /* ErrorAlerts.swift */; };
 		A72A46742A4E65D5008CA2EE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72A46732A4E65D5008CA2EE /* LoadingView.swift */; };
+		A73646DD2A93DFCE00FB5488 /* DateFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73646DC2A93DFCE00FB5488 /* DateFormatting.swift */; };
 		A7460F0F2A8996B400760BF3 /* EditableName.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7460F0E2A8996B400760BF3 /* EditableName.swift */; };
 		A7460F112A89979500760BF3 /* AlineColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7460F102A89979500760BF3 /* AlineColors.swift */; };
 		A76BD6D62A66B703007043CC /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76BD6D52A66B703007043CC /* Keys.swift */; };
