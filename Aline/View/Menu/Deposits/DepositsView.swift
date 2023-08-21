@@ -149,11 +149,5 @@ struct DepositsView: View {
     }
 }
 
-extension Date {
-    var short: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMMM yyyy"
-        return dateFormatter.string(from: self)
-    }
-}
+
 

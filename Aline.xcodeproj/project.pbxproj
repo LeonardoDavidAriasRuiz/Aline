@@ -397,7 +397,8 @@
 			children = (
 				A76BD6D52A66B703007043CC /* Keys.swift */,
 				A79687162A69981B00EA29CE /* AccentColor.swift */,
-				A712C47B2A828CFC001B9C50 /* ErrorAlerts.swift */,
+				A712C47B2A828CFC001B9C50 /* AlertType.swift */,
+				A73646DC2A93DFCE00FB5488 /* DateFormatting.swift */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -624,6 +625,7 @@
 				7E6837A429D865D400356B52 /* iCloudOffView.swift in Sources */,
 				A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */,
 				7E782A5329D4BDC200556F99 /* MenuView.swift in Sources */,
+				A73646DD2A93DFCE00FB5488 /* DateFormatting.swift in Sources */,
 				A7A9F7BD2A5F9869000F7554 /* DepositViewModel.swift in Sources */,
 				7E51BC7B29D565F400D6D33C /* LogInView.swift in Sources */,
 				7E80B14729DFF03A006CAC82 /* EmployeeViewModel.swift in Sources */,
