@@ -9,43 +9,50 @@ import Foundation
 import CloudKit
 
 class DepositViewModel: ObservableObject {
+    private let publicCloudDB = CKContainer.default().publicCloudDatabase
     private let depositKeys: DepositKeys = DepositKeys()
     
-    @Published  var deposits: [Deposit] = []
-    
-    private let publicCloudDB = CKContainer.default().publicCloudDatabase
-    
-     func fetchDeposits(for restaurantLink: String, completion: @escaping ([Deposit]) -> Void) {
+    func fetchDeposits(for restaurantId: String, completion: @escaping (Result<[Deposit], Error>) -> Void) {
         var deposits: [Deposit] = []
-        let predicate = NSPredicate(format: "\(depositKeys.restaurantId) == %@", restaurantLink)
+        let predicate = NSPredicate(format: "\(depositKeys.restaurantId) == %@", restaurantId)
         let query = CKQuery(recordType: depositKeys.type, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor (key: depositKeys.date, ascending: false)]
         let queryOperation = CKQueryOperation(query: query)
         
-        self.deposits = []
         queryOperation.recordMatchedBlock = { (_, result) in
-            guard let deposit = try? Deposit(record: result.get()) else { return }
-            deposits.append(deposit)
+            switch result {
+                case .success(let record):
+                    deposits.append(Deposit(record: record))
+                case .failure(let error):
+                    completion(.failure(error))
+            }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(deposits)
+            completion(.success(deposits))
         }
-        self.addQueryOperation(queryOperation)
+        publicCloudDB.add(queryOperation)
     }
     
-     func delete(deposit: Deposit) {
-        self.publicCloudDB.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, error in
+    func delete(deposit: Deposit, completion: @escaping (Result<Bool, Error>) -> Void) {
+        publicCloudDB.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(true))
+            }
         }
     }
     
-     func save(_ deposit: Deposit) {
-        guard deposit.restaurantLink.isNotEmpty else { return }
-        self.publicCloudDB.save(deposit.getCKRecord(), completionHandler: {_,_ in })
-    }
-    
-    private func addQueryOperation(_ queryOperation: CKQueryOperation) {
-        self.publicCloudDB.add(queryOperation)
+    func save(_ deposit: Deposit, completion: @escaping (Result<Deposit, Error>) -> Void) {
+        guard deposit.restaurantId.isNotEmpty else { return }
+        publicCloudDB.save(deposit.getCKRecord()) { record, error in
+            if let record = record {
+                completion(.success(Deposit(record: record)))
+            } else if let error = error {
+                completion(.failure(error))
+            }
+        }
     }
 }
 
