@@ -13,7 +13,7 @@ struct Deposit: Hashable, Equatable {
      var id: String = UUID().uuidString
      var quantity: Int
      var date: Date
-     var restaurantLink: String
+     var restaurantId: String
     private var record: CKRecord?
     
     func hash(into hasher: inout Hasher) {
@@ -24,14 +24,14 @@ struct Deposit: Hashable, Equatable {
         lhs.id == rhs.id &&
         lhs.quantity == rhs.quantity &&
         lhs.date == rhs.date &&
-        lhs.restaurantLink == rhs.restaurantLink
+        lhs.restaurantId == rhs.restaurantId
     }
     
-    init(id: String, quantity: Int, date: Date, restaurantLink: String) {
+    init(id: String, quantity: Int, date: Date, restaurantId: String) {
         self.id = id
         self.quantity = quantity
         self.date = date
-        self.restaurantLink = restaurantLink
+        self.restaurantId = restaurantId
     }
     
     init(record: CKRecord) {
@@ -39,13 +39,13 @@ struct Deposit: Hashable, Equatable {
         self.id = record[keys.id] as? String ?? ""
         self.quantity = record[keys.quantity] as? Int ?? 0
         self.date = record[keys.date] as? Date ?? Date()
-        self.restaurantLink = record[keys.restaurantId] as? String ?? ""
+        self.restaurantId = record[keys.restaurantId] as? String ?? ""
     }
     
     init() {
         self.quantity = 2000
         self.date = Date()
-        self.restaurantLink = ""
+        self.restaurantId = ""
     }
     
     func getCKRecord() -> CKRecord {
@@ -53,7 +53,7 @@ struct Deposit: Hashable, Equatable {
         record[keys.id] = self.id
         record[keys.quantity] = self.quantity
         record[keys.date] = self.date
-        record[keys.restaurantId] = self.restaurantLink
+        record[keys.restaurantId] = self.restaurantId
         return record
     }
 }
