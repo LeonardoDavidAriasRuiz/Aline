@@ -29,7 +29,7 @@ struct ConectionReceivedView: View {
     @Binding var conections: [Conection]
     
     var body: some View {
-        LoadingIfNotReady(done: $done) {
+        LoadingIfNotReady($done) {
             Sheet(title: "Invitación pendiente") {
                 WhiteArea {
                     userInfo(title: nameText, value: restaurant.name)

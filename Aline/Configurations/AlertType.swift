@@ -22,24 +22,43 @@ extension View {
 }
 
 enum AlertType {
-    case dataNotObtained
-    case notSaved
-    case notDeleted
-    case deleteEmployeeAlert(name: String, lastName: String)
+    case dataObtainingError
+    case crearingError
+    case updatingError
+    case deletingError
+    case confirmDeleteEmployee(name: String, lastName: String)
+    case invitationRejectingError
+    case invitationCancelingError
+    case verificationCodeResent
+    case verificationCodeMismatch
+    case signingInError
+    case emailAlreadyUsed
+    
     
     var message: String {
         switch self {
-            case .dataNotObtained:
-                return "No se pudieron obtener los datos"
-            case .notSaved:
-                return "Sucedio un error al tratar de guardarlo"
-            case .notDeleted:
-                return "Sucedio un error al tratar de eliminarlo"
-            case .deleteEmployeeAlert(let name, let lastName):
-                return "Estas seguro de que quieres eliminar a \(name) \(lastName)"
+            case .dataObtainingError:
+                return "No se pudieron obtener los datos."
+            case .crearingError:
+                return "Sucedió un error al tratar de crearlo."
+            case .updatingError:
+                return "Sucedió un error al tratar de actualizarlo."
+            case .deletingError:
+                return "Sucedió un error al tratar de eliminar."
+            case .confirmDeleteEmployee(let name, let lastName):
+                return "¿Estás seguro de que quieres eliminar a \(name) \(lastName)?"
+            case .invitationRejectingError:
+                return "No se pudo rechazar la invitación, intenta más tarde."
+            case .invitationCancelingError:
+                return "No se pudo cancelar la invitación, intenta más tarde."
+            case .verificationCodeResent:
+                return "El código se ha reenviado."
+            case .verificationCodeMismatch:
+                return "El código de verificación no coincide con el que se envió."
+            case .signingInError:
+                return "No se pudo iniciar sesión."
+            case .emailAlreadyUsed:
+                return "Este email ya está registrado en el restaurante."
         }
     }
 }
-    
-    
-

@@ -23,7 +23,7 @@ struct NewConectionView: View {
     let restaurant: Restaurant
     
     var body: some View {
-        LoadingIfNotReady(done: $done) {
+        LoadingIfNotReady($done) {
             Sheet(title: "Invitar usuario") {
                 WhiteArea {
                     HStack {
@@ -39,8 +39,8 @@ struct NewConectionView: View {
                     Toggle("Administrador", isOn: $conection.isAdmin)
                 }
             }
-            .alert("No se pudieron obtener los datos.", isPresented: $dataNotObtained, actions: {})
-            .alert("Este email ya esta registrado en el restaurante.", isPresented: $isAlreadyUser, actions: {})
+            .alertInfo(.dataObtainingError, show: $dataNotObtained)
+            .alertInfo(.emailAlreadyUsed, show: $isAlreadyUser)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
     }

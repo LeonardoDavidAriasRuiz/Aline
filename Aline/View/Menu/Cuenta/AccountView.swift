@@ -17,7 +17,7 @@ struct AccountView: View {
     private let tint = Color.green
     
     var body: some View {
-        LoadingIfNotReady(done: $done) {
+        LoadingIfNotReady($done) {
             Sheet(title: title) {
                 UserInformationView()
                 RestaurantsListView(done: $done, dataNotObtained: $dataNotObtained)

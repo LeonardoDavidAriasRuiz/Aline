@@ -13,7 +13,7 @@ struct EmployeesView: View {
     @EnvironmentObject private var userC: UserViewModel
     @EnvironmentObject private var accentColor: AccentColor
     
-    @State private var done: Bool = true
+    @State private var isLoading: Bool = true
     
     @State private var employees: [Employee] = []
     @State private var editableEmployee = Employee()
@@ -22,9 +22,9 @@ struct EmployeesView: View {
     @State private var editableEmployeeAreaOpened: Bool = false
     @State private var isNewEmployeeReadyToSave: Bool = false
     
-    @State private var deleteEmployeeAlert: Bool = false
-    @State private var errorOn: Bool = false
-    @State private var errorAlert: ErrorAlerts = .dataNotObtained
+    @State private var alertDeletingEmployee: Bool = false
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = .dataObtainingError
     
     private let title: String = "Empleados"
     private let newEmployeeButtonText: String = "Nuevo empleado"
@@ -40,7 +40,7 @@ struct EmployeesView: View {
     private let employeeButtonSymbolName: String = "chevron.right"
     
     var body: some View {
-        LoadingIfNotReady(done: $done) {
+        LoadingIfNotReady($isLoading) {
             Sheet(title: title) {
                 WhiteArea {
                     employees.isNotEmpty ? employeesListArea : nil
@@ -242,33 +242,33 @@ struct EmployeesView: View {
     
     private func deleteEmployee() {
         withAnimation {
-            done = false
+            isLoading = true
             employeeVM.delete(editableEmployee) { result in
                 switch result {
                     case .success:
                         employees.removeAll { $0 == editableEmployee }
-                        done = true
-                        unselectEmployee()
                     case .failure:
-                        errorOn = true
-                        errorAlert = .deletingError
+                        alertShowed = true
+                        alertType = .deletingError
                 }
+                isLoading = false
+                toggleEditableDepositArea()
             }
         }
     }
     
     private func onAppear() {
-        done = false
+        isLoading = true
         accentColor.orange()
         employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
             switch result {
                 case .success(let employees):
                     self.employees = employees
-                    done = true
                 case .failure:
-                    errorOn = true
-                    errorAlert = .dataNotObtained
+                    alertShowed = true
+                    alertType = .dataObtainingError
             }
+            isLoading = false
         }
     }
 }

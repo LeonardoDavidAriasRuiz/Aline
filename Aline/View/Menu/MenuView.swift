@@ -13,11 +13,11 @@ struct MenuView: View {
     @EnvironmentObject private var userVM: UserViewModel
     @EnvironmentObject private var accentColor: AccentColor
     
-    @State private var done: Bool = true
+    @State private var isLoading: Bool = false
     
     var body: some View {
         NavigationView {
-            if done {
+            if !isLoading {
                 menuList
                     .background(Color.background)
                     .navigationTitle("Menu")
@@ -68,7 +68,7 @@ struct MenuView: View {
     
     private func setRestaurant(_old: String, _ id: String) {
         withAnimation {
-            done = false
+            isLoading = true
             if let newRestaurant = restaurantVM.adminRestaurants.first(where: { $0.id == id }) {
                 restaurantVM.restaurant = newRestaurant
             }
@@ -77,7 +77,7 @@ struct MenuView: View {
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            done = true
+            isLoading = false
         }
         
     }

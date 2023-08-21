@@ -16,11 +16,13 @@ struct DepositsView: View {
     
     @State private var editableDeposit = Deposit()
     @State private var editableDepositAreaOpen: Bool = false
-    @State private var cloudKitOperationError: Bool = false
     @State private var deposits: [Deposit] = []
-    @State private var dataObtained: Bool = false
     @State private var deleteDepositButtonVisible: Bool = false
-
+    
+    @State private var isLoading: Bool = true
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = AlertType.dataObtainingError
+    
     private let tint: Color = .blue
     private let title: String = "Depositos"
     private let newDepositRangeForStepper: ClosedRange<Int> = 50...10000
@@ -111,23 +113,40 @@ struct DepositsView: View {
     
     private func createDeposit() {
         withAnimation {
-            editableDeposit.restaurantLink = restaurantVM.restaurant.id
-            depositVM.save(self.editableDeposit)
-            deposits.append(self.editableDeposit)
-            toggleEditableDepositArea()
-            deposits.sort { lhs, rhs in
-                lhs.date > rhs.date
+            isLoading = true
+            editableDeposit.restaurantId = restaurantVM.restaurant.id
+            depositVM.save(editableDeposit) { result in
+                switch result {
+                    case .success(let deppsitCreated):
+                        deposits.append(deppsitCreated)
+                        toggleEditableDepositArea()
+                        deposits.sort { $0.date > $1.date }
+                    case .failure:
+                        alertShowed = true
+                        alertType = .crearingError
+                        
+                }
+                isLoading = false
             }
         }
     }
     
     private func deleteDeposit() {
         withAnimation {
-            guard let index = deposits.firstIndex(of: editableDeposit) else { return }
-            deposits.remove(at: index)
-            depositVM.delete(deposit: editableDeposit)
-            editableDepositAreaOpen = false
-            editableDeposit = Deposit()
+            isLoading = true
+            depositVM.delete(deposit: editableDeposit) { result in
+                switch result {
+                    case .success:
+                        guard let index = deposits.firstIndex(of: editableDeposit) else { return }
+                        deposits.remove(at: index)
+                        toggleEditableDepositArea()
+                    case .failure:
+                        alertShowed = true
+                        alertType = .deletingError
+                        
+                }
+                isLoading = false
+            }
         }
     }
     
@@ -141,9 +160,18 @@ struct DepositsView: View {
     
     private func onAppear() {
         accentColor.blue()
-        depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { deposits in
-            self.deposits = deposits
-            self.dataObtained = true
+    }
+    
+    private func fetchDeposits() {
+        depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { result in
+            switch result {
+                case .success(let depositsObtainde):
+                    deposits = depositsObtainde
+                case .failure:
+                    alertType = .dataObtainingError
+                    alertShowed = true
+            }
+            isLoading = false
         }
     }
 }
