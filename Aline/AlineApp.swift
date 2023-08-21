@@ -70,7 +70,7 @@ struct NoWifiConected: View {
 
 class NetworkMonitor: ObservableObject {
     private let monitor = NWPathMonitor()
-    let queue = DispatchQueue(label: "Monitor")
+    private let queue = DispatchQueue(label: "Monitor")
     
     @Published var isConnected: Bool = true
 
