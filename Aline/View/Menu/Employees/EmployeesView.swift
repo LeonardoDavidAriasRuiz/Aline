@@ -237,7 +237,7 @@ struct EmployeesView: View {
     }
     
     private func deleteEmployeeButtonPressed() {
-        deleteEmployeeAlert = true
+        alertDeletingEmployee = true
     }
     
     private func deleteEmployee() {
