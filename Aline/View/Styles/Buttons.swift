@@ -125,3 +125,33 @@ struct DeleteButtonWhite: View {
         deleteAlertShowed = true
     }
 }
+
+struct AcceptButtonWhite: View {
+    let action: () -> Void
+    var body: some View {
+        WhiteArea {
+            Button(action: action) {
+                Text("Aceptar").frame(maxWidth: .infinity)
+            }
+        }
+    }
+}
+
+struct DeclineButtonWhite: View {
+    @State private var declineAlertShowed: Bool = false
+    
+    let action: () -> Void
+    
+    var body: some View {
+        WhiteArea {
+            Button(action: showDeclineAlert) {
+                Text("Rechazar").frame(maxWidth: .infinity)
+            }
+            .alertDecline(showed: $declineAlertShowed, action: action)
+        }
+    }
+    
+    private func showDeclineAlert() {
+        declineAlertShowed = true
+    }
+}
