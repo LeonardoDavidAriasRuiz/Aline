@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct Sheet<Content: View>: View {
+    @EnvironmentObject private var accentColor: AccentColor
     let title: String
+    let tint: Color
     let content: () -> Content
     
-    init(title: String, @ViewBuilder content: @escaping () -> Content) {
+    init(title: String, tint: Color, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
+        self.tint = tint
         self.title = title
     }
     
@@ -23,10 +26,16 @@ struct Sheet<Content: View>: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
         }
+        .tint(tint)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.background)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
+        .onAppear(perform: onAppear)
+    }
+    
+    private func onAppear() {
+        accentColor.set(tint)
     }
 }
 
