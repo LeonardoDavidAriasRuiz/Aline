@@ -29,7 +29,6 @@ struct EmployeesView: View {
     private let section: MenuSection = .employees
     
     private let newEmployeeButtonText: String = "Nuevo empleado"
-    private let cancelButtonText: String = "Cancelar"
     private let nameFieldText: String = "Nombre"
     private let lastNameFieldText: String = "Apellido"
     private let employeeButtonSymbolName: String = "chevron.right"
@@ -51,7 +50,7 @@ struct EmployeesView: View {
     private var employeesListArea: some View {
         VStack {
             ForEach(employees, id: \.self) { employee in
-                Button(action: {selectEmployee(employee)}) {
+                Button(action: {select(employee)}) {
                     HStack {
                         Text(employee.lastName).foregroundStyle(Color.black)
                         Text(employee.name).foregroundStyle(Color.black)
@@ -115,7 +114,7 @@ struct EmployeesView: View {
         }
     }
     
-    private func selectEmployee(_ employee: Employee) {
+    private func select(_ employee: Employee) {
         withAnimation {
             if editableEmployee == employee {
                 toggleEditableDepositArea()
