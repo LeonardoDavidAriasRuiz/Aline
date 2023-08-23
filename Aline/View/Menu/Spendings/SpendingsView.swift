@@ -1,5 +1,5 @@
 //
-//  ExpensesView.swift
+//  SpendingsView.swift
 //  Aline
 //
 //  Created by Leonardo David Arias Ruiz on 29/03/23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Charts
 
-struct ExpensesView: View {
+struct SpendingsView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var accentColor: AccentColor

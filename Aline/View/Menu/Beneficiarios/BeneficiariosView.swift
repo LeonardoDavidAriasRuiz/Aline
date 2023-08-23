@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Beneficiarios: View {
+struct BeneficiariosView: View {
     
     @EnvironmentObject private var accentColor: AccentColor
     

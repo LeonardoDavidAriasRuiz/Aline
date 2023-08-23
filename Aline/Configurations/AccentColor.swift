@@ -7,22 +7,26 @@
 
 import SwiftUI
 
- class AccentColor: ObservableObject {
+class AccentColor: ObservableObject {
     @Published  var color: Color = Color.green
     
-     func green() {
+    func green() {
         color = Color.green
     }
     
-     func blue() {
+    func blue() {
         color = Color.blue
     }
     
-     func red() {
+    func red() {
         color = Color.red
     }
     
-     func orange() {
+    func orange() {
         color = Color.orange
+    }
+    
+    func set(_ color: Color) {
+        self.color = color
     }
 }
