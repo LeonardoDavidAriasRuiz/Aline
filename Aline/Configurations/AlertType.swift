@@ -8,13 +8,13 @@
 import SwiftUI
 
 extension View {
-    func alertInfo(_ alertType: AlertType, show: Binding<Bool>) -> some View {
-        self.alert(alertType.message, isPresented: show, actions: {})
+    func alertInfo(_ alertType: AlertType, showed: Binding<Bool>) -> some View {
+        self.alert(alertType.message, isPresented: showed, actions: {})
     }
     
-    func alertDelete(_ alertType: AlertType, show: Binding<Bool>, action: @escaping () -> Void)  -> some View {
-        self.alert(isPresented: show) {
-            Alert(title: Text(alertType.message),
+    func alertDelete(showed: Binding<Bool>, action: @escaping () -> Void)  -> some View {
+        self.alert(isPresented: showed) {
+            Alert(title: Text(AlertType.confirmDelete.message),
                   primaryButton: .destructive(Text("Eliminar"), action: action),
                   secondaryButton: .cancel(Text("Cancelar")))
         }
@@ -26,7 +26,7 @@ enum AlertType {
     case crearingError
     case updatingError
     case deletingError
-    case confirmDeleteEmployee(name: String, lastName: String)
+    case confirmDelete
     case invitationRejectingError
     case invitationCancelingError
     case verificationCodeResent
@@ -45,8 +45,8 @@ enum AlertType {
                 return "Sucedió un error al tratar de actualizarlo."
             case .deletingError:
                 return "Sucedió un error al tratar de eliminar."
-            case .confirmDeleteEmployee(let name, let lastName):
-                return "¿Estás seguro de que quieres eliminar a \(name) \(lastName)?"
+            case .confirmDelete:
+                return "¿Estás seguro de que lo quieres eliminar?"
             case .invitationRejectingError:
                 return "No se pudo rechazar la invitación, intenta más tarde."
             case .invitationCancelingError:
