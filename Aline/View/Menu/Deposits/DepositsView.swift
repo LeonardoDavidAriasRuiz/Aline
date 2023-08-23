@@ -162,12 +162,8 @@ struct DepositsView: View {
     }
     
     private func onAppear() {
-        setViewAccentColor()
-        fetchDeposits()
-    }
-    
-    private func setViewAccentColor() {
         accentColor.blue()
+        fetchDeposits()
     }
     
     private func fetchDeposits() {
