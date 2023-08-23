@@ -23,9 +23,11 @@ struct RestaurantsListView: View {
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
+    private let subsection: MenuSubsection = .resturants
+    
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: "Restaurantes") {
+            Sheet(title: subsection.title, tint: subsection.color) {
                 newRestaurantsButton
                 WhiteArea {
                     adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
