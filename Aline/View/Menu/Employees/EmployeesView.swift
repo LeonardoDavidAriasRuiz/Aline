@@ -28,31 +28,21 @@ struct EmployeesView: View {
     
     private let title: String = "Empleados"
     private let newEmployeeButtonText: String = "Nuevo empleado"
-    private let saveButtonText: String = "Guardar"
-    private let updateButtonText: String = "Guardar"
     private let cancelButtonText: String = "Cancelar"
-    private let deleteButtonText: String = "Eliminar"
     private let nameFieldText: String = "Nombre"
     private let lastNameFieldText: String = "Apellido"
-    private let editableEmployeeAreaTitleText: String = "Información de empleado"
-    private let deleteAlertTitleText: String = "Eliminar empleado"
-    private let deleteAlertMessageText: String = "Estas seguro de que quieres eliminar a"
     private let employeeButtonSymbolName: String = "chevron.right"
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
             Sheet(title: title) {
+                editableEmployeeArea
                 WhiteArea {
                     employees.isNotEmpty ? employeesListArea : nil
-                    newEmployeeButton
                 }
             }
             .onChange(of: editableEmployee, validateEmployee)
             .onChange(of: employees, sortEmployees)
-            .sheet(isPresented: $editableEmployeeAreaOpened, onDismiss: unselectEmployee) {
-                editableEmployeeArea
-                    .alert(errorAlert.rawValue, isPresented: $errorOn, actions: {})
-            }
         }
         .tint(Color.orange)
         .onAppear(perform: onAppear)
@@ -66,129 +56,61 @@ struct EmployeesView: View {
                         Text(employee.lastName).foregroundStyle(Color.black)
                         Text(employee.name).foregroundStyle(Color.black)
                         Spacer()
+                        Text(employee.isActive ? "" : "Inactivo").foregroundStyle(.black.secondary)
                         Image(systemName: employeeButtonSymbolName)
                             .foregroundStyle(Color.black.opacity(0.5))
                     }
                 }
-                Divider()
+                if employees.last != employee {
+                    Divider()
+                }
             }
         }
     }
     
     private var editableEmployeeArea: some View {
-        Sheet(title: title) {
-            VStack(alignment: .leading) {
-                editableEmployeeAreaTitle
-                employeeInformationFields
-                
+        WhiteArea {
+            Button(action: toggleEditableDepositArea) {
+                HStack {
+                    Text(editableEmployeeAreaOpened ? cancelButtonText : newEmployeeButtonText)
+                    Spacer()
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .rotationEffect(Angle(degrees: editableEmployeeAreaOpened ? 45 : 0))
+                        .symbolEffect(.bounce, value: editableEmployeeAreaOpened)
+                }
+            }
+            if editableEmployeeAreaOpened {
+                Divider()
+                TextField(nameFieldText, text: $editableEmployee.name).foregroundStyle(.secondary)
+                Divider()
+                TextField(lastNameFieldText, text: $editableEmployee.lastName).foregroundStyle(.secondary)
+                Divider()
+                Toggle("Activo", isOn: $editableEmployee.isActive)
+                Divider()
                 if employeeSelected {
-                    updateButton
-                    cancelButton
-                    deleteButton
+                    UpdateButton(action: update).disabled(!isNewEmployeeReadyToSave)
+                    Divider()
+                    DeleteButton(action: deleteEmployee)
                 } else {
-                    saveButton
+                    SaveButton(action: create).disabled(!isNewEmployeeReadyToSave)
                 }
             }
         }
+        .alertInfo(alertType, showed: $alertShowed)
     }
     
-    private var newEmployeeButton: some View {
-        Button(action: openEdtableEmployeeArea) {
-            Text(newEmployeeButtonText).frame(maxWidth: .infinity)
-        }
-    }
-    
-    private var editableEmployeeAreaTitle: some View {
-        Text(editableEmployeeAreaTitleText)
-            .bold()
-            .font(.largeTitle)
-            .padding(.bottom, 20)
-    }
-    
-    private var employeeInformationFields: some View {
-        WhiteArea {
-            TextField(nameFieldText, text: $editableEmployee.name)
-            Divider()
-            TextField(lastNameFieldText, text: $editableEmployee.lastName)
-        }
-    }
-    
-    private var saveButton: some View {
-        WhiteArea {
-            Button(action: create) {
-                Text(saveButtonText).frame(maxWidth: .infinity)
-            }
-            .disabled(!isNewEmployeeReadyToSave)
-        }
-    }
-    
-    private var updateButton: some View {
-        WhiteArea {
-            Button(action: update) {
-                Text(updateButtonText).frame(maxWidth: .infinity)
-            }
-        }
-    }
-    
-    private var cancelButton: some View {
-        WhiteArea {
-            Button(action: unselectEmployee) {
-                Text(cancelButtonText).frame(maxWidth: .infinity)
-            }
-        }
-    }
-    
-    private var deleteButton: some View {
-        WhiteArea {
-            Button(action: deleteEmployeeButtonPressed) {
-                Text(deleteButtonText).frame(maxWidth: .infinity)
-            }
-            .alert(isPresented: $deleteEmployeeAlert) {
-                Alert(
-                    title: Text(deleteAlertTitleText),
-                    message: Text("\(deleteAlertMessageText) \(editableEmployee.lastName) \(editableEmployee.name)"),
-                    primaryButton: .destructive(Text(deleteButtonText), action: deleteEmployee),
-                    secondaryButton: .cancel(Text(cancelButtonText))
-                )
-            }
-        }
-    }
-    
-    private func openEdtableEmployeeArea() {
+    private func toggleEditableDepositArea() {
         withAnimation {
-            editableEmployeeAreaOpened = true
-        }
-    }
-    
-    private func closeEditableEmployeeArea() {
-        withAnimation {
-            editableEmployeeAreaOpened = false
+            editableEmployeeAreaOpened.toggle()
+            employeeSelected = false
             editableEmployee = Employee()
         }
-    }
-    
-    private func create() {
-        withAnimation {
-            done = false
-            editableEmployee.restaurantId = restaurantVM.currentRestaurantId
-            employeeVM.save(editableEmployee, isNew: true) { result in
-                switch result {
-                    case .success(let employee):
-                        employees.append(employee)
-                        done = true
-                    default:
-                        errorOn = true
-                        errorAlert = .notSaved
-                }
-            }
-            editableEmployee = Employee()
-        }
-        closeEditableEmployeeArea()
     }
     
     private func sortEmployees() {
         withAnimation {
-            employees.sort { $0.lastName < $1.lastName }
+            employees.sort { $0 < $1 }
         }
     }
     
@@ -204,40 +126,50 @@ struct EmployeesView: View {
     
     private func selectEmployee(_ employee: Employee) {
         withAnimation {
-            self.editableEmployee = employee
-            employeeSelected = true
-            openEdtableEmployeeArea()
-            
-        }
-    }
-    
-    private func unselectEmployee() {
-        withAnimation {
-            employeeSelected = false
-            closeEditableEmployeeArea()
-        }
-    }
-    
-    private func update() {
-        done = false
-        employeeVM.save(editableEmployee, isNew: false) { result in
-            switch result {
-                case .success(let employee):
-                    guard let index = employees.firstIndex(of: editableEmployee) else { return }
-                    employees[index] = employee
-                    editableEmployee = Employee()
-                    unselectEmployee()
-                    done = true
-                case .failure:
-                    errorOn = true
-                    errorAlert = .notSaved
-                    done = true
+            if editableEmployee == employee {
+                toggleEditableDepositArea()
+            } else {
+                employeeSelected = true
+                editableEmployee = employee
+                editableEmployeeAreaOpened = true
             }
         }
     }
     
-    private func deleteEmployeeButtonPressed() {
-        alertDeletingEmployee = true
+    private func create() {
+        withAnimation {
+            isLoading = false
+            editableEmployee.restaurantId = restaurantVM.currentRestaurantId
+            employeeVM.save(editableEmployee, isNew: true) { result in
+                switch result {
+                    case .success(let employee):
+                        employees.append(employee)
+                        isLoading = true
+                    default:
+                        alertShowed = true
+                        alertType = .crearingError
+                }
+                toggleEditableDepositArea()
+            }
+        }
+    }
+    
+    private func update() {
+        withAnimation {
+            isLoading = false
+            employeeVM.save(editableEmployee, isNew: false) { result in
+                switch result {
+                    case .success(let employee):
+                        guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
+                        employees[index] = employee
+                        isLoading = true
+                    case .failure:
+                        alertShowed = true
+                        alertType = .updatingError
+                }
+                toggleEditableDepositArea()
+            }
+        }
     }
     
     private func deleteEmployee() {

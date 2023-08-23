@@ -80,19 +80,23 @@ struct DepositsView: View {
             }
             if editableDepositAreaOpen {
                 Divider()
-                DatePicker("", selection: $editableDeposit.date, displayedComponents: .date)
-                    .datePickerStyle(.graphical)
+                HStack {
+                    Stepper("$\(editableDeposit.quantity)",
+                            value: $editableDeposit.quantity,
+                            in: newDepositRangeForStepper,
+                            step: newDepositStepQuantity
+                    )
+                    DatePicker("",
+                               selection: $editableDeposit.date,
+                               displayedComponents: .date
+                    )
+                }
                 Divider()
-                Stepper("$\(editableDeposit.quantity)",
-                        value: $editableDeposit.quantity,
-                        in: newDepositRangeForStepper,
-                        step: newDepositStepQuantity)
-                Divider()
-                Button("Guardar", action: createDeposit)
+                Button("Guardar", action: create)
                 
                 if deleteDepositButtonVisible {
                     Divider()
-                    Button("Eliminar", action: deleteDeposit)
+                    Button("Eliminar", action: delete)
                 }
             }
         }
@@ -100,19 +104,17 @@ struct DepositsView: View {
     
     private func selectDeposit(_ deposit: Deposit) {
         withAnimation {
-            if self.editableDeposit == deposit {
-                editableDepositAreaOpen = false
-                editableDeposit = Deposit()
-                deleteDepositButtonVisible = false
+            if editableDeposit == deposit {
+                toggleEditableDepositArea()
             } else {
                 deleteDepositButtonVisible = true
-                self.editableDeposit = deposit
+                editableDeposit = deposit
                 editableDepositAreaOpen = true
             }
         }
     }
     
-    private func createDeposit() {
+    private func create() {
         withAnimation {
             isLoading = true
             editableDeposit.restaurantId = restaurantVM.restaurant.id
@@ -132,7 +134,7 @@ struct DepositsView: View {
         }
     }
     
-    private func deleteDeposit() {
+    private func delete() {
         withAnimation {
             isLoading = true
             depositVM.delete(deposit: editableDeposit) { result in
@@ -154,12 +156,17 @@ struct DepositsView: View {
     private func toggleEditableDepositArea() {
         withAnimation {
             editableDepositAreaOpen.toggle()
-            guard editableDepositAreaOpen else { return }
+            deleteDepositButtonVisible = false
             editableDeposit = Deposit()
         }
     }
     
     private func onAppear() {
+        setViewAccentColor()
+        fetchDeposits()
+    }
+    
+    private func setViewAccentColor() {
         accentColor.blue()
     }
     
