@@ -91,7 +91,7 @@ struct EmployeesView: View {
                 if employeeSelected {
                     UpdateButton(action: update).disabled(!isNewEmployeeReadyToSave)
                     Divider()
-                    DeleteButton(action: deleteEmployee)
+                    DeleteButton(action: delete)
                 } else {
                     SaveButton(action: create).disabled(!isNewEmployeeReadyToSave)
                 }
@@ -138,17 +138,18 @@ struct EmployeesView: View {
     
     private func create() {
         withAnimation {
-            isLoading = false
+            isLoading = true
             editableEmployee.restaurantId = restaurantVM.currentRestaurantId
             employeeVM.save(editableEmployee, isNew: true) { result in
                 switch result {
                     case .success(let employee):
                         employees.append(employee)
-                        isLoading = true
+                        
                     default:
                         alertShowed = true
                         alertType = .crearingError
                 }
+                isLoading = false
                 toggleEditableDepositArea()
             }
         }
@@ -156,23 +157,23 @@ struct EmployeesView: View {
     
     private func update() {
         withAnimation {
-            isLoading = false
+            isLoading = true
             employeeVM.save(editableEmployee, isNew: false) { result in
                 switch result {
                     case .success(let employee):
                         guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
                         employees[index] = employee
-                        isLoading = true
                     case .failure:
                         alertShowed = true
                         alertType = .updatingError
                 }
+                isLoading = false
                 toggleEditableDepositArea()
             }
         }
     }
     
-    private func deleteEmployee() {
+    private func delete() {
         withAnimation {
             isLoading = true
             employeeVM.delete(editableEmployee) { result in
