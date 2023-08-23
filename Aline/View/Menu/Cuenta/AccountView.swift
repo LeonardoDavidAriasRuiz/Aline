@@ -8,16 +8,13 @@
 import SwiftUI
 
 struct AccountView: View {
-    @EnvironmentObject private var accentColor: AccentColor
-    
     @State private var isLoading: Bool = false
     
-    private let title = "Cuenta"
-    private let tint = Color.green
+    private var section: MenuSection = .account
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: title) {
+            Sheet(title: section.title, tint: section.color) {
                 UserInformationView()
                 NavigationLink(destination: RestaurantsListView()) {
                     WhiteArea {
@@ -32,8 +29,6 @@ struct AccountView: View {
                 
                 ConectionsListView(isLoading: $isLoading)
             }
-            .tint(tint)
-            .onAppear(perform: accentColor.green)
         }
     }
 }
