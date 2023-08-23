@@ -14,14 +14,16 @@ struct ConectionsListView: View {
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var receivedConections: [Conection] = []
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = .dataObtainingError
     
-    @Binding var done: Bool
-    @Binding var dataNotObtained: Bool
+    @Binding var isLoading: Bool
     
     var body: some View {
         VStack {
             receivedConections.isNotEmpty ? conectionsReceivedList : nil
         }
+        .alertInfo(alertType, show: $alertShowed)
         .onAppear(perform: getConections)
     }
     
@@ -47,16 +49,16 @@ struct ConectionsListView: View {
     }
     
     private func getConections() {
-        done = false
+        isLoading = true
         conectionVM.fetchReceivedConections(for: userVM.user.email) { result in
             DispatchQueue.main.async {
                 switch result {
                     case .success(let conections):
                         receivedConections = conections
-                        done = true
+                        isLoading = false
                     case .failure:
-                        dataNotObtained = true
-                        done = true
+                        alertShowed = true
+                        isLoading = false
                 }
             }
         }

@@ -10,17 +10,16 @@ import SwiftUI
 struct AccountView: View {
     @EnvironmentObject private var accentColor: AccentColor
     
-    @State private var dataNotObtained: Bool = false
-    @State private var done: Bool = false
+    @State private var isLoading: Bool = false
     
     private let title = "Cuenta"
     private let tint = Color.green
     
     var body: some View {
-        LoadingIfNotReady($done) {
+        LoadingIfNotReady($isLoading) {
             Sheet(title: title) {
                 UserInformationView()
-                NavigationLink(destination: RestaurantsListView(done: $done, dataNotObtained: $dataNotObtained)) {
+                NavigationLink(destination: RestaurantsListView()) {
                     WhiteArea {
                         HStack {
                             Text("Restaurantes").foregroundStyle(.black)
@@ -31,11 +30,10 @@ struct AccountView: View {
                 }
                 .padding(.vertical, 30)
                 
-                ConectionsListView(done: $done, dataNotObtained: $dataNotObtained)
+                ConectionsListView(isLoading: $isLoading)
             }
             .tint(tint)
             .onAppear(perform: accentColor.green)
-            .alertInfo(.dataObtainingError, show: $dataNotObtained)
         }
     }
 }

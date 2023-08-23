@@ -19,17 +19,21 @@ struct RestaurantsListView: View {
     @State private var editableRestaurant: Restaurant = Restaurant()
     @State private var updateButtonDisabled: Bool = true
     
-    @Binding var done: Bool
-    @Binding var dataNotObtained: Bool
+    @State private var isLoading: Bool = true
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = .dataObtainingError
     
     var body: some View {
-        Sheet(title: "Restaurantes") {
-            newRestaurantsButton
-            WhiteArea {
-                adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
-                emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
+        LoadingIfNotReady($isLoading) {
+            Sheet(title: "Restaurantes") {
+                newRestaurantsButton
+                WhiteArea {
+                    adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
+                    emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
+                }
             }
         }
+        .alertInfo(.dataObtainingError, show: $alertShowed)
         .onAppear(perform: getRestaurants)
     }
     
@@ -122,29 +126,26 @@ struct RestaurantsListView: View {
         }
     }
     
-    private func getRestaurants() {
-        restaurantVM.fetchRestaurants(for: userVM.user.adminRestaurantsIds) { result in
-            DispatchQueue.main.async {
-                switch result {
-                    case .success(let restaurants):
-                        self.adminRestaurants = restaurants
-                        done = true
-                    case .failure:
-                        dataNotObtained = true
-                }
+    private func fetchRestaurants(for ids: [String], completion: @escaping ([Restaurant]) -> Void) {
+        restaurantVM.fetchRestaurants(for: ids) { result in
+            switch result {
+                case .success(let restaurants):
+                    completion(restaurants)
+                case .failure:
+                    alertType = .dataObtainingError
+                    alertShowed = true
             }
         }
-        
-        restaurantVM.fetchRestaurants(for: userVM.user.emploRestaurantsIds) { result in
-            DispatchQueue.main.async {
-                switch result {
-                    case .success(let restaurants):
-                        self.emploRestaurants = restaurants
-                        done = true
-                    case .failure:
-                        dataNotObtained = true
-                }
-            }
+    }
+    
+    private func getRestaurants() {
+        isLoading = true
+        fetchRestaurants(for: userVM.user.adminRestaurantsIds) { restaurants in
+            self.adminRestaurants = restaurants
+        }
+        fetchRestaurants(for: userVM.user.emploRestaurantsIds) { restaurants in
+            self.emploRestaurants = restaurants
+            isLoading = false
         }
     }
 }
