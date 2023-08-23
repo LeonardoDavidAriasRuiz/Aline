@@ -26,7 +26,8 @@ struct EmployeesView: View {
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
-    private let title: String = "Empleados"
+    private let section: MenuSection = .employees
+    
     private let newEmployeeButtonText: String = "Nuevo empleado"
     private let cancelButtonText: String = "Cancelar"
     private let nameFieldText: String = "Nombre"
@@ -35,7 +36,7 @@ struct EmployeesView: View {
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: title) {
+            Sheet(title: section.title, tint: section.color) {
                 editableEmployeeArea
                 WhiteArea {
                     employees.isNotEmpty ? employeesListArea : nil
@@ -44,8 +45,7 @@ struct EmployeesView: View {
             .onChange(of: editableEmployee, validateEmployee)
             .onChange(of: employees, sortEmployees)
         }
-        .tint(Color.orange)
-        .onAppear(perform: onAppear)
+        .onAppear(perform: getEmployees)
     }
     
     private var employeesListArea: some View {
@@ -135,7 +135,6 @@ struct EmployeesView: View {
                 switch result {
                     case .success(let employee):
                         employees.append(employee)
-                        
                     default:
                         alertShowed = true
                         alertType = .crearingError
@@ -179,11 +178,6 @@ struct EmployeesView: View {
                 toggleEditableDepositArea()
             }
         }
-    }
-    
-    private func onAppear() {
-        accentColor.orange()
-        getEmployees()
     }
     
     private func getEmployees() {
