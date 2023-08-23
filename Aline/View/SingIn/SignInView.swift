@@ -41,7 +41,7 @@ struct SignInView: View {
             }
         }
         .onAppear(perform: authenticateUser)
-        .alertInfo(.signingInError, show: $alert)
+        .alertInfo(.signingInError, showed: $alert)
     }
     
     func authenticateUser() {

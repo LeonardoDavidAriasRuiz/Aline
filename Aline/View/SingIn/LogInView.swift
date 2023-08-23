@@ -88,7 +88,7 @@ struct LogInView: View {
                     }
                 }
                 .modifier(ButtonColor(color: emailSent ? codeValid ? Color.green : Color.red : Color.blue ))
-                .alertInfo(.verificationCodeMismatch, show: $wrongCodeAlertActive)
+                .alertInfo(.verificationCodeMismatch, showed: $wrongCodeAlertActive)
             }
         }
     }

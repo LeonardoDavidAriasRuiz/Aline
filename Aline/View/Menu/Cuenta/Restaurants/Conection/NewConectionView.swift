@@ -39,8 +39,8 @@ struct NewConectionView: View {
                     Toggle("Administrador", isOn: $conection.isAdmin)
                 }
             }
-            .alertInfo(.dataObtainingError, show: $dataNotObtained)
-            .alertInfo(.emailAlreadyUsed, show: $isAlreadyUser)
+            .alertInfo(.dataObtainingError, showed: $dataNotObtained)
+            .alertInfo(.emailAlreadyUsed, showed: $isAlreadyUser)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
     }

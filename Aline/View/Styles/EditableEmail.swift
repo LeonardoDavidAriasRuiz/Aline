@@ -59,8 +59,8 @@ struct EditableEmail: View {
             }
         }
         .modifier(ButtonColor(color: isEmailWithCodeSent ? Color.red : Color.blue ))
-        .alertInfo(.verificationCodeResent, show: $isEmailWithCodeResent)
-        .alertInfo(.verificationCodeMismatch, show: $isWrongCodeAlertActive)
+        .alertInfo(.verificationCodeResent, showed: $isEmailWithCodeResent)
+        .alertInfo(.verificationCodeMismatch, showed: $isWrongCodeAlertActive)
     }
     
     private var updateButton: some View {

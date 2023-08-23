@@ -36,13 +36,14 @@ struct DepositsView: View {
     
     
     var body: some View {
-        LoadingIfNotReady(done: $dataObtained) {
+        LoadingIfNotReady($isLoading) {
             Sheet(title: title) {
                 editableDepositArea
                 deposits.isEmpty ? nil : depositsListArea
             }
         }
         .tint(tint)
+        .alertInfo(alertType, showed: $alertShowed)
         .onAppear(perform: onAppear)
     }
     

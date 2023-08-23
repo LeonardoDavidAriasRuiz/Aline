@@ -39,7 +39,7 @@ struct ConectionReceivedView: View {
                     userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
                 }
                 .onAppear(perform: getRestaurantInformation)
-                .alertInfo(.dataObtainingError, show: $dataNotObtained)
+                .alertInfo(.dataObtainingError, showed: $dataNotObtained)
                 
                 WhiteArea {
                     Button(action: acceptInvitation) {
@@ -56,7 +56,7 @@ struct ConectionReceivedView: View {
                             .frame(maxWidth: .infinity)
                     }
                 }
-                .alertInfo(.invitationRejectingError, show: $isNotAbleToDeleteAlert)
+                .alertInfo(.invitationRejectingError, showed: $isNotAbleToDeleteAlert)
             }
         }
     }

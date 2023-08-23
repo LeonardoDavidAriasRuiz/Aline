@@ -30,7 +30,7 @@ struct MenuView: View {
             
         }
         .onChange(of: restaurantVM.currentRestaurantId, setRestaurant)
-        .alertInfo(.dataObtainingError, show: $restaurantVM.dataNotObtained)
+        .alertInfo(.dataObtainingError, showed: $restaurantVM.dataNotObtained)
     }
     
     private var restaurantPicker: some View {

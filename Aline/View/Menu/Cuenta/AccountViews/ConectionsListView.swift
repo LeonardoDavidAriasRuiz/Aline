@@ -23,7 +23,7 @@ struct ConectionsListView: View {
         VStack {
             receivedConections.isNotEmpty ? conectionsReceivedList : nil
         }
-        .alertInfo(alertType, show: $alertShowed)
+        .alertInfo(alertType, showed: $alertShowed)
         .onAppear(perform: getConections)
     }
     

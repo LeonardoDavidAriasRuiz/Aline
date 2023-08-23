@@ -33,7 +33,7 @@ struct RestaurantsListView: View {
                 }
             }
         }
-        .alertInfo(.dataObtainingError, show: $alertShowed)
+        .alertInfo(.dataObtainingError, showed: $alertShowed)
         .onAppear(perform: getRestaurants)
     }
     
