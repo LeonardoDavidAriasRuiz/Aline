@@ -19,6 +19,14 @@ extension View {
                   secondaryButton: .cancel(Text("Cancelar")))
         }
     }
+    
+    func alertDecline(showed: Binding<Bool>, action: @escaping () -> Void)  -> some View {
+        self.alert(isPresented: showed) {
+            Alert(title: Text(AlertType.confirmDecline.message),
+                  primaryButton: .destructive(Text("Rechazar"), action: action),
+                  secondaryButton: .cancel(Text("Cancelar")))
+        }
+    }
 }
 
 enum AlertType {
@@ -26,9 +34,10 @@ enum AlertType {
     case crearingError
     case updatingError
     case deletingError
+    case decliningError
+    case cancelingError
     case confirmDelete
-    case invitationRejectingError
-    case invitationCancelingError
+    case confirmDecline
     case verificationCodeResent
     case verificationCodeMismatch
     case signingInError
@@ -45,12 +54,14 @@ enum AlertType {
                 return "Sucedió un error al tratar de actualizarlo."
             case .deletingError:
                 return "Sucedió un error al tratar de eliminar."
+            case .decliningError:
+                return "Sucedió un error al tratar de rechazar."
+            case .cancelingError:
+                return "Sucedió un error al tratar de cancelar"
             case .confirmDelete:
                 return "¿Estás seguro de que lo quieres eliminar?"
-            case .invitationRejectingError:
-                return "No se pudo rechazar la invitación, intenta más tarde."
-            case .invitationCancelingError:
-                return "No se pudo cancelar la invitación, intenta más tarde."
+            case .confirmDecline:
+                return "¿Estás seguro de que la quieres rechazar?"
             case .verificationCodeResent:
                 return "El código se ha reenviado."
             case .verificationCodeMismatch:
