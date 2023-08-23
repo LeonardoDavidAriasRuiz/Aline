@@ -27,6 +27,14 @@ extension View {
                   secondaryButton: .cancel(Text("Cancelar")))
         }
     }
+    
+    func alertCacelInvitation(showed: Binding<Bool>, action: @escaping () -> Void)  -> some View {
+        self.alert(isPresented: showed) {
+            Alert(title: Text(AlertType.confirmCancelingInvitation.message),
+                  primaryButton: .destructive(Text("Cancelar invitación"), action: action),
+                  secondaryButton: .cancel(Text("No cancelar")))
+        }
+    }
 }
 
 enum AlertType {
@@ -42,6 +50,7 @@ enum AlertType {
     case verificationCodeMismatch
     case signingInError
     case emailAlreadyUsed
+    case confirmCancelingInvitation
     
     
     var message: String {
@@ -70,6 +79,8 @@ enum AlertType {
                 return "No se pudo iniciar sesión."
             case .emailAlreadyUsed:
                 return "Este email ya está registrado en el restaurante."
+            case .confirmCancelingInvitation:
+                return "¿Estás seguro de que quieres cancelar la invitación?"
         }
     }
 }
