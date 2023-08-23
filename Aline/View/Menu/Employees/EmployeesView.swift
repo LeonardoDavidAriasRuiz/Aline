@@ -190,17 +190,23 @@ struct EmployeesView: View {
     }
     
     private func onAppear() {
-        isLoading = true
         accentColor.orange()
-        employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
-            switch result {
-                case .success(let employees):
-                    self.employees = employees
-                case .failure:
-                    alertShowed = true
-                    alertType = .dataObtainingError
+        getEmployees()
+    }
+    
+    private func getEmployees() {
+        withAnimation {
+            isLoading = true
+            employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
+                switch result {
+                    case .success(let employees):
+                        self.employees = employees
+                    case .failure:
+                        alertShowed = true
+                        alertType = .dataObtainingError
+                }
+                isLoading = false
             }
-            isLoading = false
         }
     }
 }
