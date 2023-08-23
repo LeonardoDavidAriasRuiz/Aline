@@ -69,3 +69,22 @@ enum MenuSection {
         }
     }
 }
+
+enum MenuSubsection {
+    case conectionReceived
+    case resturants
+    
+    var title: String {
+        switch self {
+            case .conectionReceived: return "Invitación pendiente"
+            case .resturants: return "Restaurantes"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+            case .conectionReceived: return Color.green
+            case .resturants: return Color.green
+        }
+    }
+}
