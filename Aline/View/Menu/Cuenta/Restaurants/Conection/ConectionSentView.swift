@@ -24,7 +24,7 @@ struct ConectionSentView: View {
     @Binding var conections: [Conection]
     
     var body: some View {
-        Sheet(title: "Invitación pendiente") {
+        Sheet(title: "Invitación pendiente", tint: Color.green) {
             WhiteArea {
                 userInfo(title: nameText, value: "---")
                 Divider()

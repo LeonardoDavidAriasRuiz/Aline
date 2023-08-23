@@ -22,13 +22,13 @@ struct ContentView: View {
                     case .iCloudOff: iCloudOffView()
                     case .iCLoudOn: LogInView()
                     case .loggedIn: SignInView()
-                    case .signedIn: MenuView().tint(accentColor.color)
+                    case .signedIn: MenuView()
                 }
             } else {
                 LoadingView()
             }
         }
-        .tint(accentColor.color)
+        .tint(accentColor.tint)
         .onAppear(perform: setRestaurantList)
     }
     

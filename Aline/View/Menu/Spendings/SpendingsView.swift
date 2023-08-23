@@ -29,7 +29,7 @@ struct SpendingsView: View {
             typesMenu
         }
         .onAppear(perform: accentColor.red)
-        .tint(accentColor.color)
+        .tint(accentColor.tint)
         .onAppear(perform: onAppear)
     }
     
