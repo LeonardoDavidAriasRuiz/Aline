@@ -71,20 +71,23 @@ enum MenuSection {
 }
 
 enum MenuSubsection {
-    case conectionReceived
     case resturants
+    case conectionSent
+    case conectionReceived
     
     var title: String {
         switch self {
-            case .conectionReceived: return "Invitación pendiente"
             case .resturants: return "Restaurantes"
+            case .conectionReceived: return "Invitación pendiente"
+            case .conectionSent: return "Invitación pendiente"
         }
     }
     
     var color: Color {
         switch self {
-            case .conectionReceived: return Color.green
             case .resturants: return Color.green
+            case .conectionReceived: return Color.green
+            case .conectionSent: return Color.green
         }
     }
 }
