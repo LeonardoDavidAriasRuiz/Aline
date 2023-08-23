@@ -11,51 +11,41 @@ struct ConectionSentView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     
-    @State private var isNotAbleToDeleteAlert: Bool = false
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = .cancelingError
+    
+    @Binding var conections: [Conection]
     
     let conection: Conection
     
-    private let nameText: String = "Nombre"
+    private let subsection: MenuSubsection = .conectionSent
+    
     private let emailText: String = "Email"
     private let typeText: String = "Tipo"
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
-    @Binding var conections: [Conection]
-    
     var body: some View {
-        Sheet(title: "Invitación pendiente", tint: Color.green) {
+        Sheet(title: subsection.title, tint: subsection.color) {
             WhiteArea {
-                userInfo(title: nameText, value: "---")
-                Divider()
                 userInfo(title: emailText, value: conection.email)
                 Divider()
                 userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
             }
             
-            WhiteArea {
-                Button(action: cancelIvitation) {
-                    Text("Cancelar invitación")
-                        .foregroundStyle(Color.red)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .alertInfo(.invitationCancelingError, showed: $isNotAbleToDeleteAlert)
+            CancelInvitationButtonWhite(action: cancel)
         }
+        .alertInfo(alertType, showed: $alertShowed)
     }
     
-    private func cancelIvitation() {
+    private func cancel() {
         conectionVM.delete(conection) { result in
             switch result {
                 case .success:
-                    DispatchQueue.main.async {
-                        conections.removeAll { conection in
-                            conection == self.conection
-                        }
-                        self.presentationMode.wrappedValue.dismiss()
-                    }
+                    conections.removeAll { $0 == self.conection }
+                    presentationMode.wrappedValue.dismiss()
                 case .failure:
-                    isNotAbleToDeleteAlert = true
+                    alertShowed = true
             }
         }
     }
