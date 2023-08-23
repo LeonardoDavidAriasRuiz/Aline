@@ -14,9 +14,12 @@ struct ConectionReceivedView: View {
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var restaurant: Restaurant = Restaurant()
-    @State private var isNotAbleToDeleteAlert: Bool = false
-    @State private var dataNotObtained: Bool = false
-    @State private var done: Bool = false
+    
+    @State private var alertShowed: Bool = false
+    @State private var alertType: AlertType = .dataObtainingError
+    @State private var isLoading: Bool = false
+    
+    @Binding var conections: [Conection]
     
     let conection: Conection
     
@@ -26,11 +29,11 @@ struct ConectionReceivedView: View {
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
-    @Binding var conections: [Conection]
+    private let subsection: MenuSubsection = .conectionReceived
     
     var body: some View {
-        LoadingIfNotReady($done) {
-            Sheet(title: "Invitación pendiente") {
+        LoadingIfNotReady($isLoading) {
+            Sheet(title: subsection.title, tint: subsection.color) {
                 WhiteArea {
                     userInfo(title: nameText, value: restaurant.name)
                     Divider()
@@ -39,24 +42,10 @@ struct ConectionReceivedView: View {
                     userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
                 }
                 .onAppear(perform: getRestaurantInformation)
-                .alertInfo(.dataObtainingError, showed: $dataNotObtained)
+                .alertInfo(alertType, showed: $alertShowed)
                 
-                WhiteArea {
-                    Button(action: acceptInvitation) {
-                        Text("Aceptar")
-                            .foregroundStyle(Color.green)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                
-                WhiteArea {
-                    Button(action: declineIvitation) {
-                        Text("Rechazar")
-                            .foregroundStyle(Color.red)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .alertInfo(.invitationRejectingError, showed: $isNotAbleToDeleteAlert)
+                AcceptButtonWhite(action: accept)
+                DeclineButtonWhite(action: decline)
             }
         }
     }
@@ -64,13 +53,17 @@ struct ConectionReceivedView: View {
     private func getRestaurantInformation() {
         restaurantVM.fetchRestaurant(with: conection.restaurantId) { result in
             switch result {
-                case .success(let restaurant): self.restaurant = restaurant; done = true
-                case .failure: dataNotObtained = true
+                case .success(let restaurant):
+                    self.restaurant = restaurant
+                case .failure:
+                    alertType = .dataObtainingError
+                    alertShowed = true
             }
+            isLoading = false
         }
     }
     
-    private func acceptInvitation() {
+    private func accept() {
         if conection.isAdmin {
             userVM.user.adminRestaurantsIds.append(conection.restaurantId)
             restaurant.adminUsersIds.append(userVM.user.id)
@@ -80,20 +73,22 @@ struct ConectionReceivedView: View {
         }
         userVM.save()
         restaurantVM.save(restaurant, isNew: false)
-        declineIvitation()
+        decline()
     }
     
-    private func declineIvitation() {
+    private func decline() {
+        isLoading = true
         conectionVM.delete(conection) { result in
             switch result {
                 case .success:
+                    isLoading = false
+                    conections.removeAll { $0 == conection}
                     self.presentationMode.wrappedValue.dismiss()
                 case .failure:
-                    isNotAbleToDeleteAlert = true
+                    isLoading = false
+                    alertType = .decliningError
+                    alertShowed = true
             }
-        }
-        conections.removeAll { conection in
-            conection == self.conection
         }
     }
     
