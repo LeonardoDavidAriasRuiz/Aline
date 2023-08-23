@@ -70,16 +70,7 @@ struct EmployeesView: View {
     
     private var editableEmployeeArea: some View {
         WhiteArea {
-            Button(action: toggleEditableDepositArea) {
-                HStack {
-                    Text(editableEmployeeAreaOpened ? cancelButtonText : newEmployeeButtonText)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.title2)
-                        .rotationEffect(Angle(degrees: editableEmployeeAreaOpened ? 45 : 0))
-                        .symbolEffect(.bounce, value: editableEmployeeAreaOpened)
-                }
-            }
+            NewButton(pressed: $editableEmployeeAreaOpened, newText: newEmployeeButtonText, action: toggleEditableDepositArea)
             if editableEmployeeAreaOpened {
                 Divider()
                 TextField(nameFieldText, text: $editableEmployee.name).foregroundStyle(.secondary)
