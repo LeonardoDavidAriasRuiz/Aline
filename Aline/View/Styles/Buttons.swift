@@ -76,9 +76,10 @@ struct DeleteButton: View {
 
 struct SaveButtonWhite: View {
     let action: () -> Void
+    
     var body: some View {
-        WhiteArea {
-            Button(action: action) {
+        Button(action: action) {
+            WhiteArea {
                 Text("Guardar").frame(maxWidth: .infinity)
             }
         }
@@ -87,9 +88,10 @@ struct SaveButtonWhite: View {
 
 struct CancelButtonWhite: View {
     let action: () -> Void
+    
     var body: some View {
-        WhiteArea {
-            Button(action: action) {
+        Button(action: action) {
+            WhiteArea {
                 Text("Cancelar").frame(maxWidth: .infinity)
             }
         }
@@ -98,9 +100,10 @@ struct CancelButtonWhite: View {
 
 struct UpdateButtonWhite: View {
     let action: () -> Void
+    
     var body: some View {
-        WhiteArea {
-            Button(action: action) {
+        Button(action: action) {
+            WhiteArea {
                 Text("Actualizar").frame(maxWidth: .infinity)
             }
         }
@@ -113,12 +116,12 @@ struct DeleteButtonWhite: View {
     let action: () -> Void
     
     var body: some View {
-        WhiteArea {
-            Button(action: showDeleteAlert) {
+        Button(action: showDeleteAlert) {
+            WhiteArea {
                 Text("Eliminar").frame(maxWidth: .infinity)
             }
-            .alertDelete(showed: $deleteAlertShowed, action: action)
         }
+        .alertDelete(showed: $deleteAlertShowed, action: action)
     }
     
     private func showDeleteAlert() {
@@ -129,8 +132,8 @@ struct DeleteButtonWhite: View {
 struct AcceptButtonWhite: View {
     let action: () -> Void
     var body: some View {
-        WhiteArea {
-            Button(action: action) {
+        Button(action: action) {
+            WhiteArea {
                 Text("Aceptar").frame(maxWidth: .infinity)
             }
         }
@@ -143,12 +146,13 @@ struct DeclineButtonWhite: View {
     let action: () -> Void
     
     var body: some View {
-        WhiteArea {
-            Button(action: showDeclineAlert) {
+        Button(action: showDeclineAlert) {
+            WhiteArea {
                 Text("Rechazar").frame(maxWidth: .infinity)
             }
-            .alertDecline(showed: $declineAlertShowed, action: action)
         }
+        .alertDecline(showed: $declineAlertShowed, action: action)
+        
     }
     
     private func showDeclineAlert() {
@@ -162,12 +166,12 @@ struct CancelInvitationButtonWhite: View {
     let action: () -> Void
     
     var body: some View {
-        WhiteArea {
-            Button(action: showDeclineAlert) {
+        Button(action: showDeclineAlert) {
+            WhiteArea {
                 Text("Cancelar invitación").frame(maxWidth: .infinity)
             }
-            .alertDecline(showed: $cancelAlertShowed, action: action)
         }
+        .alertDecline(showed: $cancelAlertShowed, action: action)
     }
     
     private func showDeclineAlert() {
