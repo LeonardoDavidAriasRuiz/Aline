@@ -22,7 +22,7 @@ struct CashOutView: View {
     @State private var employeesCountSelected: Int = 0
     @State private var tipsDate: Date = Date()
     
-    @State private var done: Bool = false
+    @State private var isLoading: Bool = false
     @State private var errorOn: Bool = false
     @State private var errorAlert: AlertType = .dataObtainingError
     
@@ -35,7 +35,7 @@ struct CashOutView: View {
                 if cashOutSectionSelected == "Ventas" {
                     salesCashOutArea
                 } else {
-                    LoadingIfNotReady($done) {
+                    LoadingIfNotReady($isLoading) {
                         tipsCahsOutArea
                     }
                 }
@@ -169,18 +169,18 @@ struct CashOutView: View {
         if restaurantVM.restaurant.adminUsersIds.contains(userVM.user.id) {
             selectedImage = UIImage(named: "AppIcon")
         }
-        done = false
+        isLoading = true
         accentColor.red()
         employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
             switch result {
                 case .success(let employees):
                     self.employees = employees.filter { $0.isActive }
                     employeesSelected = Array(repeating: false, count: employees.count)
-                    done = true
                 case .failure:
                     errorOn = true
                     errorAlert = .dataObtainingError
             }
+            isLoading = false
         }
     }
     
