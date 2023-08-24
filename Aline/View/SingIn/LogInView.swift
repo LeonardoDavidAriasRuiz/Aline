@@ -23,7 +23,8 @@ struct LogInView: View {
     @State private var wrongCodeAlertActive: Bool = false
     @State private var codeValid: Bool = false
     
-    private let title: String = "Registro"
+    private var section: MenuSection = .login
+    
     private let titleFont: Font = Font.system(size: 90)
     private let nameTitle: String = "Nombre"
     private let emailTitle: String = "Email"
@@ -34,8 +35,8 @@ struct LogInView: View {
     
     
     var body: some View {
-        Sheet(title: title) {
-            Text(title)
+        Sheet(section: section) {
+            Text(section.title)
                 .bold()
                 .font(titleFont)
             WhiteArea {

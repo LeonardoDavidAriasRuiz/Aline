@@ -28,10 +28,9 @@ struct RestaurantView: View {
     }
     
     var body: some View {
-        Sheet(title: restaurant.name) {
+        Sheet(section: .restaurant) {
             restauranInfo
-            ConectionsView(restaurant: restaurant)
-                .padding(.top, 20)
+            ConectionsView(restaurant: restaurant).padding(.top, 20)
         }
     }
     

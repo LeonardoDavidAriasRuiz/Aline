@@ -32,7 +32,7 @@ struct ConectionsListView: View {
             Header("Invitaciones recividas")
             WhiteArea {
                 ForEach(receivedConections, id: \.self) { conection in
-                    NavigationLink(destination: ConectionReceivedView(conection: conection, conections: $receivedConections)) {
+                    NavigationLink(destination: ConectionReceivedView(conections: $receivedConections, conection: conection)) {
                         HStack {
                             Text(conection.restaurantName).foregroundStyle(.black)
                             Spacer()

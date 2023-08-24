@@ -23,8 +23,6 @@ struct DepositsView: View {
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = AlertType.dataObtainingError
     
-    private let tint: Color = .blue
-    private let title: String = "Depositos"
     private let newDepositRangeForStepper: ClosedRange<Int> = 50...10000
     private let newDepositStepQuantity: Int = 50
     private let cancelButtonText: String = "Cancelar"
@@ -37,14 +35,13 @@ struct DepositsView: View {
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: title) {
+            Sheet(section: .deposits) {
                 editableDepositArea
                 deposits.isEmpty ? nil : depositsListArea
             }
         }
-        .tint(tint)
         .alertInfo(alertType, showed: $alertShowed)
-        .onAppear(perform: onAppear)
+        .onAppear(perform: getDeposits)
     }
     
     private var depositsListArea: some View {
@@ -161,12 +158,7 @@ struct DepositsView: View {
         }
     }
     
-    private func onAppear() {
-        accentColor.blue()
-        fetchDeposits()
-    }
-    
-    private func fetchDeposits() {
+    private func getDeposits() {
         depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { result in
             switch result {
                 case .success(let depositsObtainde):

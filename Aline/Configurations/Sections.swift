@@ -15,10 +15,20 @@ enum MenuSection {
     case contador
     case deposits
     case employees
+    case login
     case spendings
     case payRoll
     case sales
     case tips
+    
+    case resturants
+    case conectionSent
+    case conectionReceived
+    case conection
+    case editableEmail
+    case editableName
+    case restaurant
+    case inviteUser
     
     var title: String {
         switch self {
@@ -29,10 +39,20 @@ enum MenuSection {
             case .contador: return "Contador"
             case .deposits: return "Depósitos"
             case .employees: return "Empleados"
+            case .login: return "Registro"
             case .spendings: return "Gastos"
             case .payRoll: return "PayRoll"
             case .sales: return "Ventas"
             case .tips: return "Propinas"
+                
+            case .resturants: return "Restaurantes"
+            case .conectionReceived: return "Invitación pendiente"
+            case .conectionSent: return "Invitación pendiente"
+            case .conection: return "Usuario"
+            case .editableEmail: return "Email"
+            case .editableName: return "Nombre"
+            case .restaurant: return "Restaurante"
+            case .inviteUser: return "Invitar usuario"
         }
     }
     
@@ -45,49 +65,20 @@ enum MenuSection {
             case .contador: return Color.blue
             case .deposits: return Color.blue
             case .employees: return Color.orange
+            case .login: return Color.green
             case .spendings: return Color.red
             case .payRoll: return Color.red
             case .sales: return Color.green
             case .tips: return Color.orange
-        }
-    }
-    
-    @ViewBuilder
-    var view: some View {
-        switch self {
-            case .account: AccountView()
-            case .beneficiaries: BeneficiariosView()
-            case .cashOut: CashOutView()
-            case .checks: ChecksView()
-            case .contador: ContadorView()
-            case .deposits: DepositsView()
-            case .employees: EmployeesView()
-            case .spendings: SpendingsView()
-            case .payRoll: PayRollView()
-            case .sales: SalesView()
-            case .tips: TipsView()
-        }
-    }
-}
-
-enum MenuSubsection {
-    case resturants
-    case conectionSent
-    case conectionReceived
-    
-    var title: String {
-        switch self {
-            case .resturants: return "Restaurantes"
-            case .conectionReceived: return "Invitación pendiente"
-            case .conectionSent: return "Invitación pendiente"
-        }
-    }
-    
-    var color: Color {
-        switch self {
+                
             case .resturants: return Color.green
             case .conectionReceived: return Color.green
             case .conectionSent: return Color.green
+            case .conection: return Color.green
+            case .editableEmail: return AccentColor().tint
+            case .editableName: return AccentColor().tint
+            case .restaurant: return Color.green
+            case .inviteUser: return Color.green
         }
     }
 }

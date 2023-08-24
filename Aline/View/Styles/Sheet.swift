@@ -7,24 +7,26 @@
 
 import SwiftUI
 
-struct Sheet<Content: View>: View {
+struct Sheet<Content> : View where Content : View {
     @EnvironmentObject private var accentColor: AccentColor
-    let title: String
-    let tint: Color
+    private var title: String
+    private var tint: Color
     let content: () -> Content
     
-    init(title: String, tint: Color, @ViewBuilder content: @escaping () -> Content) {
+    init(section: MenuSection, @ViewBuilder content: @escaping () -> Content) {
+        self.title = section.title
+        self.tint = section.color
         self.content = content
-        self.tint = tint
-        self.title = title
     }
     
     var body: some View {
         ScrollView {
-            VStack(content: content)
-                .frame(maxWidth: 800)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
+            VStack{
+                content()
+            }
+            .frame(maxWidth: 800)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
         }
         .tint(tint)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

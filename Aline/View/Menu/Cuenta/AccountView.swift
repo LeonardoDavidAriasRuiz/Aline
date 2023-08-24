@@ -10,11 +10,9 @@ import SwiftUI
 struct AccountView: View {
     @State private var isLoading: Bool = false
     
-    private var section: MenuSection = .account
-    
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: section.title, tint: section.color) {
+            Sheet(section: .account) {
                 UserInformationView()
                 NavigationLink(destination: RestaurantsListView()) {
                     WhiteArea {
@@ -28,6 +26,7 @@ struct AccountView: View {
                 .padding(.vertical, 30)
                 
                 ConectionsListView(isLoading: $isLoading)
+                
             }
         }
     }

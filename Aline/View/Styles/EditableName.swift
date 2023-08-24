@@ -15,7 +15,7 @@ struct EditableName: View {
     @State private var updateButtonDisabled: Bool = true
     let accion: () -> Void
     var body: some View {
-        Sheet(title: "Nombre") {
+        Sheet(section: .editableName) {
             WhiteArea {
                 TextField("Nombre", text: $newName)
                     .textInputAutocapitalization(.words)

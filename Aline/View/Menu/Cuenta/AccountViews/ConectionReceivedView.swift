@@ -29,11 +29,9 @@ struct ConectionReceivedView: View {
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
-    private let subsection: MenuSubsection = .conectionReceived
-    
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: subsection.title, tint: subsection.color) {
+            Sheet(section: .conectionReceived) {
                 WhiteArea {
                     userInfo(title: nameText, value: restaurant.name)
                     Divider()
@@ -41,13 +39,13 @@ struct ConectionReceivedView: View {
                     Divider()
                     userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
                 }
-                .onAppear(perform: getRestaurantInformation)
-                .alertInfo(alertType, showed: $alertShowed)
                 
                 AcceptButtonWhite(action: accept)
                 DeclineButtonWhite(action: decline)
             }
         }
+        .onAppear(perform: getRestaurantInformation)
+        .alertInfo(alertType, showed: $alertShowed)
     }
     
     private func getRestaurantInformation() {

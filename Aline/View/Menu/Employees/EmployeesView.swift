@@ -26,8 +26,6 @@ struct EmployeesView: View {
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
-    private let section: MenuSection = .employees
-    
     private let newEmployeeButtonText: String = "Nuevo empleado"
     private let nameFieldText: String = "Nombre"
     private let lastNameFieldText: String = "Apellido"
@@ -35,7 +33,7 @@ struct EmployeesView: View {
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
-            Sheet(title: section.title, tint: section.color) {
+            Sheet(section: .employees) {
                 editableEmployeeArea
                 WhiteArea {
                     employees.isNotEmpty ? employeesListArea : nil

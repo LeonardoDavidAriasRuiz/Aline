@@ -24,7 +24,7 @@ struct NewConectionView: View {
     
     var body: some View {
         LoadingIfNotReady($done) {
-            Sheet(title: "Invitar usuario") {
+            Sheet(section: .inviteUser) {
                 WhiteArea {
                     HStack {
                         Text("Para:")

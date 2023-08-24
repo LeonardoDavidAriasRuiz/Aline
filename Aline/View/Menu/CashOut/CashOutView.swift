@@ -30,15 +30,16 @@ struct CashOutView: View {
     @State var selectedImage: UIImage?
     
     var body: some View {
-        Sheet(title: "Corte") {
-            cashOutSectionPicker
-            if cashOutSectionSelected == "Ventas" {
-                salesCashOutArea
-            } else {
-                LoadingIfNotReady($done) {
-                    tipsCahsOutArea
+        Sheet(section: .cashOut) {
+                cashOutSectionPicker
+                if cashOutSectionSelected == "Ventas" {
+                    salesCashOutArea
+                } else {
+                    LoadingIfNotReady($done) {
+                        tipsCahsOutArea
+                    }
                 }
-            }
+            
         }
         .onAppear(perform: onAppear)
         .tint(Color.red)

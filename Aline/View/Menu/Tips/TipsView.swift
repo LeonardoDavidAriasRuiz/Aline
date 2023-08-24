@@ -14,8 +14,7 @@ struct TipsView: View {
     @State private var aaa = 299.0
     
     var body: some View {
-        
-        Sheet(title: "Tips") {
+        Sheet(section: .tips) {
             WhiteArea {
                 DatePicker("", selection: $newDeposit.date, displayedComponents: .date)
                     .datePickerStyle(.graphical)
@@ -25,7 +24,6 @@ struct TipsView: View {
                 Button("Guardar", action: {})
             }
         }
-        .onAppear(perform: accentColor.orange)
     }
 }
 

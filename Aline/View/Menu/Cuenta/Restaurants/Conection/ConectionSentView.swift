@@ -18,15 +18,13 @@ struct ConectionSentView: View {
     
     let conection: Conection
     
-    private let subsection: MenuSubsection = .conectionSent
-    
     private let emailText: String = "Email"
     private let typeText: String = "Tipo"
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
     var body: some View {
-        Sheet(title: subsection.title, tint: subsection.color) {
+        Sheet(section: .conectionSent) {
             WhiteArea {
                 userInfo(title: emailText, value: conection.email)
                 Divider()

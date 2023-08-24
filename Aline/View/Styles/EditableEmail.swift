@@ -24,9 +24,10 @@ struct EditableEmail: View {
     @State private var newEmail: String = ""
     
     var body: some View {
-        Sheet(title: "Email") {
+        Sheet(section: .editableEmail) {
             editableEmailArea
             isCodeValidationAreaVisible ? codeValidationArea : nil
+            
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing, content: {updateButton})

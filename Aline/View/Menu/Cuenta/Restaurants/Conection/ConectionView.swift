@@ -18,7 +18,7 @@ struct ConectionView: View {
     private let emploText: String = "Limitado"
     
     var body: some View {
-        Sheet(title: user.name) {
+        Sheet(section: .conection) {
             WhiteArea {
                 userInfo(title: nameText, value: user.name)
                 Divider()

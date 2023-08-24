@@ -59,7 +59,7 @@ struct ConectionsView: View {
                 }
                 ForEach(sentConections, id: \.self) { conection in
                     if restaurant.id == conection.restaurantId {
-                        NavigationLink(destination: ConectionSentView(conection: conection, conections: $sentConections)) {
+                        NavigationLink(destination: ConectionSentView(conections: $sentConections, conection: conection)) {
                             HStack {
                                 Text(conection.email).foregroundStyle(Color.blue)
                                 Spacer()
