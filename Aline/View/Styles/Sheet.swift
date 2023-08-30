@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-struct Sheet<Content> : View where Content : View {
-    @EnvironmentObject private var accentColor: AccentColor
+struct Sheet<Content: View>: View {
     private var title: String
     private var tint: Color
     private let content: () -> Content
@@ -21,7 +20,7 @@ struct Sheet<Content> : View where Content : View {
     
     var body: some View {
         ScrollView {
-            VStack{
+            VStack {
                 content()
             }
             .frame(maxWidth: 800)
@@ -33,16 +32,10 @@ struct Sheet<Content> : View where Content : View {
         .background(Color.background)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
-        .onAppear(perform: onAppear)
-    }
-    
-    private func onAppear() {
-        accentColor.set(tint)
     }
 }
 
 struct FullSheet<Content: View>: View {
-    @EnvironmentObject private var accentColor: AccentColor
     private let content: () -> Content
     private let tint: Color
     private let title: String
@@ -64,11 +57,6 @@ struct FullSheet<Content: View>: View {
         .background(Color.background)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
-        .onAppear(perform: onAppear)
-    }
-    
-    private func onAppear() {
-        accentColor.set(tint)
     }
 }
 

@@ -10,24 +10,24 @@ import SwiftUI
 struct MenuView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
-    @EnvironmentObject private var userVM: UserViewModel
-    @EnvironmentObject private var accentColor: AccentColor
     
     @State private var isLoading: Bool = false
     
     var body: some View {
-        NavigationView {
-            if !isLoading {
-                menuList
-                    .background(Color.background)
-                    .navigationTitle("Menu")
-                    .toolbar {
-                        ToolbarItemGroup(placement: .navigationBarTrailing) {
-                            restaurantPicker
+        LoadingIfNotReady($isLoading) {
+            NavigationView {
+                if !isLoading {
+                    menuList
+                        .background(Color.background)
+                        .navigationTitle("Menu")
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                                restaurantPicker
+                            }
                         }
-                    }
+                    SalesView()
+                }
             }
-            
         }
         .onChange(of: restaurantVM.currentRestaurantId, setRestaurant)
         .alertInfo(.dataObtainingError, showed: $restaurantVM.dataNotObtained)
@@ -84,11 +84,12 @@ struct MenuView: View {
 }
 
 fileprivate struct MenuOption<Content: View>: View {
+    @EnvironmentObject private var accentColor: AccentColor
     let title: String
     let content: () -> Content
     
     var body: some View {
-        NavigationLink( destination: content(), label: {options[title]})
+        NavigationLink( destination: content().onAppear(perform: setAccentColor), label: {options[title]})
     }
     
     private let options = [
@@ -104,6 +105,10 @@ fileprivate struct MenuOption<Content: View>: View {
         "Contador" :      OptionTitleView(color: .blue, title: "Contador",          icon: "person.text.rectangle.fill"),
         "Cuenta" :        OptionTitleView(color: .green,  title: "Cuenta",          icon: "person.crop.circle")
     ]
+    
+    private func setAccentColor() {
+        accentColor.set(options[title]?.color ?? Color.green)
+    }
 }
 
 fileprivate struct OptionTitleView: View {

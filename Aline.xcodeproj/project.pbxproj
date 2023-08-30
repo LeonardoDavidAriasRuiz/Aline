@@ -50,7 +50,8 @@
 		A76BD6D62A66B703007043CC /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76BD6D52A66B703007043CC /* Keys.swift */; };
 		A772C4F82A965E4000B7632E /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A772C4F72A965E4000B7632E /* Buttons.swift */; };
 		A772C4FA2A967FC200B7632E /* Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = A772C4F92A967FC200B7632E /* Sections.swift */; };
-		A7933A792A97D564008C4C2F /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7933A782A97D564008C4C2F /* FiltersView.swift */; };
+		A78AD50A2A9F06ED005495E7 /* SalesCashOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A78AD5092A9F06ED005495E7 /* SalesCashOutView.swift */; };
+		A78AD50C2A9F7747005495E7 /* TipsCashOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A78AD50B2A9F7747005495E7 /* TipsCashOutView.swift */; };
 		A79687172A69981B00EA29CE /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79687162A69981B00EA29CE /* AccentColor.swift */; };
 		A79E077F2A8D408D007C0195 /* BoolsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E077E2A8D408D007C0195 /* BoolsExtension.swift */; };
 		A79E07822A8D4E99007C0195 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79E07812A8D4E99007C0195 /* Camera.swift */; };
@@ -72,6 +73,7 @@
 		A7E185C62A81D14100C71501 /* LoadingIfNotReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E185C52A81D14100C71501 /* LoadingIfNotReady.swift */; };
 		A7E185C82A81D1A300C71501 /* WhiteArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E185C72A81D1A300C71501 /* WhiteArea.swift */; };
 		A7E185CA2A81D1BA00C71501 /* ViewStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E185C92A81D1BA00C71501 /* ViewStruct.swift */; };
+		A7EDC38D2A9D21EA00C906A2 /* DecimalField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EDC38C2A9D21EA00C906A2 /* DecimalField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,7 +141,8 @@
 		A76BD6D52A66B703007043CC /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		A772C4F72A965E4000B7632E /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
 		A772C4F92A967FC200B7632E /* Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sections.swift; sourceTree = "<group>"; };
-		A7933A782A97D564008C4C2F /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
+		A78AD5092A9F06ED005495E7 /* SalesCashOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesCashOutView.swift; sourceTree = "<group>"; };
+		A78AD50B2A9F7747005495E7 /* TipsCashOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsCashOutView.swift; sourceTree = "<group>"; };
 		A79687162A69981B00EA29CE /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
 		A79E077E2A8D408D007C0195 /* BoolsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolsExtension.swift; sourceTree = "<group>"; };
 		A79E07812A8D4E99007C0195 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
@@ -161,6 +164,7 @@
 		A7E185C52A81D14100C71501 /* LoadingIfNotReady.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIfNotReady.swift; sourceTree = "<group>"; };
 		A7E185C72A81D1A300C71501 /* WhiteArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhiteArea.swift; sourceTree = "<group>"; };
 		A7E185C92A81D1BA00C71501 /* ViewStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStruct.swift; sourceTree = "<group>"; };
+		A7EDC38C2A9D21EA00C906A2 /* DecimalField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,7 +253,6 @@
 			isa = PBXGroup;
 			children = (
 				7E51BC4529D4C1A700D6D33C /* SalesView.swift */,
-				A7933A782A97D564008C4C2F /* FiltersView.swift */,
 			);
 			path = Sales;
 			sourceTree = "<group>";
@@ -331,6 +334,7 @@
 				A7460F102A89979500760BF3 /* AlineColors.swift */,
 				A79E077E2A8D408D007C0195 /* BoolsExtension.swift */,
 				A772C4F72A965E4000B7632E /* Buttons.swift */,
+				A7EDC38C2A9D21EA00C906A2 /* DecimalField.swift */,
 			);
 			path = Styles;
 			sourceTree = "<group>";
@@ -360,6 +364,8 @@
 			isa = PBXGroup;
 			children = (
 				7E80B12A29DDEED0006CAC82 /* CashOutView.swift */,
+				A78AD5092A9F06ED005495E7 /* SalesCashOutView.swift */,
+				A78AD50B2A9F7747005495E7 /* TipsCashOutView.swift */,
 			);
 			path = CashOut;
 			sourceTree = "<group>";
@@ -601,6 +607,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A78AD50A2A9F06ED005495E7 /* SalesCashOutView.swift in Sources */,
 				A7D7E0ED2A79E08200886BC8 /* NewConectionView.swift in Sources */,
 				7E51BC4629D4C1A700D6D33C /* SalesView.swift in Sources */,
 				A72A46742A4E65D5008CA2EE /* LoadingView.swift in Sources */,
@@ -633,13 +640,14 @@
 				A7A45D2F2A82CCFB00871C62 /* ConectionsListView.swift in Sources */,
 				7E51BC7D29D5660000D6D33C /* SignInView.swift in Sources */,
 				A7460F112A89979500760BF3 /* AlineColors.swift in Sources */,
+				A7EDC38D2A9D21EA00C906A2 /* DecimalField.swift in Sources */,
+				A78AD50C2A9F7747005495E7 /* TipsCashOutView.swift in Sources */,
 				7E51BC7529D55EE800D6D33C /* UserViewModel.swift in Sources */,
 				7E6837A429D865D400356B52 /* iCloudOffView.swift in Sources */,
 				A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */,
 				7E782A5329D4BDC200556F99 /* MenuView.swift in Sources */,
 				A73646DD2A93DFCE00FB5488 /* DateFormatting.swift in Sources */,
 				A7A9F7BD2A5F9869000F7554 /* DepositViewModel.swift in Sources */,
-				A7933A792A97D564008C4C2F /* FiltersView.swift in Sources */,
 				7E51BC7B29D565F400D6D33C /* LogInView.swift in Sources */,
 				7E80B14729DFF03A006CAC82 /* EmployeeViewModel.swift in Sources */,
 				A7BB726F2A7382AC00FFF5AC /* MailSMTP.swift in Sources */,
