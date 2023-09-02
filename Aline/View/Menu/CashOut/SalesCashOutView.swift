@@ -15,11 +15,14 @@ struct SalesCashOutView: View {
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .crearingError
     
+    @State private var datePickerShowed: Bool = false
+    
     let saleVM: SaleViewModel = SaleViewModel()
     
     var body: some View {
         LoadingIfNotReady($isLoading) {
             VStack {
+                datePicker.padding(.top, 20)
                 totals.padding(.top, 20)
                 sales.padding(.top, 20)
                 SaveButtonWhite(action: save).padding(.top, 20)
@@ -27,6 +30,24 @@ struct SalesCashOutView: View {
             }
         }
         .alertInfo(alertType, showed: $alertShowed)
+    }
+    
+    private var datePicker: some View {
+        WhiteArea {
+            Button(action: {withAnimation{datePickerShowed.toggle()}}) {
+                Text(sale.date.short)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .font(.title2)
+                    .rotationEffect(Angle(degrees: datePickerShowed ? -180 : 0))
+                    .symbolEffect(.bounce, value: datePickerShowed)
+            }
+            if datePickerShowed {
+                Divider()
+                DatePicker("", selection: $sale.date, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+            }
+        }
     }
     
     private var totals: some View {
