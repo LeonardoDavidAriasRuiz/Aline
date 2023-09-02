@@ -33,7 +33,7 @@ class RestaurantViewModel: ObservableObject {
         }
     }
     
-    func fetchRestaurant(with id: String, completion: @escaping (Result<Restaurant, Error>) -> Void) {
+    func fetchRestaurant(with id: String, completion: @escaping (Restaurant?) -> Void) {
         
         let predicate = NSPredicate(format: "\(restaurantKeys.id) == %@", id)
         let query = CKQuery(recordType: restaurantKeys.type, predicate: predicate)
@@ -42,15 +42,15 @@ class RestaurantViewModel: ObservableObject {
         queryOperation.recordMatchedBlock = { (_, result) in
             switch result {
                 case .success(let record):
-                    completion(.success(Restaurant(record: record)))
-                case .failure(let error):
-                    completion(.failure(error))
+                    completion(Restaurant(record: record))
+                case .failure:
+                    completion(.none)
             }
         }
         dataBase.add(queryOperation)
     }
     
-    func fetchRestaurants(for restaurantsList: [String], completion: @escaping (Result<[Restaurant], Error>) -> Void) {
+    func fetchRestaurants(for restaurantsList: [String], completion: @escaping ([Restaurant]?) -> Void) {
         var restaurants: [Restaurant] = []
         
         let predicate = NSPredicate(format: "\(restaurantKeys.id) IN %@", restaurantsList)
@@ -61,19 +61,19 @@ class RestaurantViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     restaurants.append(Restaurant(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(restaurants))
+            completion(restaurants)
         }
         dataBase.add(queryOperation)
         
     }
     
-    func fetchRestaurantsDictionary(for restaurantsList: [String], completion: @escaping (Result<[String : Restaurant], Error>) -> Void) {
+    func fetchRestaurantsDictionary(for restaurantsList: [String], completion: @escaping ([String : Restaurant]?) -> Void) {
         var restaurants: [String : Restaurant] = [:]
         
         let predicate = NSPredicate(format: "\(restaurantKeys.id) IN %@", restaurantsList)
@@ -85,16 +85,16 @@ class RestaurantViewModel: ObservableObject {
                 case .success(let record):
                     let restaurant: Restaurant = Restaurant(record: record)
                     restaurants[restaurant.id] = restaurant
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(restaurants))
+            completion(restaurants)
         }
-        dataBase.add(queryOperation)
         
+        dataBase.add(queryOperation)
     }
     
     func setCurrentRestaurant(_ restaurant: Restaurant) {
@@ -104,22 +104,24 @@ class RestaurantViewModel: ObservableObject {
     }
     
     func getRestaurants(adminRestaurantsIds: [String], emploRestaurantsIds: [String]) {
-        fetchRestaurants(for: adminRestaurantsIds) { result in
+        fetchRestaurants(for: adminRestaurantsIds) { restaurants in
             DispatchQueue.main.async {
-                switch result {
-                    case .success(let restaurants): self.adminRestaurants = restaurants
-                    case .failure: self.dataNotObtained = true
+                if let restaurants = restaurants {
+                    self.adminRestaurants = restaurants
+                } else {
+                    self.dataNotObtained = true
                 }
             }
-            self.fetchRestaurants(for: emploRestaurantsIds) { result in
+            
+            self.fetchRestaurants(for: emploRestaurantsIds) { restaurants in
                 DispatchQueue.main.async {
-                    switch result {
-                        case .success(let restaurants):
-                            self.emploRestaurants.append(contentsOf: restaurants)
-                            guard let fistRestaurant = self.adminRestaurants.first else { return }
-                            self.currentRestaurantId = fistRestaurant.id
-                            self.setCurrentRestaurant(fistRestaurant)
-                        case .failure: self.dataNotObtained = true
+                    if let restaurants = restaurants {
+                        self.emploRestaurants.append(contentsOf: restaurants)
+                        guard let fistRestaurant = self.adminRestaurants.first else { return }
+                        self.currentRestaurantId = fistRestaurant.id
+                        self.setCurrentRestaurant(fistRestaurant)
+                    } else {
+                        self.dataNotObtained = true
                     }
                 }
             }

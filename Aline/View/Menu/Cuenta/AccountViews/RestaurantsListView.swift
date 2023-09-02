@@ -62,15 +62,12 @@ struct RestaurantsListView: View {
                     HStack {
                         Text("Email").foregroundStyle(.black)
                         Spacer()
-                        Text(editableRestaurant.name).foregroundStyle(.black.secondary)
+                        Text(editableRestaurant.email).foregroundStyle(.black.secondary)
                         Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
                     }
                 }
                 Divider()
-                Button(action: saveRestaurant) {
-                    Text("Guardar").frame(maxWidth: .infinity)
-                        .frame(maxWidth: .infinity)
-                }
+                SaveButton(action: saveRestaurant)
                 .disabled(editableRestaurant.name.isEmpty || editableRestaurant.email.isEmpty)
             }
         }
@@ -79,6 +76,7 @@ struct RestaurantsListView: View {
     private func saveRestaurant() {
         editableRestaurant.adminUsersIds.append(userVM.user.id)
         userVM.user.adminRestaurantsIds.append(editableRestaurant.id)
+        userVM.save()
         restaurantVM.save(editableRestaurant, isNew: true)
         adminRestaurants.append(editableRestaurant)
         toggleEditableRestaurant()
@@ -94,6 +92,9 @@ struct RestaurantsListView: View {
     private var adminRestaurantsList: some View {
         VStack {
             ForEach(adminRestaurants) { restaurant in
+                if restaurant != adminRestaurants.first {
+                    Divider()
+                }
                 NavigationLink(destination: RestaurantView(restaurant: restaurant)) {
                     HStack {
                         Text(restaurant.name).foregroundStyle(.black)
@@ -102,7 +103,6 @@ struct RestaurantsListView: View {
                         Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
                     }
                 }
-                Divider()
             }
         }
     }
@@ -113,6 +113,9 @@ struct RestaurantsListView: View {
                 Divider()
             }
             ForEach(emploRestaurants) { restaurant in
+                if restaurant != emploRestaurants.first {
+                    Divider()
+                }
                 NavigationLink(destination: RestaurantView(restaurant: restaurant)) {
                     HStack {
                         Text(restaurant.name).foregroundStyle(.black)
@@ -121,19 +124,17 @@ struct RestaurantsListView: View {
                         Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
                     }
                 }
-                Divider()
             }
         }
     }
     
     private func fetchRestaurants(for ids: [String], completion: @escaping ([Restaurant]) -> Void) {
-        restaurantVM.fetchRestaurants(for: ids) { result in
-            switch result {
-                case .success(let restaurants):
-                    completion(restaurants)
-                case .failure:
-                    alertType = .dataObtainingError
-                    alertShowed = true
+        restaurantVM.fetchRestaurants(for: ids) { restaurants in
+            if let restaurants = restaurants {
+                completion(restaurants)
+            } else {
+                alertType = .dataObtainingError
+                alertShowed = true
             }
         }
     }

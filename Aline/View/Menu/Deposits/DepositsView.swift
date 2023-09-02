@@ -115,16 +115,14 @@ struct DepositsView: View {
         withAnimation {
             isLoading = true
             editableDeposit.restaurantId = restaurantVM.restaurant.id
-            depositVM.save(editableDeposit) { result in
-                switch result {
-                    case .success(let deppsitCreated):
-                        deposits.append(deppsitCreated)
-                        toggleEditableDepositArea()
-                        deposits.sort { $0.date > $1.date }
-                    case .failure:
-                        alertShowed = true
-                        alertType = .crearingError
-                        
+            depositVM.save(editableDeposit) { deposit in
+                if let deposit = deposit {
+                    deposits.append(deposit)
+                    toggleEditableDepositArea()
+                    deposits.sort { $0.date > $1.date }
+                } else {
+                    alertShowed = true
+                    alertType = .crearingError
                 }
                 isLoading = false
             }
@@ -134,16 +132,14 @@ struct DepositsView: View {
     private func delete() {
         withAnimation {
             isLoading = true
-            depositVM.delete(deposit: editableDeposit) { result in
-                switch result {
-                    case .success:
-                        guard let index = deposits.firstIndex(of: editableDeposit) else { return }
-                        deposits.remove(at: index)
-                        toggleEditableDepositArea()
-                    case .failure:
-                        alertShowed = true
-                        alertType = .deletingError
-                        
+            depositVM.delete(deposit: editableDeposit) { deleted in
+                if deleted {
+                    guard let index = deposits.firstIndex(of: editableDeposit) else { return }
+                    deposits.remove(at: index)
+                    toggleEditableDepositArea()
+                } else {
+                    alertShowed = true
+                    alertType = .deletingError
                 }
                 isLoading = false
             }
@@ -159,13 +155,12 @@ struct DepositsView: View {
     }
     
     private func getDeposits() {
-        depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { result in
-            switch result {
-                case .success(let depositsObtainde):
-                    deposits = depositsObtainde
-                case .failure:
-                    alertType = .dataObtainingError
-                    alertShowed = true
+        depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { deposits in
+            if let deposits = deposits {
+                self.deposits = deposits
+            } else {
+                alertType = .dataObtainingError
+                alertShowed = true
             }
             isLoading = false
         }

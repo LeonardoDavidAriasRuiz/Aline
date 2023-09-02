@@ -25,6 +25,7 @@ struct DecimalField: View {
             .keyboardType(.decimalPad)
             .foregroundStyle(Color.black.secondary)
             .onChange(of: decimalInText, validateTipsQuantity)
+            .onChange(of: decimal, returnDecimalToCero)
     }
     
     private func validateTipsQuantity(oldValue: String, newValue: String) {
@@ -37,6 +38,12 @@ struct DecimalField: View {
             } else {
                 decimalInText = oldValue
             }
+        }
+    }
+    
+    private func returnDecimalToCero(oldDecimal: Double , newDecimal: Double) {
+        if newDecimal <= 0.0 {
+            decimalInText = ""
         }
     }
 }

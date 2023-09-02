@@ -13,7 +13,7 @@ class ConectionViewModel: ObservableObject {
     private let userKeys: UserKeys = UserKeys()
     private let conectionKeys: ConectionKeys = ConectionKeys()
     
-    func save(_ conection: Conection, completion: @escaping (Result<CKRecord, Error>) -> Void) {
+    func save(_ conection: Conection, completion: @escaping (Conection?) -> Void) {
         let record: CKRecord = CKRecord(recordType: conectionKeys.type)
         record[conectionKeys.id] = conection.id
         record[conectionKeys.email] = conection.email
@@ -23,14 +23,14 @@ class ConectionViewModel: ObservableObject {
         
         dataBase.save(record) { (record, error) in
             if let record = record {
-                completion(.success(record))
-            } else if let error = error {
-                completion(.failure(error))
+                completion(Conection(record: record))
+            } else {
+                completion(.none)
             }
         }
     }
     
-    func fetchConections(for userList: [String], completion: @escaping (Result<[User], Error>) -> Void) {
+    func fetchConections(for userList: [String], completion: @escaping ([User]?) -> Void) {
         var users: [User] = []
         
         let predicate = NSPredicate(format: "\(userKeys.id) IN %@", userList)
@@ -41,18 +41,18 @@ class ConectionViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     users.append(User(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(users))
+            completion(users)
         }
         dataBase.add(queryOperation)
     }
     
-    func fetchReceivedConections(for email: String, completion: @escaping (Result<[Conection], Error>) -> Void) {
+    func fetchReceivedConections(for email: String, completion: @escaping ([Conection]?) -> Void) {
         var conections: [Conection] = []
         
         let predicate = NSPredicate(format: "\(conectionKeys.email) == %@", email)
@@ -63,18 +63,18 @@ class ConectionViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     conections.append(Conection(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(conections))
+            completion(conections)
         }
         dataBase.add(queryOperation)
     }
     
-    func fetchSentConections(in restaurantId: String, completion: @escaping (Result<[Conection], Error>) -> Void) {
+    func fetchSentConections(in restaurantId: String, completion: @escaping ([Conection]?) -> Void) {
         var conections: [Conection] = []
         
         let predicate = NSPredicate(format: "\(conectionKeys.restaurantId) == %@", restaurantId)
@@ -85,24 +85,21 @@ class ConectionViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     conections.append(Conection(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(conections))
+            completion(conections)
         }
+        
         dataBase.add(queryOperation)
     }
     
-    func delete(_ conection: Conection, completion: @escaping (Result<Bool, Error>) -> Void) {
-        self.dataBase.delete(withRecordID: conection.record.recordID) { (_, error) in
-            guard let error = error else {
-                completion(.success(true))
-                return
-            }
-            completion(.failure(error))
+    func delete(_ conection: Conection, completion: @escaping (Bool) -> Void) {
+        self.dataBase.delete(withRecordID: conection.record.recordID) { (recordID, _) in
+            completion(recordID != nil)
         }
     }
 }

@@ -22,7 +22,6 @@ struct EmployeesView: View {
     @State private var editableEmployeeAreaOpened: Bool = false
     @State private var isNewEmployeeReadyToSave: Bool = false
     
-    @State private var alertDeletingEmployee: Bool = false
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
@@ -35,8 +34,10 @@ struct EmployeesView: View {
         LoadingIfNotReady($isLoading) {
             Sheet(section: .employees) {
                 editableEmployeeArea
-                WhiteArea {
-                    employees.isNotEmpty ? employeesListArea : nil
+                if employees.isNotEmpty {
+                    WhiteArea {
+                        employeesListArea
+                    }
                 }
             }
             .onChange(of: editableEmployee, validateEmployee)
@@ -128,16 +129,15 @@ struct EmployeesView: View {
         withAnimation {
             isLoading = true
             editableEmployee.restaurantId = restaurantVM.currentRestaurantId
-            employeeVM.save(editableEmployee, isNew: true) { result in
-                switch result {
-                    case .success(let employee):
-                        employees.append(employee)
-                    default:
-                        alertShowed = true
-                        alertType = .crearingError
+            employeeVM.save(editableEmployee, isNew: true) { employee in
+                if let employee = employee {
+                    employees.append(employee)
+                    toggleEditableDepositArea()
+                } else {
+                    alertShowed = true
+                    alertType = .crearingError
                 }
                 isLoading = false
-                toggleEditableDepositArea()
             }
         }
     }
@@ -145,17 +145,16 @@ struct EmployeesView: View {
     private func update() {
         withAnimation {
             isLoading = true
-            employeeVM.save(editableEmployee, isNew: false) { result in
-                switch result {
-                    case .success(let employee):
-                        guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
-                        employees[index] = employee
-                    case .failure:
-                        alertShowed = true
-                        alertType = .updatingError
+            employeeVM.save(editableEmployee, isNew: false) { employee in
+                if let employee = employee {
+                    guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
+                    employees[index] = employee
+                    toggleEditableDepositArea()
+                } else {
+                    alertShowed = true
+                    alertType = .updatingError
                 }
                 isLoading = false
-                toggleEditableDepositArea()
             }
         }
     }
@@ -163,16 +162,15 @@ struct EmployeesView: View {
     private func delete() {
         withAnimation {
             isLoading = true
-            employeeVM.delete(editableEmployee) { result in
-                switch result {
-                    case .success:
-                        employees.removeAll { $0 == editableEmployee }
-                    case .failure:
-                        alertShowed = true
-                        alertType = .deletingError
+            employeeVM.delete(editableEmployee) { deleted in
+                if deleted {
+                    employees.removeAll { $0 == editableEmployee }
+                    toggleEditableDepositArea()
+                } else {
+                    alertShowed = true
+                    alertType = .deletingError
                 }
                 isLoading = false
-                toggleEditableDepositArea()
             }
         }
     }
@@ -180,13 +178,12 @@ struct EmployeesView: View {
     private func getEmployees() {
         withAnimation {
             isLoading = true
-            employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
-                switch result {
-                    case .success(let employees):
-                        self.employees = employees
-                    case .failure:
-                        alertShowed = true
-                        alertType = .dataObtainingError
+            employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
+                if let employees = employees {
+                    self.employees = employees
+                } else {
+                    alertShowed = true
+                    alertType = .dataObtainingError
                 }
                 isLoading = false
             }

@@ -171,7 +171,7 @@ struct CancelInvitationButtonWhite: View {
                 Text("Cancelar invitación").frame(maxWidth: .infinity)
             }
         }
-        .alertDecline(showed: $cancelAlertShowed, action: action)
+        .alertCacelInvitation(showed: $cancelAlertShowed, action: action)
     }
     
     private func showDeclineAlert() {

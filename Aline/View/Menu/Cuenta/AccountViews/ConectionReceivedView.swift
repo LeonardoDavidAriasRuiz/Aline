@@ -50,12 +50,11 @@ struct ConectionReceivedView: View {
     
     private func getRestaurantInformation() {
         restaurantVM.fetchRestaurant(with: conection.restaurantId) { result in
-            switch result {
-                case .success(let restaurant):
-                    self.restaurant = restaurant
-                case .failure:
-                    alertType = .dataObtainingError
-                    alertShowed = true
+            if let restaurant = result {
+                self.restaurant = restaurant
+            } else {
+                alertType = .dataObtainingError
+                alertShowed = true
             }
             isLoading = false
         }

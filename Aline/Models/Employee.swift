@@ -24,6 +24,7 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
             _record[keys.id] = id
             _record[keys.name] = name
             _record[keys.lastName] = lastName
+            _record[keys.isActive] = isActive
             _record[keys.restaurantId] = restaurantId
             return _record
         }
@@ -31,6 +32,7 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
             id = record[keys.id] ?? ""
             name = record[keys.name] ?? ""
             lastName = record[keys.lastName] ?? ""
+            isActive = record[keys.isActive] ?? false
             restaurantId = record[keys.restaurantId] ?? ""
             _record = newRecord
         }

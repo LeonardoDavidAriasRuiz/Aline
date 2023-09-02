@@ -14,17 +14,17 @@ class EmployeeViewModel: ObservableObject {
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let employeeKeys: EmployeeKeys = EmployeeKeys()
     
-    func delete(_ employee: Employee, completion: @escaping (Result<Bool, Error>) -> Void) {
-        dataBase.delete(withRecordID: employee.record.recordID) { (_, error) in
-            if let error = error {
-                completion(.failure(error))
+    func save(_ employee: Employee, isNew: Bool, completion: @escaping (Employee?) -> Void) {
+        dataBase.save(employee.record) { record, _ in
+            if let record = record {
+                completion(Employee(record: record))
             } else {
-                completion(.success(true))
+                completion(.none)
             }
         }
     }
     
-    func fetchEmployees(for restaurantId: String, completion: @escaping (Result<[Employee], Error>) -> Void) {
+    func fetchEmployees(for restaurantId: String, completion: @escaping ([Employee]?) -> Void) {
         var employees: [Employee] = []
         
         let predicate = NSPredicate(format: "\(employeeKeys.restaurantId) == %@", restaurantId)
@@ -36,31 +36,20 @@ class EmployeeViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     employees.append(Employee(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { _ in
-            completion(.success(employees))
+            completion(employees)
         }
         dataBase.add(queryOperation)
     }
     
-    func save(_ employee: Employee, isNew: Bool, completion: @escaping (Result<Employee, Error>) -> Void) {
-        let record = isNew ? CKRecord(recordType: employeeKeys.type) : employee.record
-        record[employeeKeys.id] = employee.id
-        record[employeeKeys.name] = employee.name
-        record[employeeKeys.lastName] = employee.lastName
-        record[employeeKeys.isActive] = employee.isActive
-        record[employeeKeys.restaurantId] = employee.restaurantId
-        
-        dataBase.save(record) { record, error in
-            if let record = record {
-                completion(.success(Employee(record: record)))
-            } else if let error = error {
-                completion(.failure(error))
-            }
+    func delete(_ employee: Employee, completion: @escaping (Bool) -> Void) {
+        dataBase.delete(withRecordID: employee.record.recordID) { (recordID, _) in
+            completion(recordID != nil)
         }
     }
 }

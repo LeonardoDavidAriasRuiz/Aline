@@ -12,7 +12,18 @@ class DepositViewModel: ObservableObject {
     private let publicCloudDB = CKContainer.default().publicCloudDatabase
     private let depositKeys: DepositKeys = DepositKeys()
     
-    func fetchDeposits(for restaurantId: String, completion: @escaping (Result<[Deposit], Error>) -> Void) {
+    func save(_ deposit: Deposit, completion: @escaping (Deposit?) -> Void) {
+        guard deposit.restaurantId.isNotEmpty else { return }
+        publicCloudDB.save(deposit.getCKRecord()) { record, error in
+            if let record = record {
+                completion(Deposit(record: record))
+            } else {
+                completion(.none)
+            }
+        }
+    }
+    
+    func fetchDeposits(for restaurantId: String, completion: @escaping ([Deposit]?) -> Void) {
         var deposits: [Deposit] = []
         let predicate = NSPredicate(format: "\(depositKeys.restaurantId) == %@", restaurantId)
         let query = CKQuery(recordType: depositKeys.type, predicate: predicate)
@@ -23,41 +34,20 @@ class DepositViewModel: ObservableObject {
             switch result {
                 case .success(let record):
                     deposits.append(Deposit(record: record))
-                case .failure(let error):
-                    completion(.failure(error))
+                case .failure:
+                    completion(.none)
             }
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(.success(deposits))
+            completion(deposits)
         }
         publicCloudDB.add(queryOperation)
     }
     
-    func delete(deposit: Deposit, completion: @escaping (Result<Bool, Error>) -> Void) {
-        publicCloudDB.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, error in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.success(true))
-            }
+    func delete(deposit: Deposit, completion: @escaping (Bool) -> Void) {
+        publicCloudDB.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, _ in
+            completion(recordID != nil)
         }
-    }
-    
-    func save(_ deposit: Deposit, completion: @escaping (Result<Deposit, Error>) -> Void) {
-        guard deposit.restaurantId.isNotEmpty else { return }
-        publicCloudDB.save(deposit.getCKRecord()) { record, error in
-            if let record = record {
-                completion(.success(Deposit(record: record)))
-            } else if let error = error {
-                completion(.failure(error))
-            }
-        }
-    }
-}
-
-extension Collection {
-    var isNotEmpty: Bool {
-        return !self.isEmpty
     }
 }
