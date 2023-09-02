@@ -15,7 +15,9 @@ struct ConectionsView: View {
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
-    @State private var dataNotObtained: Bool = false
+    @State private var alertType: AlertType = .dataObtainingError
+    @State private var alertShowed: Bool = false
+    
     @State private var adminUsers: [User] = []
     @State private var emploUsers: [User] = []
     @State private var sentConections: [Conection] = []
@@ -24,7 +26,7 @@ struct ConectionsView: View {
     var body: some View {
         list
             .onAppear(perform: getConections)
-            .alertInfo(.dataObtainingError, showed: $dataNotObtained)
+            .alertInfo(alertType, showed: $alertShowed)
     }
     
     var list: some View {
@@ -85,18 +87,22 @@ struct ConectionsView: View {
     }
     
     private func getConections() {
-        conectionVM.fetchConections(for: restaurant.adminUsersIds) { result in
+        conectionVM.fetchConections(for: restaurant.adminUsersIds) { users in
             DispatchQueue.main.async {
-                switch result {
-                    case .success(let users): self.adminUsers = users
-                    case .failure: self.dataNotObtained = true
+                if let users = users {
+                    adminUsers = users
+                } else {
+                    alertType = .dataObtainingError
+                    alertShowed = true
                 }
             }
-            self.conectionVM.fetchConections(for: self.restaurant.emploUsersIds) { result in
+            self.conectionVM.fetchConections(for: self.restaurant.emploUsersIds) { users in
                 DispatchQueue.main.async {
-                    switch result {
-                        case .success(let users): self.emploUsers.append(contentsOf: users)
-                        case .failure: self.dataNotObtained = true
+                    if let users = users {
+                        emploUsers.append(contentsOf: users)
+                    } else {
+                        alertType = .dataObtainingError
+                        alertShowed = true
                     }
                 }
             }
@@ -107,12 +113,12 @@ struct ConectionsView: View {
     }
     
     private func getSentConections() {
-        self.conectionVM.fetchSentConections(in: restaurant.id) { result in
-            switch result {
-                case .success(let conections):
-                    sentConections = conections
-                case .failure:
-                    dataNotObtained = true
+        self.conectionVM.fetchSentConections(in: restaurant.id) { conections in
+            if let conections = conections {
+                sentConections = conections
+            } else {
+                alertType = .dataObtainingError
+                alertShowed = true
             }
         }
         firstAppear = false

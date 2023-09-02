@@ -126,14 +126,13 @@ struct TipsCashOutView: View {
             selectedImage = UIImage(named: "AppIcon")
         }
         isLoading = true
-        employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { result in
-            switch result {
-                case .success(let employees):
-                    self.employees = employees.filter { $0.isActive }
-                    employeesSelected = Array(repeating: false, count: employees.count)
-                case .failure:
-                    errorOn = true
-                    errorAlert = .dataObtainingError
+        employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
+            if let employees = employees {
+                self.employees = employees.filter { $0.isActive }
+                employeesSelected = Array(repeating: false, count: employees.count)
+            } else {
+                errorOn = true
+                errorAlert = .dataObtainingError
             }
             isLoading = false
         }

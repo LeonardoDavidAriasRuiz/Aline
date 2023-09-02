@@ -37,23 +37,37 @@ struct RestaurantView: View {
     private var restauranInfo: some View {
         VStack(alignment: .leading) {
             WhiteArea {
-                NavigationLink(destination: EditableName(name: $restaurantEditable.name, accion: {restaurantVM.save(restaurantEditable, isNew: false)}), label: {
-                    HStack {
-                        Text(nameTitle).foregroundStyle(.black)
-                        Spacer()
-                        Text(restaurantEditable.name).foregroundStyle(.black.opacity(0.5))
-                        Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
+                NavigationLink(
+                    destination:
+                        EditableName(
+                            name: $restaurantEditable.name,
+                            accion: {restaurantVM.save(restaurantEditable, isNew: false)}
+                        ),
+                    label: {
+                        HStack {
+                            Text(nameTitle).foregroundStyle(.black)
+                            Spacer()
+                            Text(restaurantEditable.name).foregroundStyle(.black.opacity(0.5))
+                            Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
+                        }
                     }
-                })
+                )
                 Divider()
-                NavigationLink(destination: EditableEmail(email: $restaurantEditable.email, accion: {restaurantVM.save(restaurantEditable, isNew: false)}), label: {
-                    HStack {
-                        Text(emailTitle).foregroundStyle(.black)
-                        Spacer()
-                        Text(restaurantEditable.email).foregroundStyle(.black.opacity(0.5))
-                        Image(systemName: "chevron.right").foregroundStyle(.black.opacity(0.5))
+                NavigationLink(
+                    destination:
+                        EditableEmail(
+                            email: $restaurantEditable.email,
+                            accion: {restaurantVM.save(restaurantEditable, isNew: false)}
+                        ),
+                    label: {
+                        HStack {
+                            Text(emailTitle).foregroundStyle(.black)
+                            Spacer()
+                            Text(restaurantEditable.email).foregroundStyle(.black.opacity(0.5))
+                            Image(systemName: "chevron.right").foregroundStyle(.black.opacity(0.5))
+                        }
                     }
-                })
+                )
             }
         }
     }

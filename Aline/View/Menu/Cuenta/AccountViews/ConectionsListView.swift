@@ -50,16 +50,15 @@ struct ConectionsListView: View {
     
     private func getConections() {
         isLoading = true
-        conectionVM.fetchReceivedConections(for: userVM.user.email) { result in
+        conectionVM.fetchReceivedConections(for: userVM.user.email) { conections in
             DispatchQueue.main.async {
-                switch result {
-                    case .success(let conections):
-                        receivedConections = conections
-                        isLoading = false
-                    case .failure:
-                        alertShowed = true
-                        isLoading = false
+                if let conections = conections {
+                    receivedConections = conections
+                } else {
+                    alertType = .dataObtainingError
+                    alertShowed = true
                 }
+                isLoading = false
             }
         }
     }

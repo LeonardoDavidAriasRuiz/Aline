@@ -50,12 +50,11 @@ struct ConectionReceivedView: View {
     
     private func getRestaurantInformation() {
         restaurantVM.fetchRestaurant(with: conection.restaurantId) { result in
-            switch result {
-                case .success(let restaurant):
-                    self.restaurant = restaurant
-                case .failure:
-                    alertType = .dataObtainingError
-                    alertShowed = true
+            if let restaurant = result {
+                self.restaurant = restaurant
+            } else {
+                alertType = .dataObtainingError
+                alertShowed = true
             }
             isLoading = false
         }
@@ -76,17 +75,15 @@ struct ConectionReceivedView: View {
     
     private func decline() {
         isLoading = true
-        conectionVM.delete(conection) { result in
-            switch result {
-                case .success:
-                    isLoading = false
-                    conections.removeAll { $0 == conection}
-                    self.presentationMode.wrappedValue.dismiss()
-                case .failure:
-                    isLoading = false
-                    alertType = .decliningError
-                    alertShowed = true
+        conectionVM.delete(conection) { deleted in
+            if deleted {
+                conections.removeAll { $0 == conection}
+                self.presentationMode.wrappedValue.dismiss()
+            } else {
+                alertType = .decliningError
+                alertShowed = true
             }
+            isLoading = false
         }
     }
     

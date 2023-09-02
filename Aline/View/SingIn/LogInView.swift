@@ -23,6 +23,8 @@ struct LogInView: View {
     @State private var wrongCodeAlertActive: Bool = false
     @State private var codeValid: Bool = false
     
+    @State private var alertShowed: Bool = false
+    
     private var section: MenuSection = .login
     
     private let titleFont: Font = Font.system(size: 90)
@@ -91,7 +93,7 @@ struct LogInView: View {
                 .modifier(ButtonColor(color: emailSent ? codeValid ? Color.green : Color.red : Color.blue ))
                 .alertInfo(.verificationCodeMismatch, showed: $wrongCodeAlertActive)
             }
-        }
+        }.alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
     }
     
     private func cancelVerification() {
@@ -101,7 +103,9 @@ struct LogInView: View {
     private func verifyEmail() {
         let code = Int.random(in: 100000...999999)
         let emailInfo: VerifyLoginEmail = VerifyLoginEmail()
-        MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)"))
+        MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)")) { sent in
+            
+        }
         withAnimation {
             rightCode = String(code)
             emailSent = true

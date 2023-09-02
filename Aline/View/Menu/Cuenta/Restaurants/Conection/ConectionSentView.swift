@@ -37,13 +37,13 @@ struct ConectionSentView: View {
     }
     
     private func cancel() {
-        conectionVM.delete(conection) { result in
-            switch result {
-                case .success:
-                    conections.removeAll { $0 == self.conection }
-                    presentationMode.wrappedValue.dismiss()
-                case .failure:
-                    alertShowed = true
+        conectionVM.delete(conection) { deleted in
+            if deleted {
+                conections.removeAll { $0 == self.conection }
+                presentationMode.wrappedValue.dismiss()
+            } else {
+                alertType = .deletingError
+                alertShowed = true
             }
         }
     }

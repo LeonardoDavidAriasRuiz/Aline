@@ -12,10 +12,10 @@ struct NewConectionView: View {
     @EnvironmentObject private var conectionVM: ConectionViewModel
     
     @State private var conection: Conection = Conection(restaurant: Restaurant())
+    @State private var alertType: AlertType = .dataObtainingError
+    @State private var alertShowed: Bool = false
     @State private var isSendButtonDisabled: Bool = true
-    @State private var isAlreadyUser: Bool = false
-    @State private var dataNotObtained: Bool = false
-    @State private var done: Bool = true
+    @State private var isLoading: Bool = false
     
     @Binding var conections: [Conection]
     
@@ -23,7 +23,7 @@ struct NewConectionView: View {
     let restaurant: Restaurant
     
     var body: some View {
-        LoadingIfNotReady($done) {
+        LoadingIfNotReady($isLoading) {
             Sheet(section: .inviteUser) {
                 WhiteArea {
                     HStack {
@@ -39,8 +39,7 @@ struct NewConectionView: View {
                     Toggle("Administrador", isOn: $conection.isAdmin)
                 }
             }
-            .alertInfo(.dataObtainingError, showed: $dataNotObtained)
-            .alertInfo(.emailAlreadyUsed, showed: $isAlreadyUser)
+            .alertInfo(alertType, showed: $alertShowed)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
     }
@@ -52,10 +51,11 @@ struct NewConectionView: View {
     }
     
     private func send() {
-        done = false
         if usersEmails.contains(conection.email) {
-            isAlreadyUser = true
+            alertType = .emailAlreadyUsed
+            alertShowed = true
         } else {
+            isLoading = true
             let name = restaurant.name
             let isAdmin = conection.isAdmin
             let email = conection.email
@@ -63,28 +63,29 @@ struct NewConectionView: View {
             conection.restaurantId = restaurant.id
             conection.restaurantName = restaurant.name
             
-            conectionVM.save(conection) { result in
-                switch result {
-                    case .success(let record):
-                        DispatchQueue.main.async {
-                            self.conections.append(Conection(record: record))
-                            MailSMTP().send(
-                                name: email,
-                                email: email,
-                                subject: emailInfo.subject,
-                                body: emailInfo.body(isAdmin: isAdmin, restaurantName: name)
-                            )
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                done = true
+            conectionVM.save(conection) { conection in
+                if let conection = conection {
+                    DispatchQueue.main.async {
+                        self.conections.append(conection)
+                        MailSMTP().send(
+                            name: email,
+                            email: email,
+                            subject: emailInfo.subject,
+                            body: emailInfo.body(isAdmin: isAdmin, restaurantName: name)
+                        ) { sent in
+                            if sent {
                                 presentationMode.wrappedValue.dismiss()
+                            } else {
+                                alertShowed = true
+                                alertType = .sendingInvitationError
                             }
                         }
-                    case .failure:
-                        DispatchQueue.main.async {
-                            dataNotObtained.toggle()
-                            done = true
-                        }
+                    }
+                } else {
+                    alertShowed = true
+                    alertType = .dataObtainingError
                 }
+                isLoading = false
             }
         }
     }

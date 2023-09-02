@@ -23,15 +23,17 @@ struct EditableEmail: View {
     @State private var codeSent: String = ""
     @State private var newEmail: String = ""
     
+    @State private var alertShowed: Bool = false
+    
     var body: some View {
         Sheet(section: .editableEmail) {
             editableEmailArea
             isCodeValidationAreaVisible ? codeValidationArea : nil
-            
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing, content: {updateButton})
         }
+        .alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
     }
     
     private var editableEmailArea: some View {
@@ -77,7 +79,13 @@ struct EditableEmail: View {
     private func sendEmailWithCode() {
         let code = Int.random(in: 100000...999999)
         let emailInfo: VerifyNewEmail = VerifyNewEmail()
-        MailSMTP().send(name: newEmail, email: newEmail, subject: emailInfo.subject, body: emailInfo.body(code: String(code)))
+        MailSMTP().send(
+            name: newEmail,
+            email: newEmail,
+            subject: emailInfo.subject,
+            body: emailInfo.body(code: String(code))) { result in
+            alertShowed = !result
+        }
         withAnimation {
             codeSent = String(code)
             isEmailWithCodeSent = true

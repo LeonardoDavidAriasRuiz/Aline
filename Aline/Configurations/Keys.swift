@@ -26,6 +26,19 @@ struct RestaurantKeys {
     let linkAdminNoPermited = "Vínculo Admin no permitido"
 }
 
+struct SalesKeys {
+    let type: String = "Sales"
+    let date: String = "date"
+    let carmenTRJTA: String = "carmentrjta"
+    let depo: String = "depo"
+    let dscan: String = "dscan"
+    let doordash: String = "doordash"
+    let online: String = "online"
+    let grubhub: String = "grubhub"
+    let tacobar: String = "tacobar"
+    let restaurantId: String = "restaurantId"
+}
+
 struct ConectionKeys {
     let type = "Conections"
     let id = "id"

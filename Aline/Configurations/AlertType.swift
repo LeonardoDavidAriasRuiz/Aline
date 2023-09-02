@@ -44,6 +44,8 @@ enum AlertType {
     case deletingError
     case decliningError
     case cancelingError
+    case sendingInvitationError
+    case sendingVerificationCodeError
     case confirmDelete
     case confirmDecline
     case verificationCodeResent
@@ -67,6 +69,10 @@ enum AlertType {
                 return "Sucedió un error al tratar de rechazar."
             case .cancelingError:
                 return "Sucedió un error al tratar de cancelar"
+            case .sendingInvitationError:
+                return "Sucedió un error al enviar el email de invitación pero si se creo la invitación."
+            case .sendingVerificationCodeError:
+                return "Sucedió un error al tratar de enviar el código por correo."
             case .confirmDelete:
                 return "¿Estás seguro de que lo quieres eliminar?"
             case .confirmDecline:
