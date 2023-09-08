@@ -18,7 +18,6 @@ struct RestaurantsListView: View {
     
     @State private var isSheetForNewRestaurantOpened: Bool = false
     @State private var editableRestaurant: Restaurant = Restaurant()
-    @State private var updateButtonDisabled: Bool = true
     
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
