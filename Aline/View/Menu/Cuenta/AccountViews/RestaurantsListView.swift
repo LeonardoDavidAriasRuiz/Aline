@@ -10,6 +10,7 @@ import SwiftUI
 struct RestaurantsListView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var adminRestaurants: [Restaurant] = []
@@ -19,18 +20,15 @@ struct RestaurantsListView: View {
     @State private var editableRestaurant: Restaurant = Restaurant()
     @State private var updateButtonDisabled: Bool = true
     
-    @State private var isLoading: Bool = true
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            Sheet(section: .resturants) {
-                newRestaurantsButton
-                WhiteArea {
-                    adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
-                    emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
-                }
+        Sheet(section: .resturants) {
+            newRestaurantsButton
+            WhiteArea {
+                adminRestaurants.isNotEmpty ? adminRestaurantsList : nil
+                emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
             }
         }
         .alertInfo(.dataObtainingError, showed: $alertShowed)
@@ -140,13 +138,13 @@ struct RestaurantsListView: View {
     }
     
     private func getRestaurants() {
-        isLoading = true
+        loading.isLoading = true
         fetchRestaurants(for: userVM.user.adminRestaurantsIds) { restaurants in
-            self.adminRestaurants = restaurants
+            adminRestaurants = restaurants
         }
         fetchRestaurants(for: userVM.user.emploRestaurantsIds) { restaurants in
-            self.emploRestaurants = restaurants
-            isLoading = false
+            emploRestaurants = restaurants
+            loading.isLoading = false
         }
     }
 }

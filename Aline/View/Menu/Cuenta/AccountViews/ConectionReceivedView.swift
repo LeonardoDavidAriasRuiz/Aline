@@ -12,12 +12,12 @@ struct ConectionReceivedView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     
     @State private var restaurant: Restaurant = Restaurant()
     
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
-    @State private var isLoading: Bool = false
     
     @Binding var conections: [Conection]
     
@@ -30,25 +30,24 @@ struct ConectionReceivedView: View {
     private let emploText: String = "Limitado"
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            Sheet(section: .conectionReceived) {
-                WhiteArea {
-                    userInfo(title: nameText, value: restaurant.name)
-                    Divider()
-                    userInfo(title: emailText, value: restaurant.email.isNotEmpty ? restaurant.email : "---")
-                    Divider()
-                    userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
-                }
-                
-                AcceptButtonWhite(action: accept)
-                DeclineButtonWhite(action: decline)
+        Sheet(section: .conectionReceived) {
+            WhiteArea {
+                userInfo(title: nameText, value: restaurant.name)
+                Divider()
+                userInfo(title: emailText, value: restaurant.email.isNotEmpty ? restaurant.email : "---")
+                Divider()
+                userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
             }
+            
+            AcceptButtonWhite(action: accept)
+            DeclineButtonWhite(action: decline)
         }
         .onAppear(perform: getRestaurantInformation)
         .alertInfo(alertType, showed: $alertShowed)
     }
     
     private func getRestaurantInformation() {
+        loading.isLoading = true
         restaurantVM.fetchRestaurant(with: conection.restaurantId) { result in
             if let restaurant = result {
                 self.restaurant = restaurant
@@ -56,7 +55,7 @@ struct ConectionReceivedView: View {
                 alertType = .dataObtainingError
                 alertShowed = true
             }
-            isLoading = false
+            loading.isLoading = false
         }
     }
     
@@ -74,7 +73,7 @@ struct ConectionReceivedView: View {
     }
     
     private func decline() {
-        isLoading = true
+        loading.isLoading = true
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll { $0 == conection}
@@ -83,7 +82,7 @@ struct ConectionReceivedView: View {
                 alertType = .decliningError
                 alertShowed = true
             }
-            isLoading = false
+            loading.isLoading = false
         }
     }
     

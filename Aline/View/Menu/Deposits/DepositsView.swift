@@ -11,6 +11,7 @@ struct DepositsView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var depositVM: DepositViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var userVM: UserViewModel
     
@@ -19,7 +20,6 @@ struct DepositsView: View {
     @State private var deposits: [Deposit] = []
     @State private var deleteDepositButtonVisible: Bool = false
     
-    @State private var isLoading: Bool = true
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = AlertType.dataObtainingError
     
@@ -34,11 +34,9 @@ struct DepositsView: View {
     
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            Sheet(section: .deposits) {
-                editableDepositArea
-                deposits.isEmpty ? nil : depositsListArea
-            }
+        Sheet(section: .deposits) {
+            editableDepositArea
+            deposits.isEmpty ? nil : depositsListArea
         }
         .alertInfo(alertType, showed: $alertShowed)
         .onAppear(perform: getDeposits)
@@ -113,7 +111,7 @@ struct DepositsView: View {
     
     private func create() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             editableDeposit.restaurantId = restaurantVM.restaurant.id
             depositVM.save(editableDeposit) { deposit in
                 if let deposit = deposit {
@@ -124,14 +122,14 @@ struct DepositsView: View {
                     alertShowed = true
                     alertType = .crearingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }
     
     private func delete() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             depositVM.delete(deposit: editableDeposit) { deleted in
                 if deleted {
                     guard let index = deposits.firstIndex(of: editableDeposit) else { return }
@@ -141,7 +139,7 @@ struct DepositsView: View {
                     alertShowed = true
                     alertType = .deletingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }
@@ -155,6 +153,7 @@ struct DepositsView: View {
     }
     
     private func getDeposits() {
+        loading.isLoading = true
         depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { deposits in
             if let deposits = deposits {
                 self.deposits = deposits
@@ -162,7 +161,7 @@ struct DepositsView: View {
                 alertType = .dataObtainingError
                 alertShowed = true
             }
-            isLoading = false
+            loading.isLoading = false
         }
     }
 }

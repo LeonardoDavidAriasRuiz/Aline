@@ -7,6 +7,27 @@
 
 import SwiftUI
 
+struct OpenSectionButton: View {
+    @Binding var pressed: Bool
+    
+    let text: String
+    
+    private let cancelButtonText: String = "Cancelar"
+    private let buttonSymbol: String = "plus"
+    
+    var body: some View {
+        
+        Button(action: {withAnimation{pressed.toggle()}}) {
+            Text(text)
+            Spacer()
+            Image(systemName: "chevron.down")
+                .font(.title2)
+                .rotationEffect(Angle(degrees: pressed ? -180 : 0))
+                .symbolEffect(.bounce, value: pressed)
+        }
+    }
+}
+
 struct NewButton: View {
     @Binding var pressed: Bool
     

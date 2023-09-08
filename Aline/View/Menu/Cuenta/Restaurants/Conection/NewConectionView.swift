@@ -10,12 +10,12 @@ import SwiftUI
 struct NewConectionView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     
     @State private var conection: Conection = Conection(restaurant: Restaurant())
     @State private var alertType: AlertType = .dataObtainingError
     @State private var alertShowed: Bool = false
     @State private var isSendButtonDisabled: Bool = true
-    @State private var isLoading: Bool = false
     
     @Binding var conections: [Conection]
     
@@ -23,21 +23,19 @@ struct NewConectionView: View {
     let restaurant: Restaurant
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            Sheet(section: .inviteUser) {
-                WhiteArea {
-                    HStack {
-                        Text("Para:")
-                        TextField("Email", text: $conection.email)
-                            .foregroundStyle(.secondary)
-                            .textInputAutocapitalization(.never)
-                            .keyboardType(.emailAddress)
-                            .autocorrectionDisabled(true)
-                            .onChange(of: conection.email, isValidEmail)
-                    }
-                    Divider()
-                    Toggle("Administrador", isOn: $conection.isAdmin)
+        Sheet(section: .inviteUser) {
+            WhiteArea {
+                HStack {
+                    Text("Para:")
+                    TextField("Email", text: $conection.email)
+                        .foregroundStyle(.secondary)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled(true)
+                        .onChange(of: conection.email, isValidEmail)
                 }
+                Divider()
+                Toggle("Administrador", isOn: $conection.isAdmin)
             }
             .alertInfo(alertType, showed: $alertShowed)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
@@ -55,7 +53,7 @@ struct NewConectionView: View {
             alertType = .emailAlreadyUsed
             alertShowed = true
         } else {
-            isLoading = true
+            loading.isLoading = true
             let name = restaurant.name
             let isAdmin = conection.isAdmin
             let email = conection.email
@@ -85,7 +83,7 @@ struct NewConectionView: View {
                     alertShowed = true
                     alertType = .dataObtainingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }

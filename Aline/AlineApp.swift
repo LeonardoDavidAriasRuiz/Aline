@@ -19,6 +19,7 @@ struct AlineApp: App {
     private let depositVM = DepositViewModel()
     private let monitor = NWPathMonitor()
     private let conectionVM = ConectionViewModel()
+    private let loading = LoadingViewModel()
     
     @ObservedObject var networkMonitor = NetworkMonitor()
     @State private var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -37,6 +38,7 @@ struct AlineApp: App {
                         .environmentObject(accentColor)
                         .environmentObject(depositVM)
                         .environmentObject(conectionVM)
+                        .environmentObject(loading)
                 } else {
                     LoadingView()
                         .onReceive(timer, perform: { _ in

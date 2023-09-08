@@ -8,16 +8,15 @@
 import SwiftUI
 
 struct ConectionsListView: View {
-    
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     
     @State private var receivedConections: [Conection] = []
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .dataObtainingError
     
-    @Binding var isLoading: Bool
     
     var body: some View {
         VStack {
@@ -49,16 +48,18 @@ struct ConectionsListView: View {
     }
     
     private func getConections() {
-        isLoading = true
-        conectionVM.fetchReceivedConections(for: userVM.user.email) { conections in
-            DispatchQueue.main.async {
-                if let conections = conections {
-                    receivedConections = conections
-                } else {
-                    alertType = .dataObtainingError
-                    alertShowed = true
+        withAnimation {
+            loading.isLoading = true
+            conectionVM.fetchReceivedConections(for: userVM.user.email) { conections in
+                DispatchQueue.main.async {
+                    if let conections = conections {
+                        receivedConections = conections
+                    } else {
+                        alertType = .dataObtainingError
+                        alertShowed = true
+                    }
+                    loading.isLoading = false
                 }
-                isLoading = false
             }
         }
     }

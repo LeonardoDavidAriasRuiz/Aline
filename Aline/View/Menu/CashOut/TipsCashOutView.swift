@@ -10,6 +10,7 @@ import SwiftUI
 struct TipsCashOutView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var employeeVM: EmployeeViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var employees: [Employee] = []
@@ -19,7 +20,6 @@ struct TipsCashOutView: View {
     @State private var employeesCountSelected: Int = 0
     @State private var tipsDate: Date = Date()
     
-    @State private var isLoading: Bool = false
     @State private var errorOn: Bool = false
     @State private var errorAlert: AlertType = .dataObtainingError
     
@@ -27,9 +27,7 @@ struct TipsCashOutView: View {
     @State private var selectedImage: UIImage?
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            tipsCahsOutArea
-        }
+        tipsCahsOutArea
         .onAppear(perform: onAppear)
         .alertInfo(errorAlert, showed: $errorOn)
     }
@@ -125,7 +123,7 @@ struct TipsCashOutView: View {
         if restaurantVM.restaurant.adminUsersIds.contains(userVM.user.id) {
             selectedImage = UIImage(named: "AppIcon")
         }
-        isLoading = true
+        loading.isLoading = true
         employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
             if let employees = employees {
                 self.employees = employees.filter { $0.isActive }
@@ -134,7 +132,7 @@ struct TipsCashOutView: View {
                 errorOn = true
                 errorAlert = .dataObtainingError
             }
-            isLoading = false
+            loading.isLoading = false
         }
     }
     

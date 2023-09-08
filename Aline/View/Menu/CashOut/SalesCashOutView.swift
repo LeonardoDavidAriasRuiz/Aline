@@ -9,9 +9,9 @@ import SwiftUI
 
 struct SalesCashOutView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     @State private var sale: Sale = Sale()
     
-    @State private var isLoading: Bool = false
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .crearingError
     
@@ -20,14 +20,12 @@ struct SalesCashOutView: View {
     let saleVM: SaleViewModel = SaleViewModel()
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            VStack {
-                datePicker.padding(.top, 20)
-                totals.padding(.top, 20)
-                sales.padding(.top, 20)
-                SaveButtonWhite(action: save).padding(.top, 20)
-                    .disabled(sale.rtonos == 0 || sale.vequipo == 0)
-            }
+        VStack {
+            datePicker.padding(.top, 20)
+            totals.padding(.top, 20)
+            sales.padding(.top, 20)
+            SaveButtonWhite(action: save).padding(.top, 20)
+                .disabled(sale.rtonos == 0 || sale.vequipo == 0)
         }
         .alertInfo(alertType, showed: $alertShowed)
     }
@@ -124,7 +122,7 @@ struct SalesCashOutView: View {
     }
     
     private func save() {
-        isLoading = true
+        loading.isLoading = true
         sale.restaurantId = restaurantVM.currentRestaurantId
         saleVM.save(sale) { sale in
             if let _ = sale {
@@ -133,7 +131,7 @@ struct SalesCashOutView: View {
                 alertType = .crearingError
                 alertShowed = true
             }
-            isLoading = false
+            loading.isLoading = false
         }
     }
 }

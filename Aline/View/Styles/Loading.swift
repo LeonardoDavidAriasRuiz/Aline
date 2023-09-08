@@ -1,13 +1,13 @@
 //
-//  LoadingIfNotReady.swift
+//  Loading.swift
 //  Aline
 //
-//  Created by Leonardo on 07/08/23.
+//  Created by Leonardo on 08/09/23.
 //
 
 import SwiftUI
 
-struct LoadingIfNotReady<Content: View>: View  {
+struct Loading<Content: View>: View  {
     @Binding  var isLoading: Bool
     let content: () -> Content
     
@@ -25,3 +25,5 @@ struct LoadingIfNotReady<Content: View>: View  {
         }
     }
 }
+
+

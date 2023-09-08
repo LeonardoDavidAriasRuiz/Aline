@@ -8,7 +8,7 @@
 import CloudKit
 import SwiftUI
 
-class SaleViewModel: ObservableObject {
+class SaleViewModel {
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let saleKeys: SalesKeys = SalesKeys()
     
@@ -22,12 +22,18 @@ class SaleViewModel: ObservableObject {
         }
     }
     
-    func fetchSales(for restaurantId: String, completion: @escaping ([Sale]?) -> Void) {
+    func fetchSales(for restaurantId: String, from: Date, to: Date, completion: @escaping ([Sale]?) -> Void) {
         var sales: [Sale] = []
         
-        let predicate = NSPredicate(format: "\(saleKeys.restaurantId) == %@", restaurantId)
-        let query = CKQuery(recordType: saleKeys.type, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor (key: saleKeys.date, ascending: false)]
+        let restaurantPredicate = NSPredicate(format: "\(saleKeys.restaurantId) == %@", restaurantId)
+        let fromDatePredicate = NSPredicate(format: "\(saleKeys.date) >= %@", from as NSDate)
+        let toDatePredicate = NSPredicate(format: "\(saleKeys.date) <= %@", to as NSDate)
+        
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [restaurantPredicate, fromDatePredicate, toDatePredicate])
+        
+        let query = CKQuery(recordType: saleKeys.type, predicate: compoundPredicate)
+        query.sortDescriptors = [NSSortDescriptor(key: saleKeys.date, ascending: false)]
+        
         let queryOperation = CKQueryOperation(query: query)
         
         queryOperation.recordMatchedBlock = { (_, result) in

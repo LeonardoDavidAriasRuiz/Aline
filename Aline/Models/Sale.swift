@@ -8,7 +8,9 @@
 import Foundation
 import CloudKit
 
-struct Sale {
+struct Sale: Identifiable {
+    var id: String = UUID().uuidString
+    
     private let keys: SalesKeys = SalesKeys()
     var date: Date = Date()
     var restaurantId: String = ""

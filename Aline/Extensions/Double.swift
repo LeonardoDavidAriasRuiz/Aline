@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+extension Double {
+    var comasText: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: self.rounded())) ?? ""
+    }
+}

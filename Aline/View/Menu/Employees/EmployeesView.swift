@@ -11,9 +11,8 @@ struct EmployeesView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var userC: UserViewModel
+    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var accentColor: AccentColor
-    
-    @State private var isLoading: Bool = true
     
     @State private var employees: [Employee] = []
     @State private var editableEmployee = Employee()
@@ -31,23 +30,18 @@ struct EmployeesView: View {
     private let employeeButtonSymbolName: String = "chevron.right"
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
-            Sheet(section: .employees) {
-                editableEmployeeArea
-                if employees.isNotEmpty {
-                    WhiteArea {
-                        employeesListArea
-                    }
-                }
-            }
-            .onChange(of: editableEmployee, validateEmployee)
-            .onChange(of: employees, sortEmployees)
+        Sheet(section: .employees) {
+            editableEmployeeArea
+            employees.isNotEmpty ? employeesListArea : nil
         }
+        .onChange(of: editableEmployee, validateEmployee)
+        .onChange(of: employees, sortEmployees)
         .onAppear(perform: getEmployees)
+        .alertInfo(alertType, showed: $alertShowed)
     }
     
     private var employeesListArea: some View {
-        VStack {
+        WhiteArea {
             ForEach(employees, id: \.self) { employee in
                 Button(action: {select(employee)}) {
                     HStack {
@@ -86,7 +80,7 @@ struct EmployeesView: View {
                 }
             }
         }
-        .alertInfo(alertType, showed: $alertShowed)
+        
     }
     
     private func toggleEditableDepositArea() {
@@ -127,7 +121,7 @@ struct EmployeesView: View {
     
     private func create() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             editableEmployee.restaurantId = restaurantVM.currentRestaurantId
             employeeVM.save(editableEmployee, isNew: true) { employee in
                 if let employee = employee {
@@ -137,14 +131,14 @@ struct EmployeesView: View {
                     alertShowed = true
                     alertType = .crearingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }
     
     private func update() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             employeeVM.save(editableEmployee, isNew: false) { employee in
                 if let employee = employee {
                     guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
@@ -154,14 +148,14 @@ struct EmployeesView: View {
                     alertShowed = true
                     alertType = .updatingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }
     
     private func delete() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             employeeVM.delete(editableEmployee) { deleted in
                 if deleted {
                     employees.removeAll { $0 == editableEmployee }
@@ -170,14 +164,14 @@ struct EmployeesView: View {
                     alertShowed = true
                     alertType = .deletingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }
     
     private func getEmployees() {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
                 if let employees = employees {
                     self.employees = employees
@@ -185,7 +179,7 @@ struct EmployeesView: View {
                     alertShowed = true
                     alertType = .dataObtainingError
                 }
-                isLoading = false
+                loading.isLoading = false
             }
         }
     }

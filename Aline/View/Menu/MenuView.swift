@@ -8,25 +8,21 @@
 import SwiftUI
 
 struct MenuView: View {
-    
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
-    
-    @State private var isLoading: Bool = false
+    @EnvironmentObject private var loading: LoadingViewModel
     
     var body: some View {
-        LoadingIfNotReady($isLoading) {
+        Loading($loading.isLoading) {
             NavigationView {
-                if !isLoading {
-                    menuList
-                        .background(Color.background)
-                        .navigationTitle("Menu")
-                        .toolbar {
-                            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                                restaurantPicker
-                            }
+                menuList
+                    .background(Color.background)
+                    .navigationTitle("Menu")
+                    .toolbar {
+                        ToolbarItemGroup(placement: .navigationBarTrailing) {
+                            restaurantPicker
                         }
-                    SalesView()
-                }
+                    }
+                SalesView()
             }
         }
         .onChange(of: restaurantVM.currentRestaurantId, setRestaurant)
@@ -68,7 +64,7 @@ struct MenuView: View {
     
     private func setRestaurant(_old: String, _ id: String) {
         withAnimation {
-            isLoading = true
+            loading.isLoading = true
             if let newRestaurant = restaurantVM.adminRestaurants.first(where: { $0.id == id }) {
                 restaurantVM.restaurant = newRestaurant
             }
@@ -77,7 +73,7 @@ struct MenuView: View {
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            isLoading = false
+            loading.isLoading = false
         }
         
     }
