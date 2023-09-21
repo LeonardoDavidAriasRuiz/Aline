@@ -9,35 +9,41 @@ import SwiftUI
 
 struct MenuView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
+    @EnvironmentObject private var loadingVM: LoadingViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @State private var changingRestaurant: Bool = false
     
     var body: some View {
-        Loading($loading.isLoading) {
-            NavigationView {
-                menuList
-                    .background(Color.background)
-                    .navigationTitle("Menu")
-                    .toolbar {
-                        ToolbarItemGroup(placement: .navigationBarTrailing) {
-                            restaurantPicker
+        Loading($loadingVM.isLoading) {
+            if !changingRestaurant {
+                NavigationView {
+                    menuList
+                        .background(Color.background)
+                        .navigationTitle("Menu")
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                                restaurantPicker
+                            }
                         }
-                    }
-                SalesView()
+                    SalesView()
+                }
             }
         }
-        .onChange(of: restaurantVM.currentRestaurantId, setRestaurant)
-        .alertInfo(.dataObtainingError, showed: $restaurantVM.dataNotObtained)
+        .alertInfo(alertVM.alertType, showed: $alertVM.alertInfoShowed)
+        .onChange(of: restaurantM.currentId, setRestaurant)
     }
     
     private var restaurantPicker: some View {
         VStack {
-            if restaurantVM.adminRestaurants.isNotEmpty || restaurantVM.emploRestaurants.isNotEmpty {
-                Picker("Restaurants", selection: $restaurantVM.currentRestaurantId) {
-                    ForEach(restaurantVM.adminRestaurants) { restaurant in
-                        Text(restaurant.name).tag(restaurant.id)
-                    }
-                    ForEach(restaurantVM.emploRestaurants) { restaurant in
-                        Text(restaurant.name).tag(restaurant.id)
+            if let adminRts = restaurantM.adminRts,
+               let emploRts = restaurantM.emploRts {
+                let restaurants = adminRts + emploRts
+                if adminRts.isNotEmpty || emploRts.isNotEmpty {
+                    Picker("Restaurantes", selection: $restaurantM.currentId) {
+                        ForEach(restaurants) { restaurant in
+                            Text(restaurant.name).tag(restaurant.id)
+                        }
                     }
                 }
             }
@@ -46,36 +52,39 @@ struct MenuView: View {
     
     private var menuList: some View {
         List {
-            MenuOption(title: "Corte", content: { CashOutView() })
-            if restaurantVM.adminRestaurants.contains(restaurantVM.restaurant) {
-                MenuOption(title: "Ventas", content: { SalesView() })
-                MenuOption(title: "Tips", content: { TipsView() })
-                MenuOption(title: "Depositos", content: { DepositsView() })
-                MenuOption(title: "Gastos", content: { SpendingsView() })
-                MenuOption(title: "Beneficiarios", content: { BeneficiariosView() })
-                MenuOption(title: "Cheques", content: { ChecksView() })
-                MenuOption(title: "PayRoll", content: { PayRollView() })
-                MenuOption(title: "Empleados", content: { EmployeesView() })
-                MenuOption(title: "Contador", content: { ContadorView() })
+            MenuOption(title: "Tips Día", content: { TipsCashOutView() })
+            if let adminRts = restaurantM.adminRts,
+               let restaurant = restaurantM.restaurant {
+                if adminRts.contains(restaurant) {
+                    MenuOption(title: "Ventas", content: { SalesView() })
+                    MenuOption(title: "Tips", content: { TipsView() })
+                    MenuOption(title: "Depositos", content: { DepositsView() })
+                    MenuOption(title: "Gastos", content: { SpendingsView() })
+                    MenuOption(title: "Beneficiarios", content: { BeneficiariosView() })
+                    MenuOption(title: "Cheques", content: { ChecksView() })
+                    MenuOption(title: "PayRoll", content: { PayRollView() })
+                    MenuOption(title: "Empleados", content: { EmployeesView() })
+                    MenuOption(title: "Contador", content: { ContadorView() })
+                }
             }
             MenuOption(title: "Cuenta", content: { AccountView() })
         }
     }
     
-    private func setRestaurant(_old: String, _ id: String) {
+    private func setRestaurant() {
         withAnimation {
-            loading.isLoading = true
-            if let newRestaurant = restaurantVM.adminRestaurants.first(where: { $0.id == id }) {
-                restaurantVM.restaurant = newRestaurant
+            changingRestaurant = true
+            loadingVM.isLoading = true
+            if let adminRts = restaurantM.adminRts,
+               let emploRts = restaurantM.emploRts {
+                let restaurants = adminRts + emploRts
+                restaurantM.restaurant = restaurants.first(where: { $0.id == restaurantM.currentId })
             }
-            if let newRestaurant = restaurantVM.emploRestaurants.first(where: { $0.id == id }) {
-                restaurantVM.restaurant = newRestaurant
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                loadingVM.isLoading = false
+                changingRestaurant = false
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            loading.isLoading = false
-        }
-        
     }
 }
 
@@ -89,7 +98,7 @@ fileprivate struct MenuOption<Content: View>: View {
     }
     
     private let options = [
-        "Corte" :         OptionTitleView(color: .red,  title: "Corte",             icon: "list.bullet.clipboard.fill"),
+        "Tips Día" :      OptionTitleView(color: .red,  title: "Tips Día",             icon: "list.bullet.clipboard.fill"),
         "Ventas" :        OptionTitleView(color: .green,   title: "Ventas",         icon: "chart.bar.fill"),
         "Tips" :          OptionTitleView(color: .orange,    title: "Tips",         icon: "dollarsign.circle.fill"),
         "Depositos" :     OptionTitleView(color: .blue, title: "Depositos",         icon: "tray.and.arrow.down.fill"),

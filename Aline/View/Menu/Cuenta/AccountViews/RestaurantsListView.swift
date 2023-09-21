@@ -11,6 +11,7 @@ struct RestaurantsListView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var loading: LoadingViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var adminRestaurants: [Restaurant] = []
@@ -18,9 +19,6 @@ struct RestaurantsListView: View {
     
     @State private var isSheetForNewRestaurantOpened: Bool = false
     @State private var editableRestaurant: Restaurant = Restaurant()
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .dataObtainingError
     
     var body: some View {
         Sheet(section: .resturants) {
@@ -30,7 +28,6 @@ struct RestaurantsListView: View {
                 emploRestaurants.isNotEmpty ? emploRestaurantsList : nil
             }
         }
-        .alertInfo(.dataObtainingError, showed: $alertShowed)
         .onAppear(perform: getRestaurants)
     }
     
@@ -72,7 +69,7 @@ struct RestaurantsListView: View {
     
     private func saveRestaurant() {
         editableRestaurant.adminUsersIds.append(userVM.user.id)
-        userVM.user.adminRestaurantsIds.append(editableRestaurant.id)
+        userVM.user.adminIds.append(editableRestaurant.id)
         userVM.save()
         restaurantVM.save(editableRestaurant, isNew: true)
         adminRestaurants.append(editableRestaurant)
@@ -130,18 +127,17 @@ struct RestaurantsListView: View {
             if let restaurants = restaurants {
                 completion(restaurants)
             } else {
-                alertType = .dataObtainingError
-                alertShowed = true
+                alertVM.show(.dataObtainingError)
             }
         }
     }
     
     private func getRestaurants() {
         loading.isLoading = true
-        fetchRestaurants(for: userVM.user.adminRestaurantsIds) { restaurants in
+        fetchRestaurants(for: userVM.user.adminIds) { restaurants in
             adminRestaurants = restaurants
         }
-        fetchRestaurants(for: userVM.user.emploRestaurantsIds) { restaurants in
+        fetchRestaurants(for: userVM.user.emploIds) { restaurants in
             emploRestaurants = restaurants
             loading.isLoading = false
         }

@@ -9,12 +9,10 @@ import SwiftUI
 import Charts
 
 struct SalesView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var accentColor: AccentColor
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .crearingError
+    @EnvironmentObject private var alertVM: AlertViewModel
     
     @State private var filtersShowed: Bool = false
     
@@ -32,51 +30,37 @@ struct SalesView: View {
     @State private var customTo: Date = Date()
     
     @State private var sales: [Sale] = []
+    @State private var salesTableShowed: Bool = false
     
-    @State private var showedQuantities: Bool = true
+    @State private var documentPickerShowed: Bool = false
+    @State private var data: String?
+    @State private var importedSales: [Sale]?
+    @State private var errorsInImportedSales: Int?
+    
+    let invalidDate: Date = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1))!
+    let invalidQuantity: Double = -10.0
     
     var body: some View {
-            FullSheet(section: .sales) {
-                filters
+        FullSheet(section: .sales) {
+            filters
+            SalesChart(
+                title: "\(customFrom.short) - \(customTo.short)",
+                data: $sales,
+                totalBy: $totalBy
+            )
+            SalesTable(sales: $sales.animation(), totalBy: totalBy)
+            NavigationLink(destination: SalesCashOutView()) {
                 WhiteArea {
                     HStack {
-                        Text(formatDateRange()).font(.largeTitle).bold()
+                        Text("Corte")
                         Spacer()
-                    }
-                    Chart(sales) { sale in
-                        if totalByChart == .day {
-                            RuleMark(y: .value("", 4000))
-                                .foregroundStyle(Color.orange)
-                                .annotation(alignment: .leading) {
-                                    Text("$4,000")
-                                        .font(.caption)
-                                        .foregroundColor(Color.orange)
-                                }
-                        }
-                        
-                        BarMark(
-                            x: .value("Día", sale.date, unit: totalByChart),
-                            y: .value("Venta", sale.rtonos)
-                        )
-                        .foregroundStyle(Color.green.opacity(Double(sale.rtonos) / (sales.max(by: {$0.rtonos < $1.rtonos})?.rtonos ?? 1.0)))
-                        .cornerRadius(20)
-                        .annotation(position: .top) {
-                            if showedQuantities {
-                                Text(sale.rtonos.comasText).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .frame(height: 400)
-                    .chartYAxis(showedQuantities ? .hidden : .visible)
-                    .chartXAxis {
-                        AxisMarks(values: sales.map{$0.date}) { date in
-                            let day = Calendar.current.component(.day, from: date.as(Date.self) ?? Date())
-                            let monthAbbreviation = getMonthAbbreviation(from: date.as(Date.self) ?? Date())
-                            AxisValueLabel("\(day)\n\(monthAbbreviation)")
-                        }
+                        Image(systemName: "chevron.right")
                     }
                 }
             }
+            importDataArea
+            
+        }
         .onAppear(perform: onApper)
     }
     
@@ -111,18 +95,149 @@ struct SalesView: View {
                         Spacer()
                         DatePicker("Del", selection: $customFrom, displayedComponents: .date)
                             .frame(maxWidth: 200)
-                            .onChange(of: customFrom, validateCustomRangeIn)
+                            .onChange(of: customFrom, validateCustomFrom)
                         Spacer()
                         DatePicker("A", selection: $customTo, displayedComponents: .date)
                             .frame(maxWidth: 200)
-                            .onChange(of: customTo, validateCustomRangeIn)
+                            .onChange(of: customTo, validateCustomTo)
                         Spacer()
                     }
                 }
-                Divider()
-                Toggle("Mostrar cantidades", isOn: $showedQuantities.animation())
             }
         }
+    }
+    
+    private var importDataArea: some View {
+        WhiteArea {
+            Button(action: {documentPickerShowed.toggle()}) {
+                Spacer()
+                Text("Importar ventas")
+                Spacer()
+            }
+            .sheet(isPresented: $documentPickerShowed) {
+                DocumentPicker(data: $data)
+            }
+            .onChange(of: data, getSalesFromData)
+            if let importedSales = importedSales,
+               importedSales.isNotEmpty {
+                Divider()
+                HStack {
+                    VStack(alignment: .leading) {
+                        VStack {
+                            Text("Fecha:")
+                            Divider()
+                            Text("Rtonos:")
+                            Divider()
+                            Text("V.equipo:")
+                            Divider()
+                            Text("Tarjetas:")
+                            Divider()
+                        }
+                        VStack {
+                            Text("Depo:")
+                            Divider()
+                            Text("Door Dash:").foregroundStyle(Color.red)
+                            Divider()
+                            Text("Online:").foregroundStyle(Color.green)
+                            Divider()
+                            Text("GrubHub:").foregroundStyle(Color.orange)
+                            Divider()
+                            Text("TacoBar:").foregroundStyle(Color.blue)
+                        }
+                    }.bold().frame(width: 100)
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(importedSales) { sale in
+                                Divider()
+                                VStack(alignment: .leading) {
+                                    VStack {
+                                        Text(sale.date.short).foregroundStyle(!validateDate(sale.date) ? .red : .black).bold()
+                                        Divider()
+                                        Text(sale.rtonos.comasText).foregroundStyle(!validateQuantity(sale.rtonos) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.vequipo.comasText).foregroundStyle(!validateQuantity(sale.vequipo) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.carmenTRJTA.comasText).foregroundStyle(!validateQuantity(sale.carmenTRJTA) ? .red : .secondary)
+                                        Divider()
+                                    }
+                                    VStack {
+                                        Text(sale.depo.comasText).foregroundStyle(!validateQuantity(sale.depo) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.doordash.comasText).foregroundStyle(!validateQuantity(sale.doordash) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.online.comasText).foregroundStyle(!validateQuantity(sale.online) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.grubhub.comasText).foregroundStyle(!validateQuantity(sale.grubhub) ? .red : .secondary)
+                                        Divider()
+                                        Text(sale.tacobar.comasText).foregroundStyle(!validateQuantity(sale.tacobar) ? .red : .secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }.frame(maxWidth: .infinity)
+                Divider()
+                if let errorsInImportedSales = errorsInImportedSales,
+                   errorsInImportedSales > 0 {
+                    Text("Hay \(errorsInImportedSales) errores en los datos.").foregroundStyle(.red).bold()
+                } else {
+                    SaveButton(action: saveAllImportedSales)
+                }
+            }
+        }
+    }
+    
+    private func saveAllImportedSales() {
+        guard let importedSales = importedSales else { return }
+        for sale in importedSales {
+            SaleViewModel().save(sale) { sale in
+                if let sale = sale {
+                    withAnimation {
+                        sales.append(sale)
+                        sales.sort(by: { $0.date < $1.date })
+                    }
+                    self.importedSales?.removeAll(where: {$0.date == sale.date})
+                }
+            }
+        }
+    }
+    
+    private func getSalesFromData() {
+        errorsInImportedSales = 0
+        guard let data = data else { return }
+        var sales: [Sale] = []
+        let lines = data.split(separator: "\r\n")
+        for line in lines.dropFirst() {
+            let fields = line.split(separator: ",")
+            if fields.count >= 9 {
+                let sale = Sale(
+                    date: (Int(fields[9]) ?? 0).convertExcelDateToSwiftDate ?? invalidDate,
+                    restaurantId: restaurantM.currentId,
+                    rtonos: Double(fields[0]) ?? invalidQuantity,
+                    vequipo: Double(fields[1]) ?? invalidQuantity,
+                    carmenTRJTA: Double(fields[2]) ?? invalidQuantity,
+                    depo: Double(fields[3]) ?? invalidQuantity,
+                    dscan: Double(fields[4]) ?? invalidQuantity,
+                    doordash: Double(fields[5]) ?? invalidQuantity,
+                    online: Double(fields[6]) ?? invalidQuantity,
+                    grubhub: Double(fields[7]) ?? invalidQuantity,
+                    tacobar: Double(fields[8]) ?? invalidQuantity
+                )
+                sales.append(sale)
+            }
+        }
+        importedSales = sales
+        errorsInImportedSales = 0
+        for sale in sales {
+            errorsInImportedSales! += (validateDate(sale.date) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.carmenTRJTA) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.depo) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.doordash) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.online) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.grubhub) ? 0 : 1)
+            errorsInImportedSales! += (validateQuantity(sale.tacobar) ? 0 : 1)
+        }
+        
     }
     
     private func validationTotalBy() {
@@ -142,23 +257,23 @@ struct SalesView: View {
         }
     }
     
-    private func validateCustomRangeIn(_ oldValue: Date, _ newValue: Date) {
-        if let days = Calendar.current.dateComponents([.day], from: customFrom, to: customTo).day{
-            switch days {
-                case 1...31: totalBy = .day
-                case 32...70: totalBy = .week
-                case 71...: totalBy = .month
-                default: totalBy = .day
-            }
-            validateRangeIn()
+    private func validateCustomFrom(_ oldValue: Date, _ newValue: Date) {
+        if newValue > customTo {
+            customTo = newValue
         }
+        validateRangeIn()
+    }
+    
+    private func validateCustomTo(_ oldValue: Date, _ newValue: Date) {
         if newValue < customFrom {
-            customFrom = customTo
+            customFrom = newValue
         }
+        validateRangeIn()
     }
     
     private func selectTotalByDay() {
         withAnimation {
+            getSales(from: customFrom, to: customTo)
             totalBy = .day
             totalByChart = .day
             rangeInCurrentWeekAviable = true
@@ -170,33 +285,34 @@ struct SalesView: View {
     
     private func selectTotalByWeek() {
         withAnimation {
+            getSales(from: customFrom, to: customTo)
             if rangeIn == .currentWeek {
                 rangeIn = .currentMonth
             }
             totalBy = .week
             totalByChart = .weekOfYear
-            groupByWeek()
             rangeInCurrentWeekAviable = false
             rangeInCurrentMonthAviable = true
             rangeInCurrentYearAviable = true
             componentBy = .dateTime.day(.twoDigits)
+            sales = sales.groupByWeek
         }
     }
     
     private func selectTotalByMonth() {
         withAnimation {
+            getSales(from: customFrom, to: customTo)
             if rangeIn == .currentWeek ||
                 rangeIn == .currentMonth {
                 rangeIn = .currentYear
             }
             totalBy = .month
             totalByChart = .month
-            groupByMonth()
-            totalByChart = .month
             rangeInCurrentWeekAviable = false
             rangeInCurrentMonthAviable = false
             rangeInCurrentYearAviable = true
             componentBy = .dateTime.month(.wide)
+            sales = sales.groupByMonth
         }
     }
     
@@ -218,8 +334,9 @@ struct SalesView: View {
                     firstDay = calendar.date(from: calendar.dateComponents([.year], from: Date()))
                     lastDay = calendar.date(byAdding: DateComponents(year: 1, day: -1), to: firstDay!)
                 case .customRange:
+                    firstDay = customFrom
+                    lastDay = customTo
                     customRangeSelected = true
-                    getSales(from: customFrom, to: customTo)
             }
             
             if let startDate = firstDay, let endDate = lastDay {
@@ -228,20 +345,25 @@ struct SalesView: View {
                 getSales(from: startDate, to: endDate)
             }
         }
-        validationTotalBy()
     }
     
     private func getSales(from: Date, to: Date) {
         withAnimation {
             loading.isLoading = true
-            SaleViewModel().fetchSales(for: restaurantVM.currentRestaurantId, from: from, to: to) { sales in
-                if let sales = sales {
-                    self.sales = sales
-                } else {
-                    alertType = .dataObtainingError
-                    alertShowed = true
+            if let restaurantId = restaurantM.restaurant?.id {
+                SaleViewModel().fetchSales(for: restaurantId, from: from, to: to) { sales in
+                    if let sales = sales {
+                        switch totalBy {
+                            case .day: self.sales = sales.sorted(by: { $0.date < $1.date })
+                            case .week: self.sales = sales.groupByWeek.sorted(by: { $0.date < $1.date })
+                            case .month: self.sales = sales.groupByMonth.sorted(by: { $0.date < $1.date })
+                        }
+//                        SaleViewModel().delete(self.sales)
+                    } else {
+                        alertVM.show(.dataObtainingError)
+                    }
+                    loading.isLoading = false
                 }
-                loading.isLoading = false
             }
         }
     }
@@ -249,73 +371,14 @@ struct SalesView: View {
     private func onApper() {
         accentColor.green()
         selectTotalByDay()
-        selectRange(.currentMonth)
+        selectRange(.currentYear)
     }
     
-    func groupByWeek() {
-        sales = groupBy { sale in
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: sale.date)
-            return "\(components.yearForWeekOfYear!)-\(components.weekOfYear!)"
-        }.sorted(by: {$0.date > $1.date})
+    private func validateQuantity(_ quantity: Double) -> Bool {
+        !(quantity < 0)
     }
     
-    func groupByMonth() {
-        sales = groupBy { sale in
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.year, .month], from: sale.date)
-            return "\(components.year!)-\(components.month!)"
-        }.sorted(by: {$0.date > $1.date})
+    private func validateDate(_ date: Date) -> Bool {
+        !(date <= invalidDate)
     }
-    
-    private func groupBy(keySelector: (Sale) -> String) -> [Sale] {
-        var grouped: [String: Sale] = [:]
-        
-        for sale in sales {
-            let key = keySelector(sale)
-            
-            if var existingSale = grouped[key] {
-                existingSale.carmenTRJTA += sale.carmenTRJTA
-                existingSale.depo += sale.depo
-                existingSale.dscan += sale.dscan
-                existingSale.doordash += sale.doordash
-                existingSale.online += sale.online
-                existingSale.grubhub += sale.grubhub
-                existingSale.tacobar += sale.tacobar
-                grouped[key] = existingSale
-            } else {
-                grouped[key] = sale
-            }
-        }
-        
-        return Array(grouped.values)
-    }
-    
-    private func getMonthAbbreviation(from date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "LLL"
-        return dateFormatter.string(from: date)
-    }
-    
-    private func formatDateRange() -> String {
-        switch rangeIn {
-            case .currentWeek: return "\(customFrom.short) - \(customTo.short)"
-            case .currentMonth: return customFrom.monthYear
-            case .currentYear: return customFrom.year
-            case .customRange: return "\(customFrom.short) - \(customTo.short)"
-        }
-    }
-}
-
-enum TotalBy: String {
-    case day = "Día"
-    case week = "Semana"
-    case month = "Mes"
-}
-
-enum RangeIn: String {
-    case currentWeek = "Semana actual"
-    case currentMonth = "Mes actual"
-    case currentYear = "Año actual"
-    case customRange = "Personalizado"
 }

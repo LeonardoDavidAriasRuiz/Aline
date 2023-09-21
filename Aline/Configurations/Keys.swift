@@ -29,6 +29,8 @@ struct RestaurantKeys {
 struct SalesKeys {
     let type: String = "Sales"
     let date: String = "date"
+    let rtonos: String = "rtonos"
+    let vequipo: String = "vequipo"
     let carmenTRJTA: String = "carmentrjta"
     let depo: String = "depo"
     let dscan: String = "dscan"

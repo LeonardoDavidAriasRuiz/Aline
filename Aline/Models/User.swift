@@ -14,16 +14,16 @@ struct User: Hashable, Equatable, Identifiable {
     var id: String = ""
     var name: String
     var email: String
-    var adminRestaurantsIds: [String]
-    var emploRestaurantsIds: [String]
+    var adminIds: [String]
+    var emploIds: [String]
     var record: CKRecord
     
     init(record: CKRecord) {
         self.id = record[keys.id] as? String ?? ""
         self.name = record[keys.name] as? String ?? ""
         self.email = record[keys.email] as? String ?? ""
-        self.adminRestaurantsIds = record[keys.adminRestaurantsIds] as? [String] ?? [""]
-        self.emploRestaurantsIds = record[keys.emploRestaurantsIds] as? [String] ?? [""]
+        self.adminIds = record[keys.adminRestaurantsIds] as? [String] ?? [""]
+        self.emploIds = record[keys.emploRestaurantsIds] as? [String] ?? [""]
         self.record = record
     }
     
@@ -31,8 +31,8 @@ struct User: Hashable, Equatable, Identifiable {
         self.id = UUID().uuidString
         self.name = ""
         self.email = ""
-        self.adminRestaurantsIds = [""]
-        self.emploRestaurantsIds = [""]
+        self.adminIds = [""]
+        self.emploIds = [""]
         self.record = CKRecord(recordType: keys.type)
     }
     
@@ -44,7 +44,7 @@ struct User: Hashable, Equatable, Identifiable {
         lhs.id == rhs.id &&
         lhs.name == rhs.name &&
         lhs.email == rhs.email &&
-        lhs.adminRestaurantsIds == rhs.adminRestaurantsIds &&
-        lhs.emploRestaurantsIds == rhs.emploRestaurantsIds
+        lhs.adminIds == rhs.adminIds &&
+        lhs.emploIds == rhs.emploIds
     }
 }

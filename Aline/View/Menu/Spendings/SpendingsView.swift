@@ -14,6 +14,7 @@ struct SpendingsView: View {
     @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var spendingController: ExpenseViewModel
     @EnvironmentObject private var userController: UserViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     
     @State private var newSpendingType = ExpenseType()
     @State private var newSpending = Expense()
@@ -110,8 +111,10 @@ struct SpendingsView: View {
     }
     
     private func onAppear() {
-        spendingController.currentRestaurantLink = restaurantVM.restaurant.id
-        spendingController.fetchTypes()
+        if let restaurantId = restaurantM.restaurant?.id {
+            spendingController.currentRestaurantLink = restaurantId
+            spendingController.fetchTypes()
+        }
     }
 }
 

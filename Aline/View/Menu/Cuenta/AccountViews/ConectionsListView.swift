@@ -10,19 +10,17 @@ import SwiftUI
 struct ConectionsListView: View {
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     @EnvironmentObject private var loading: LoadingViewModel
     
     @State private var receivedConections: [Conection] = []
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .dataObtainingError
     
     
     var body: some View {
         VStack {
             receivedConections.isNotEmpty ? conectionsReceivedList : nil
         }
-        .alertInfo(alertType, showed: $alertShowed)
         .onAppear(perform: getConections)
     }
     
@@ -55,8 +53,7 @@ struct ConectionsListView: View {
                     if let conections = conections {
                         receivedConections = conections
                     } else {
-                        alertType = .dataObtainingError
-                        alertShowed = true
+                        alertVM.show(.dataObtainingError)
                     }
                     loading.isLoading = false
                 }

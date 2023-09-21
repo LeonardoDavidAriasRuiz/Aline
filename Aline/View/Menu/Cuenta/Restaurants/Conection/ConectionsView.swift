@@ -13,10 +13,8 @@ struct ConectionsView: View {
     
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
-    
-    @State private var alertType: AlertType = .dataObtainingError
-    @State private var alertShowed: Bool = false
     
     @State private var adminUsers: [User] = []
     @State private var emploUsers: [User] = []
@@ -26,7 +24,6 @@ struct ConectionsView: View {
     var body: some View {
         list
             .onAppear(perform: getConections)
-            .alertInfo(alertType, showed: $alertShowed)
     }
     
     var list: some View {
@@ -92,8 +89,7 @@ struct ConectionsView: View {
                 if let users = users {
                     adminUsers = users
                 } else {
-                    alertType = .dataObtainingError
-                    alertShowed = true
+                    alertVM.show(.dataObtainingError)
                 }
             }
             self.conectionVM.fetchConections(for: self.restaurant.emploUsersIds) { users in
@@ -101,8 +97,7 @@ struct ConectionsView: View {
                     if let users = users {
                         emploUsers.append(contentsOf: users)
                     } else {
-                        alertType = .dataObtainingError
-                        alertShowed = true
+                        alertVM.show(.dataObtainingError)
                     }
                 }
             }
@@ -117,8 +112,7 @@ struct ConectionsView: View {
             if let conections = conections {
                 sentConections = conections
             } else {
-                alertType = .dataObtainingError
-                alertShowed = true
+                alertVM.show(.dataObtainingError)
             }
         }
         firstAppear = false

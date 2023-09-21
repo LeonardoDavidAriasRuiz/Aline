@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TipsCashOutView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var userVM: UserViewModel
@@ -33,7 +33,7 @@ struct TipsCashOutView: View {
     }
     
     private var tipsCahsOutArea: some View {
-        VStack {
+        Sheet(section: .tipsDay) {
             WhiteArea {
                 HStack {
                     Text("Cantidad: ").onTapGesture (perform: hideKeyboard)
@@ -66,8 +66,11 @@ struct TipsCashOutView: View {
                 }
             }
             .onTapGesture (perform: hideKeyboard)
-            if !restaurantVM.restaurant.adminUsersIds.contains(userVM.user.id) {
-                takePhotoButton
+            if let adminRts = restaurantM.adminRts,
+               let restaurant = restaurantM.restaurant {
+                if adminRts.contains(restaurant) {
+                    takePhotoButton
+                }
             }
             SaveButtonWhite(action: {}).disabled(!checkIfReadyToSave())
         }
@@ -120,19 +123,24 @@ struct TipsCashOutView: View {
     }
     
     private func onAppear() {
-        if restaurantVM.restaurant.adminUsersIds.contains(userVM.user.id) {
-            selectedImage = UIImage(named: "AppIcon")
+        if let adminRts = restaurantM.adminRts,
+           let restaurant = restaurantM.restaurant {
+            if adminRts.contains(restaurant) {
+                selectedImage = UIImage(named: "AppIcon")
+            }
         }
         loading.isLoading = true
-        employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
-            if let employees = employees {
-                self.employees = employees.filter { $0.isActive }
-                employeesSelected = Array(repeating: false, count: employees.count)
-            } else {
-                errorOn = true
-                errorAlert = .dataObtainingError
+        if let restaurantId = restaurantM.restaurant?.id {
+            employeeVM.fetchEmployees(for: restaurantId) { employees in
+                if let employees = employees {
+                    self.employees = employees.filter { $0.isActive }
+                    employeesSelected = Array(repeating: false, count: employees.count)
+                } else {
+                    errorOn = true
+                    errorAlert = .dataObtainingError
+                }
+                loading.isLoading = false
             }
-            loading.isLoading = false
         }
     }
     

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EditableEmail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @EnvironmentObject private var loading: LoadingViewModel
     
     @Binding var email: String
     let accion: () -> Void

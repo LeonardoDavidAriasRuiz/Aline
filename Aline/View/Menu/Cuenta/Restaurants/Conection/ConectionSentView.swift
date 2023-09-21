@@ -10,9 +10,8 @@ import SwiftUI
 struct ConectionSentView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .cancelingError
+    @EnvironmentObject private var loading: LoadingViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     
     @Binding var conections: [Conection]
     
@@ -33,18 +32,18 @@ struct ConectionSentView: View {
             
             CancelInvitationButtonWhite(action: cancel)
         }
-        .alertInfo(alertType, showed: $alertShowed)
     }
     
     private func cancel() {
+        loading.isLoading = true
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll { $0 == self.conection }
                 presentationMode.wrappedValue.dismiss()
             } else {
-                alertType = .deletingError
-                alertShowed = true
+                alertVM.show(.deletingError)
             }
+            loading.isLoading = false
         }
     }
     

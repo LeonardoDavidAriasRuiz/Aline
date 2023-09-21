@@ -11,10 +11,9 @@ struct NewConectionView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var loading: LoadingViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     
     @State private var conection: Conection = Conection(restaurant: Restaurant())
-    @State private var alertType: AlertType = .dataObtainingError
-    @State private var alertShowed: Bool = false
     @State private var isSendButtonDisabled: Bool = true
     
     @Binding var conections: [Conection]
@@ -37,7 +36,6 @@ struct NewConectionView: View {
                 Divider()
                 Toggle("Administrador", isOn: $conection.isAdmin)
             }
-            .alertInfo(alertType, showed: $alertShowed)
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
     }
@@ -50,8 +48,7 @@ struct NewConectionView: View {
     
     private func send() {
         if usersEmails.contains(conection.email) {
-            alertType = .emailAlreadyUsed
-            alertShowed = true
+            alertVM.show(.emailAlreadyUsed)
         } else {
             loading.isLoading = true
             let name = restaurant.name
@@ -74,14 +71,12 @@ struct NewConectionView: View {
                             if sent {
                                 presentationMode.wrappedValue.dismiss()
                             } else {
-                                alertShowed = true
-                                alertType = .sendingInvitationError
+                                alertVM.show(.sendingInvitationError)
                             }
                         }
                     }
                 } else {
-                    alertShowed = true
-                    alertType = .dataObtainingError
+                    alertVM.show(.dataObtainingError)
                 }
                 loading.isLoading = false
             }

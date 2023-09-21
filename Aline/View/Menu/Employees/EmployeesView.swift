@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct EmployeesView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var employeeVM: EmployeeViewModel
-    @EnvironmentObject private var userC: UserViewModel
     @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var accentColor: AccentColor
+    @EnvironmentObject private var alertVM: AlertViewModel
+    @EnvironmentObject private var userVM: UserViewModel
     
     @State private var employees: [Employee] = []
     @State private var editableEmployee = Employee()
@@ -20,9 +21,6 @@ struct EmployeesView: View {
     @State private var employeeSelected: Bool = false
     @State private var editableEmployeeAreaOpened: Bool = false
     @State private var isNewEmployeeReadyToSave: Bool = false
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .dataObtainingError
     
     private let newEmployeeButtonText: String = "Nuevo empleado"
     private let nameFieldText: String = "Nombre"
@@ -37,7 +35,6 @@ struct EmployeesView: View {
         .onChange(of: editableEmployee, validateEmployee)
         .onChange(of: employees, sortEmployees)
         .onAppear(perform: getEmployees)
-        .alertInfo(alertType, showed: $alertShowed)
     }
     
     private var employeesListArea: some View {
@@ -122,16 +119,17 @@ struct EmployeesView: View {
     private func create() {
         withAnimation {
             loading.isLoading = true
-            editableEmployee.restaurantId = restaurantVM.currentRestaurantId
-            employeeVM.save(editableEmployee, isNew: true) { employee in
-                if let employee = employee {
-                    employees.append(employee)
-                    toggleEditableDepositArea()
-                } else {
-                    alertShowed = true
-                    alertType = .crearingError
+            if let restaurantId = restaurantM.restaurant?.id {
+                editableEmployee.restaurantId = restaurantId
+                employeeVM.save(editableEmployee, isNew: true) { employee in
+                    if let employee = employee {
+                        employees.append(employee)
+                        toggleEditableDepositArea()
+                    } else {
+                        alertVM.show(.crearingError)
+                    }
+                    loading.isLoading = false
                 }
-                loading.isLoading = false
             }
         }
     }
@@ -145,8 +143,7 @@ struct EmployeesView: View {
                     employees[index] = employee
                     toggleEditableDepositArea()
                 } else {
-                    alertShowed = true
-                    alertType = .updatingError
+                    alertVM.show(.updatingError)
                 }
                 loading.isLoading = false
             }
@@ -161,8 +158,7 @@ struct EmployeesView: View {
                     employees.removeAll { $0 == editableEmployee }
                     toggleEditableDepositArea()
                 } else {
-                    alertShowed = true
-                    alertType = .deletingError
+                    alertVM.show(.deletingError)
                 }
                 loading.isLoading = false
             }
@@ -172,14 +168,15 @@ struct EmployeesView: View {
     private func getEmployees() {
         withAnimation {
             loading.isLoading = true
-            employeeVM.fetchEmployees(for: restaurantVM.restaurant.id) { employees in
-                if let employees = employees {
-                    self.employees = employees
-                } else {
-                    alertShowed = true
-                    alertType = .dataObtainingError
+            if let restaurantId = restaurantM.restaurant?.id {
+                employeeVM.fetchEmployees(for: restaurantId) { employees in
+                    if let employees = employees {
+                        self.employees = employees
+                    } else {
+                        alertVM.show(.dataObtainingError)
+                    }
+                    loading.isLoading = false
                 }
-                loading.isLoading = false
             }
         }
     }

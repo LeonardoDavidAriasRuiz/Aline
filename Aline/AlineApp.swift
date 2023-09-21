@@ -10,49 +10,45 @@ import Network
 
 @main
 struct AlineApp: App {
-    
     private let userVM = UserViewModel()
     private let restaurantVM = RestaurantViewModel()
     private let employeeVM = EmployeeViewModel()
     private let spendingVM = ExpenseViewModel()
     private let accentColor = AccentColor()
     private let depositVM = DepositViewModel()
-    private let monitor = NWPathMonitor()
     private let conectionVM = ConectionViewModel()
-    private let loading = LoadingViewModel()
+    private let loadingVM = LoadingViewModel()
+    private let alertVM = AlertViewModel()
+    let restaurantM = RestaurantPickerManager()
     
     @ObservedObject var networkMonitor = NetworkMonitor()
-    @State private var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-    @State private var count: Int = 0
-    @State private var step: Int = 0
+    private let start: Date = Date()
     
     var body: some Scene {
         WindowGroup {
             ZStack {
-                if count > 2 {
-                    ContentView()
-                        .environmentObject(userVM)
-                        .environmentObject(restaurantVM)
-                        .environmentObject(employeeVM)
-                        .environmentObject(spendingVM)
-                        .environmentObject(accentColor)
-                        .environmentObject(depositVM)
-                        .environmentObject(conectionVM)
-                        .environmentObject(loading)
-                } else {
-                    LoadingView()
-                        .onReceive(timer, perform: { _ in
-                            step = step == 10 ? 0 : step+1
-                            if step == 10 {
-                                count += 1
-                            }
-                        })
-                }
-                if !networkMonitor.isConnected {
-                    NoWifiConected()
-                }
-            }.preferredColorScheme(ColorScheme.light)
+                contentView()
+                networkMonitor.isConnected ? nil : NoWifiConected()
+            }
+            .preferredColorScheme(ColorScheme.light)
         }
+    }
+    
+
+    private func contentView() -> AnyView {
+        return AnyView(
+            ContentView()
+                .environmentObject(userVM)
+                .environmentObject(restaurantVM)
+                .environmentObject(employeeVM)
+                .environmentObject(spendingVM)
+                .environmentObject(accentColor)
+                .environmentObject(depositVM)
+                .environmentObject(conectionVM)
+                .environmentObject(loadingVM)
+                .environmentObject(alertVM)
+                .environmentObject(restaurantM)
+        )
     }
 }
 

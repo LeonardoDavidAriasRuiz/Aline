@@ -11,13 +11,11 @@ struct ConectionReceivedView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
-    @EnvironmentObject private var userVM: UserViewModel
     @EnvironmentObject private var loading: LoadingViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
+    @EnvironmentObject private var userVM: UserViewModel
     
     @State private var restaurant: Restaurant = Restaurant()
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = .dataObtainingError
     
     @Binding var conections: [Conection]
     
@@ -43,7 +41,6 @@ struct ConectionReceivedView: View {
             DeclineButtonWhite(action: decline)
         }
         .onAppear(perform: getRestaurantInformation)
-        .alertInfo(alertType, showed: $alertShowed)
     }
     
     private func getRestaurantInformation() {
@@ -52,8 +49,7 @@ struct ConectionReceivedView: View {
             if let restaurant = result {
                 self.restaurant = restaurant
             } else {
-                alertType = .dataObtainingError
-                alertShowed = true
+                alertVM.show(.dataObtainingError)
             }
             loading.isLoading = false
         }
@@ -61,10 +57,10 @@ struct ConectionReceivedView: View {
     
     private func accept() {
         if conection.isAdmin {
-            userVM.user.adminRestaurantsIds.append(conection.restaurantId)
+            userVM.user.adminIds.append(conection.restaurantId)
             restaurant.adminUsersIds.append(userVM.user.id)
         } else {
-            userVM.user.emploRestaurantsIds.append(conection.restaurantId)
+            userVM.user.emploIds.append(conection.restaurantId)
             restaurant.emploUsersIds.append(userVM.user.id)
         }
         userVM.save()
@@ -76,11 +72,10 @@ struct ConectionReceivedView: View {
         loading.isLoading = true
         conectionVM.delete(conection) { deleted in
             if deleted {
-                conections.removeAll { $0 == conection}
+                conections.removeAll{ $0 == conection }
                 self.presentationMode.wrappedValue.dismiss()
             } else {
-                alertType = .decliningError
-                alertShowed = true
+                alertVM.show(.deletingError)
             }
             loading.isLoading = false
         }

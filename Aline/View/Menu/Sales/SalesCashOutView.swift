@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SalesCashOutView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var loading: LoadingViewModel
     @State private var sale: Sale = Sale()
     
@@ -20,7 +20,7 @@ struct SalesCashOutView: View {
     let saleVM: SaleViewModel = SaleViewModel()
     
     var body: some View {
-        VStack {
+        Sheet(section: .cashOut) {
             datePicker.padding(.top, 20)
             totals.padding(.top, 20)
             sales.padding(.top, 20)
@@ -32,14 +32,7 @@ struct SalesCashOutView: View {
     
     private var datePicker: some View {
         WhiteArea {
-            Button(action: {withAnimation{datePickerShowed.toggle()}}) {
-                Text(sale.date.short)
-                Spacer()
-                Image(systemName: "chevron.down")
-                    .font(.title2)
-                    .rotationEffect(Angle(degrees: datePickerShowed ? -180 : 0))
-                    .symbolEffect(.bounce, value: datePickerShowed)
-            }
+            OpenSectionButton(pressed: $datePickerShowed, text: sale.date.short)
             if datePickerShowed {
                 Divider()
                 DatePicker("", selection: $sale.date, displayedComponents: .date)
@@ -54,14 +47,39 @@ struct SalesCashOutView: View {
             WhiteArea {
                 HStack {
                     Text("RTO. Nos:").bold()
-                    Spacer()
-                    Text(String(format: "%.2f", sale.rtonos))
+                    DecimalField("0.0", decimal: $sale.rtonos)
+                    HStack {
+                        Text(String(format: "%.2f", sale.rtonosCalculated))
+                            .padding(2)
+                            .padding(.horizontal, 5)
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                        Text(String(format: "%.2f", sale.rtonosCalculated - sale.rtonos))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(2)
+                    .padding(.trailing, 5)
+                    .background(sale.rtonosCalculated != sale.rtonos ? Color.red : Color.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    
                 }
                 Divider()
                 HStack {
                     Text("V. equipo:")
-                    Spacer()
-                    Text(String(format: "%.2f", sale.vequipo))
+                    DecimalField("0.0", decimal: $sale.vequipo)
+                    HStack {
+                        Text(String(format: "%.2f", sale.vequipoCalculated))
+                            .padding(2)
+                            .padding(.horizontal, 5)
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                        Text(String(format: "%.2f", sale.vequipoCalculated - sale.vequipo))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(2)
+                    .padding(.trailing, 5)
+                    .background(sale.vequipoCalculated != sale.vequipo ? Color.red : Color.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
             }
         }
@@ -123,15 +141,17 @@ struct SalesCashOutView: View {
     
     private func save() {
         loading.isLoading = true
-        sale.restaurantId = restaurantVM.currentRestaurantId
-        saleVM.save(sale) { sale in
-            if let _ = sale {
-                self.sale = Sale()
-            } else {
-                alertType = .crearingError
-                alertShowed = true
+        if let restaurantId = restaurantM.restaurant?.id {
+            sale.restaurantId = restaurantId
+            saleVM.save(sale) { sale in
+                if let _ = sale {
+                    self.sale = Sale()
+                } else {
+                    alertType = .crearingError
+                    alertShowed = true
+                }
+                loading.isLoading = false
             }
-            loading.isLoading = false
         }
     }
 }

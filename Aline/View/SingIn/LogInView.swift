@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct LogInView: View {
-    
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
-    @EnvironmentObject private var rc: RestaurantViewModel
+    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     
     @State private var fieldsValidated: Bool = false
     @State private var nameValided: Bool = false
@@ -23,7 +23,7 @@ struct LogInView: View {
     @State private var wrongCodeAlertActive: Bool = false
     @State private var codeValid: Bool = false
     
-    @State private var alertShowed: Bool = false
+    @Binding var loggedIn: Bool
     
     private var section: MenuSection = .login
     
@@ -35,6 +35,9 @@ struct LogInView: View {
     private let saveButtonText: String = "Guardar"
     private let verifyEmailText: String = "Verificar email"
     
+    init(loggedIn: Binding<Bool>) {
+        self._loggedIn = loggedIn
+    }
     
     var body: some View {
         Sheet(section: section) {
@@ -91,9 +94,8 @@ struct LogInView: View {
                     }
                 }
                 .modifier(ButtonColor(color: emailSent ? codeValid ? Color.green : Color.red : Color.blue ))
-                .alertInfo(.verificationCodeMismatch, showed: $wrongCodeAlertActive)
             }
-        }.alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
+        }
     }
     
     private func cancelVerification() {
@@ -104,7 +106,9 @@ struct LogInView: View {
         let code = Int.random(in: 100000...999999)
         let emailInfo: VerifyLoginEmail = VerifyLoginEmail()
         MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)")) { sent in
-            
+            if !sent {
+                alertVM.show(.sendingVerificationCodeError)
+            }
         }
         withAnimation {
             rightCode = String(code)
@@ -119,7 +123,7 @@ struct LogInView: View {
                     codeValid = true
                 } else {
                     codeValid = false
-                    wrongCodeAlertActive = true
+                    alertVM.show(.verificationCodeMismatch)
                 }
             }
         }
@@ -127,7 +131,7 @@ struct LogInView: View {
     
     private func createCustomUser() {
         userVM.save()
-        userVM.loginStatus = .loggedIn
+        loggedIn = true
     }
     
     private func isValidFields() {

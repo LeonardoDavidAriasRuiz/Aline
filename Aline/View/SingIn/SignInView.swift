@@ -12,17 +12,19 @@ import CloudKit
 struct SignInView: View {
     
     @EnvironmentObject private var userVM: UserViewModel
+    @EnvironmentObject private var alertVM: AlertViewModel
     
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State private var alert = false
     @State private var authButtonIcon: String = "faceid"
     @State private var authButtonColor: Color = Color.blue
     @State private var authButtonCornerRadius: CGFloat = 25
     @State private var timerCount = 0
     
+    @Binding var signedIn: Bool
+    
     var body: some View {
         VStack {
-            Button(action: authenticateUser, label: {
+            Button(action: authenticateUser) {
                 Image(systemName: authButtonIcon)
                     .foregroundStyle(Color.white)
                     .font(.system(size: 80))
@@ -30,38 +32,42 @@ struct SignInView: View {
                     .background(authButtonColor)
                     .clipShape(RoundedRectangle(cornerRadius: authButtonCornerRadius))
                     .contentTransition(.symbolEffect(.replace))
-            })
-            .onReceive(timer) { second in
+            }
+            .onReceive(timer) { time in
                 withAnimation(.easeIn(duration: 0.4)) {
-                    timerCount += 1
-                    authButtonIcon = timerCount % 2 == 0 ? "faceid" : "touchid"
-                    authButtonColor = timerCount % 2 == 0 ? Color.blue : Color.green
-                    authButtonCornerRadius = timerCount % 2 == 0 ? 25 : 75
+                    if time.seconds % 2 == 0 {
+                        authButtonIcon = "faceid"
+                        authButtonColor = Color.blue
+                        authButtonCornerRadius = 25
+                    } else {
+                        authButtonIcon = "touchid"
+                        authButtonColor = Color.green
+                        authButtonCornerRadius = 75
+                    }
                 }
             }
         }
         .onAppear(perform: authenticateUser)
-        .alertInfo(.signingInError, showed: $alert)
     }
     
-    func authenticateUser() {
+    private func authenticateUser() {
         let context = LAContext()
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
             let reason = "Identifícate para acceder a tu cuenta."
 
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { authenticated, error in
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { authenticated, _ in
                 DispatchQueue.main.async {
                     if authenticated {
-                        self.userVM.loginStatus = .signedIn
+                        signedIn = true
                     } else {
-                        self.alert = true
+                        alertVM.show(.signingInError)
                     }
                 }
             }
         } else {
-            self.alert = true
+            alertVM.show(.signingInError)
         }
     }
     

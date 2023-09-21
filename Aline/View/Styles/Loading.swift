@@ -21,6 +21,13 @@ struct Loading<Content: View>: View  {
             content()
             if isLoading {
                 LoadingView()
+                VStack {
+                    Spacer()
+                    Button("The View stops") {
+                        isLoading = false
+                    }
+                    .padding(.bottom, 20)
+                }
             }
         }
     }

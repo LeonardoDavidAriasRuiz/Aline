@@ -14,12 +14,6 @@ class RestaurantViewModel: ObservableObject {
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let restaurantKeys = RestaurantKeys()
     
-    @Published var restaurant: Restaurant = Restaurant()
-    @Published var currentRestaurantId: String = ""
-    @Published var adminRestaurants: [Restaurant] = []
-    @Published var emploRestaurants: [Restaurant] = []
-    @Published var dataNotObtained: Bool = false
-    
     func save(_ restaurant: Restaurant, isNew: Bool) {
         let record = isNew ? CKRecord(recordType: restaurantKeys.type) : restaurant.record
         record[restaurantKeys.id] = restaurant.id
@@ -97,33 +91,15 @@ class RestaurantViewModel: ObservableObject {
         dataBase.add(queryOperation)
     }
     
-    func setCurrentRestaurant(_ restaurant: Restaurant) {
-        DispatchQueue.main.async {
-            self.restaurant = restaurant
-        }
-    }
-    
-    func getRestaurants(adminRestaurantsIds: [String], emploRestaurantsIds: [String]) {
-        fetchRestaurants(for: adminRestaurantsIds) { restaurants in
-            DispatchQueue.main.async {
-                if let restaurants = restaurants {
-                    self.adminRestaurants = restaurants
-                } else {
-                    self.dataNotObtained = true
-                }
-            }
+    func getRestaurants(adminIds: [String], emploIds: [String], completion: @escaping (_ admin: [Restaurant]?, _ emplo: [Restaurant]?) -> Void) {
+        var adminRts: [Restaurant]?
+        var emploRts: [Restaurant]?
+        fetchRestaurants(for: adminIds) { restaurants in
+            adminRts = restaurants
             
-            self.fetchRestaurants(for: emploRestaurantsIds) { restaurants in
-                DispatchQueue.main.async {
-                    if let restaurants = restaurants {
-                        self.emploRestaurants.append(contentsOf: restaurants)
-                        guard let fistRestaurant = self.adminRestaurants.first else { return }
-                        self.currentRestaurantId = fistRestaurant.id
-                        self.setCurrentRestaurant(fistRestaurant)
-                    } else {
-                        self.dataNotObtained = true
-                    }
-                }
+            self.fetchRestaurants(for: emploIds) { restaurants in
+                emploRts = restaurants
+                completion(adminRts, emploRts)
             }
         }
     }

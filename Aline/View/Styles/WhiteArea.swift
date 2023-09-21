@@ -21,5 +21,6 @@ struct WhiteArea<Content: View>: View {
             .frame(maxWidth: .infinity)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 15))
+            .shadow(color: .black.opacity(0.05), radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
     }
 }

@@ -9,19 +9,17 @@ import SwiftUI
 
 struct DepositsView: View {
     
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var depositVM: DepositViewModel
     @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var accentColor: AccentColor
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var editableDeposit = Deposit()
     @State private var editableDepositAreaOpen: Bool = false
     @State private var deposits: [Deposit] = []
     @State private var deleteDepositButtonVisible: Bool = false
-    
-    @State private var alertShowed: Bool = false
-    @State private var alertType: AlertType = AlertType.dataObtainingError
     
     private let newDepositRangeForStepper: ClosedRange<Int> = 50...10000
     private let newDepositStepQuantity: Int = 50
@@ -38,7 +36,6 @@ struct DepositsView: View {
             editableDepositArea
             deposits.isEmpty ? nil : depositsListArea
         }
-        .alertInfo(alertType, showed: $alertShowed)
         .onAppear(perform: getDeposits)
     }
     
@@ -112,17 +109,18 @@ struct DepositsView: View {
     private func create() {
         withAnimation {
             loading.isLoading = true
-            editableDeposit.restaurantId = restaurantVM.restaurant.id
-            depositVM.save(editableDeposit) { deposit in
-                if let deposit = deposit {
-                    deposits.append(deposit)
-                    toggleEditableDepositArea()
-                    deposits.sort { $0.date > $1.date }
-                } else {
-                    alertShowed = true
-                    alertType = .crearingError
+            if let restaurantId = restaurantM.restaurant?.id {
+                editableDeposit.restaurantId = restaurantId
+                depositVM.save(editableDeposit) { deposit in
+                    if let deposit = deposit {
+                        deposits.append(deposit)
+                        toggleEditableDepositArea()
+                        deposits.sort { $0.date > $1.date }
+                    } else {
+                        alertVM.show(.crearingError)
+                    }
+                    loading.isLoading = false
                 }
-                loading.isLoading = false
             }
         }
     }
@@ -136,8 +134,7 @@ struct DepositsView: View {
                     deposits.remove(at: index)
                     toggleEditableDepositArea()
                 } else {
-                    alertShowed = true
-                    alertType = .deletingError
+                    alertVM.show(.deletingError)
                 }
                 loading.isLoading = false
             }
@@ -154,14 +151,15 @@ struct DepositsView: View {
     
     private func getDeposits() {
         loading.isLoading = true
-        depositVM.fetchDeposits(for: restaurantVM.restaurant.id) { deposits in
-            if let deposits = deposits {
-                self.deposits = deposits
-            } else {
-                alertType = .dataObtainingError
-                alertShowed = true
+        if let restaurantId = restaurantM.restaurant?.id {
+            depositVM.fetchDeposits(for: restaurantId) { deposits in
+                if let deposits = deposits {
+                    self.deposits = deposits
+                } else {
+                    alertVM.show(.dataObtainingError)
+                }
+                loading.isLoading = false
             }
-            loading.isLoading = false
         }
     }
 }

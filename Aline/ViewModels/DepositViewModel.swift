@@ -9,12 +9,12 @@ import Foundation
 import CloudKit
 
 class DepositViewModel: ObservableObject {
-    private let publicCloudDB = CKContainer.default().publicCloudDatabase
+    private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let depositKeys: DepositKeys = DepositKeys()
     
     func save(_ deposit: Deposit, completion: @escaping (Deposit?) -> Void) {
         guard deposit.restaurantId.isNotEmpty else { return }
-        publicCloudDB.save(deposit.getCKRecord()) { record, error in
+        dataBase.save(deposit.getCKRecord()) { record, error in
             if let record = record {
                 completion(Deposit(record: record))
             } else {
@@ -29,6 +29,7 @@ class DepositViewModel: ObservableObject {
         let query = CKQuery(recordType: depositKeys.type, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor (key: depositKeys.date, ascending: false)]
         let queryOperation = CKQueryOperation(query: query)
+        queryOperation.resultsLimit = CKQueryOperation.maximumResults
         
         queryOperation.recordMatchedBlock = { (_, result) in
             switch result {
@@ -40,13 +41,64 @@ class DepositViewModel: ObservableObject {
         }
         
         queryOperation.queryResultBlock = { result in
-            completion(deposits)
+            switch result {
+                case .success(let cursor):
+                    if let cursor = cursor {
+                        fetchLeftSales(cursor: cursor) { newDeposits in
+                            if let newDeposits = newDeposits {
+                                deposits.append(contentsOf: newDeposits)
+                            }
+                            completion(deposits)
+                        }
+                    } else {
+                        completion(deposits)
+                    }
+                case .failure:
+                    completion(.none)
+            }
+            
         }
-        publicCloudDB.add(queryOperation)
+        
+        dataBase.add(queryOperation)
+        
+        func fetchLeftSales(cursor: CKQueryOperation.Cursor, completion2: @escaping ([Deposit]?) -> Void) {
+            var newDeposits: [Deposit] = []
+            
+            let queryOperation = CKQueryOperation(cursor: cursor)
+            
+            queryOperation.recordMatchedBlock = { (_, result) in
+                switch result {
+                    case .success(let record):
+                        newDeposits.append(Deposit(record: record))
+                    case .failure:
+                        completion2(.none)
+                }
+            }
+            
+            queryOperation.queryResultBlock = { result in
+                switch result {
+                    case .success(let cursor):
+                        if let cursor = cursor {
+                            fetchLeftSales(cursor: cursor) { returnedDeposits in
+                                if let returnedDeposits = returnedDeposits {
+                                    newDeposits.append(contentsOf: returnedDeposits)
+                                }
+                                completion2(newDeposits)
+                            }
+                        } else {
+                            completion2(newDeposits)
+                        }
+                    case .failure:
+                        completion2(.none)
+                }
+            }
+            
+            self.dataBase.add(queryOperation)
+        }
     }
     
     func delete(deposit: Deposit, completion: @escaping (Bool) -> Void) {
-        publicCloudDB.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, _ in
+        dataBase.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, _ in
             completion(recordID != nil)
         }
     }

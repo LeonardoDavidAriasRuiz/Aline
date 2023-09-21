@@ -20,6 +20,7 @@ enum MenuSection {
     case payRoll
     case sales
     case tips
+    case tipsDay
     
     case resturants
     case conectionSent
@@ -44,6 +45,7 @@ enum MenuSection {
             case .payRoll: return "PayRoll"
             case .sales: return "Ventas"
             case .tips: return "Propinas"
+            case .tipsDay: return "Tips del Día"
                 
             case .resturants: return "Restaurantes"
             case .conectionReceived: return "Invitación pendiente"
@@ -60,7 +62,7 @@ enum MenuSection {
         switch self {
             case .account: return Color.green
             case .beneficiaries: return Color.green
-            case .cashOut: return Color.red
+            case .cashOut: return Color.green
             case .checks: return Color.blue
             case .contador: return Color.blue
             case .deposits: return Color.blue
@@ -70,6 +72,7 @@ enum MenuSection {
             case .payRoll: return Color.red
             case .sales: return Color.green
             case .tips: return Color.orange
+            case .tipsDay: return Color.red
                 
             case .resturants: return Color.green
             case .conectionReceived: return Color.green
