@@ -67,6 +67,14 @@ struct DepositKeys {
     let restaurantId = "restaurantId"
 }
 
+struct TipKeys {
+    let type = "Tips"
+    let id = "id"
+    let date = "date"
+    let quantity = "quantity"
+    let employeeId = "employeeId"
+}
+
 enum ExpenseKeys: String {
     case type = "Expenses"
     case id

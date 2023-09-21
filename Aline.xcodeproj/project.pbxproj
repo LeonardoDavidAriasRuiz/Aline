@@ -71,6 +71,7 @@
 		A7A45D2D2A82CBC700871C62 /* RestaurantsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */; };
 		A7A45D2F2A82CCFB00871C62 /* ConectionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */; };
 		A7A9F7BD2A5F9869000F7554 /* DepositViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A9F7BC2A5F9869000F7554 /* DepositViewModel.swift */; };
+		A7AEA0632ABCB3A2009A975F /* Tip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7AEA0622ABCB3A2009A975F /* Tip.swift */; };
 		A7B2D00A2A58F8760087FE74 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B2D0092A58F8760087FE74 /* RestaurantView.swift */; };
 		A7BB726C2A73825900FFF5AC /* MailCore2 in Frameworks */ = {isa = PBXBuildFile; productRef = A7BB726B2A73825900FFF5AC /* MailCore2 */; };
 		A7BB726F2A7382AC00FFF5AC /* MailSMTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BB726E2A7382AC00FFF5AC /* MailSMTP.swift */; };
@@ -174,6 +175,7 @@
 		A7A45D2C2A82CBC700871C62 /* RestaurantsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantsListView.swift; sourceTree = "<group>"; };
 		A7A45D2E2A82CCFB00871C62 /* ConectionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionsListView.swift; sourceTree = "<group>"; };
 		A7A9F7BC2A5F9869000F7554 /* DepositViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepositViewModel.swift; sourceTree = "<group>"; wrapsLines = 0; };
+		A7AEA0622ABCB3A2009A975F /* Tip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tip.swift; sourceTree = "<group>"; };
 		A7B2D0092A58F8760087FE74 /* RestaurantView.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 0; };
 		A7BB726E2A7382AC00FFF5AC /* MailSMTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSMTP.swift; sourceTree = "<group>"; };
 		A7BB72702A741B9A00FFF5AC /* VerifyLoginEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyLoginEmail.swift; sourceTree = "<group>"; };
@@ -410,6 +412,7 @@
 				7E228BBF29E12F2800C363FB /* Expense.swift */,
 				7E51BC6D29D5433400D6D33C /* Deposit.swift */,
 				A70C61C02A7AB2BF005D640E /* Conection.swift */,
+				A7AEA0622ABCB3A2009A975F /* Tip.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -704,6 +707,7 @@
 				A7460F112A89979500760BF3 /* AlineColors.swift in Sources */,
 				A756C34E2AB4E11C00C06F8E /* SalesChart.swift in Sources */,
 				A7EDC38D2A9D21EA00C906A2 /* DecimalField.swift in Sources */,
+				A7AEA0632ABCB3A2009A975F /* Tip.swift in Sources */,
 				A78AD50C2A9F7747005495E7 /* TipsCashOutView.swift in Sources */,
 				7E51BC7529D55EE800D6D33C /* UserViewModel.swift in Sources */,
 				7E6837A429D865D400356B52 /* iCloudOffView.swift in Sources */,
