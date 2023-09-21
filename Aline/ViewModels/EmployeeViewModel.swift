@@ -9,42 +9,28 @@ import CloudKit
 import SwiftUI
 
 class EmployeeViewModel: ObservableObject {
-    
-    
     private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     private let employeeKeys: EmployeeKeys = EmployeeKeys()
     
-    func save(_ employee: Employee, isNew: Bool, completion: @escaping (Employee?) -> Void) {
+    func save(_ employee: Employee, isNew: Bool, completion: @escaping (Bool) -> Void) {
         dataBase.save(employee.record) { record, _ in
-            if let record = record {
-                completion(Employee(record: record))
-            } else {
-                completion(.none)
-            }
+            completion(record != nil)
         }
     }
     
     func fetchEmployees(for restaurantId: String, completion: @escaping ([Employee]?) -> Void) {
-        var employees: [Employee] = []
-        
         let predicate = NSPredicate(format: "\(employeeKeys.restaurantId) == %@", restaurantId)
         let query = CKQuery(recordType: employeeKeys.type, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor (key: employeeKeys.lastName, ascending: true)]
-        let queryOperation = CKQueryOperation(query: query)
         
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    employees.append(Employee(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            let employees = data.matchResults.compactMap { (_, result) -> Employee? in
+                guard case .success(let record) = result else {completion(.none); return nil }
+                return Employee(record: record)
             }
-        }
-        
-        queryOperation.queryResultBlock = { _ in
             completion(employees)
         }
-        dataBase.add(queryOperation)
     }
     
     func delete(_ employee: Employee, completion: @escaping (Bool) -> Void) {

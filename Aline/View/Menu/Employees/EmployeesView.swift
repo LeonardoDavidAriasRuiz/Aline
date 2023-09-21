@@ -121,9 +121,9 @@ struct EmployeesView: View {
             loading.isLoading = true
             if let restaurantId = restaurantM.restaurant?.id {
                 editableEmployee.restaurantId = restaurantId
-                employeeVM.save(editableEmployee, isNew: true) { employee in
-                    if let employee = employee {
-                        employees.append(employee)
+                employeeVM.save(editableEmployee, isNew: true) { saved in
+                    if saved {
+                        employees.append(editableEmployee)
                         toggleEditableDepositArea()
                     } else {
                         alertVM.show(.crearingError)
@@ -137,10 +137,10 @@ struct EmployeesView: View {
     private func update() {
         withAnimation {
             loading.isLoading = true
-            employeeVM.save(editableEmployee, isNew: false) { employee in
-                if let employee = employee {
-                    guard let index = employees.firstIndex(where: { $0.id == employee.id }) else { return }
-                    employees[index] = employee
+            employeeVM.save(editableEmployee, isNew: false) { saved in
+                if saved {
+                    guard let index = employees.firstIndex(where: { $0.id == editableEmployee.id }) else { return }
+                    employees[index] = editableEmployee
                     toggleEditableDepositArea()
                 } else {
                     alertVM.show(.updatingError)
