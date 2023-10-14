@@ -8,98 +8,33 @@
 import Foundation
 import CloudKit
 
-class DepositViewModel: ObservableObject {
-    private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
-    private let depositKeys: DepositKeys = DepositKeys()
+class DepositViewModel: PublicCloud {
+    private let keys: DepositKeys = DepositKeys()
     
-    func save(_ deposit: Deposit, completion: @escaping (Deposit?) -> Void) {
-        guard deposit.restaurantId.isNotEmpty else { return }
-        dataBase.save(deposit.getCKRecord()) { record, error in
-            if let record = record {
-                completion(Deposit(record: record))
-            } else {
-                completion(.none)
-            }
-        }
-    }
-    
-    func fetchDeposits(for restaurantId: String, completion: @escaping ([Deposit]?) -> Void) {
+    func fetch(restaurantId: String, completion: @escaping ([Deposit]?) -> Void) {
         var deposits: [Deposit] = []
-        let predicate = NSPredicate(format: "\(depositKeys.restaurantId) == %@", restaurantId)
-        let query = CKQuery(recordType: depositKeys.type, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor (key: depositKeys.date, ascending: false)]
-        let queryOperation = CKQueryOperation(query: query)
-        queryOperation.resultsLimit = CKQueryOperation.maximumResults
+        let predicate = NSPredicate(format: "\(keys.restaurantId) == %@", restaurantId)
+        let query = CKQuery(recordType: keys.type, predicate: predicate)
         
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    deposits.append(Deposit(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(nil); return }
+            deposits += data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else { completion(nil); return nil }
+                return Deposit(record: record)
             }
+            fetchNextPage(cursor: data.queryCursor)
         }
         
-        queryOperation.queryResultBlock = { result in
-            switch result {
-                case .success(let cursor):
-                    if let cursor = cursor {
-                        fetchLeftSales(cursor: cursor) { newDeposits in
-                            if let newDeposits = newDeposits {
-                                deposits.append(contentsOf: newDeposits)
-                            }
-                            completion(deposits)
-                        }
-                    } else {
-                        completion(deposits)
-                    }
-                case .failure:
-                    completion(.none)
-            }
-            
-        }
-        
-        dataBase.add(queryOperation)
-        
-        func fetchLeftSales(cursor: CKQueryOperation.Cursor, completion2: @escaping ([Deposit]?) -> Void) {
-            var newDeposits: [Deposit] = []
-            
-            let queryOperation = CKQueryOperation(cursor: cursor)
-            
-            queryOperation.recordMatchedBlock = { (_, result) in
-                switch result {
-                    case .success(let record):
-                        newDeposits.append(Deposit(record: record))
-                    case .failure:
-                        completion2(.none)
+        func fetchNextPage(cursor: CKQueryOperation.Cursor?) {
+            guard let cursor = cursor else { completion(deposits); return }
+            self.dataBase.fetch(withCursor: cursor) { result in
+                guard case .success(let data) = result else { completion(nil); return }
+                deposits += data.matchResults.compactMap {
+                    guard case .success(let record) = $0.1 else { return nil }
+                    return Deposit(record: record)
                 }
+                fetchNextPage(cursor: data.queryCursor)
             }
-            
-            queryOperation.queryResultBlock = { result in
-                switch result {
-                    case .success(let cursor):
-                        if let cursor = cursor {
-                            fetchLeftSales(cursor: cursor) { returnedDeposits in
-                                if let returnedDeposits = returnedDeposits {
-                                    newDeposits.append(contentsOf: returnedDeposits)
-                                }
-                                completion2(newDeposits)
-                            }
-                        } else {
-                            completion2(newDeposits)
-                        }
-                    case .failure:
-                        completion2(.none)
-                }
-            }
-            
-            self.dataBase.add(queryOperation)
-        }
-    }
-    
-    func delete(deposit: Deposit, completion: @escaping (Bool) -> Void) {
-        dataBase.delete(withRecordID: deposit.getCKRecord().recordID) { recordID, _ in
-            completion(recordID != nil)
         }
     }
 }

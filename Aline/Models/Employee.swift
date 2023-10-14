@@ -15,44 +15,25 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
     var name: String
     var lastName: String
     var isActive: Bool
+    var salary: Bool
+    var quantity: Double
     var restaurantId: String
+    
+    var fullName: String {
+        return "\(lastName) \(name)"
+    }
     
     private var _record: CKRecord
     
     var record: CKRecord {
-        get {
-            _record[keys.id] = id
-            _record[keys.name] = name
-            _record[keys.lastName] = lastName
-            _record[keys.isActive] = isActive
-            _record[keys.restaurantId] = restaurantId
-            return _record
-        }
-        set(newRecord) {
-            id = record[keys.id] ?? ""
-            name = record[keys.name] ?? ""
-            lastName = record[keys.lastName] ?? ""
-            isActive = record[keys.isActive] ?? false
-            restaurantId = record[keys.restaurantId] ?? ""
-            _record = newRecord
-        }
-    }
-    
-    init(id: String, name: String, lastName: String, isActive: Bool, restaurantId: String) {
-        self.id = id
-        self.name = name
-        self.lastName = lastName
-        self.isActive = isActive
-        self.restaurantId = restaurantId
-        
-        let record = CKRecord(recordType: keys.type)
-        record[keys.id] = id
-        record[keys.name] = name
-        record[keys.lastName] = lastName
-        record[keys.restaurantId] = restaurantId
-        record[keys.isActive] = isActive
-        
-        self._record = record
+        _record[keys.id] = id
+        _record[keys.name] = name
+        _record[keys.lastName] = lastName
+        _record[keys.isActive] = isActive
+        _record[keys.salary] = salary
+        _record[keys.quantity] = quantity
+        _record[keys.restaurantId] = restaurantId
+        return _record
     }
     
     init() {
@@ -61,6 +42,8 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
         self.lastName = ""
         self.isActive = true
         self.restaurantId = ""
+        self.salary = true
+        self.quantity = 0.0
         self._record = CKRecord(recordType: keys.type)
     }
     
@@ -70,6 +53,8 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
         self.name = record[keys.name] ?? ""
         self.lastName = record[keys.lastName] ?? ""
         self.isActive = record[keys.isActive] ?? false
+        self.salary = record[keys.salary] ?? false
+        self.quantity = record[keys.quantity] ?? 0.0
         self.restaurantId = record[keys.restaurantId] ?? ""
     }
     
@@ -82,10 +67,12 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
         lhs.name == rhs.name &&
         lhs.isActive == rhs.isActive &&
         lhs.lastName == rhs.lastName &&
+        lhs.salary == rhs.salary &&
+        lhs.quantity == rhs.quantity &&
         lhs.restaurantId == rhs.restaurantId
     }
     
     static func < (lhs: Employee, rhs: Employee) -> Bool {
-        return lhs.lastName < rhs.lastName
+        return lhs.fullName < rhs.fullName
     }
 }

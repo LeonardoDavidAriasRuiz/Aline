@@ -8,19 +8,21 @@
 import SwiftUI
 
 struct AccountView: View {
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Sheet(section: .account) {
+        Sheet(isLoading: $isLoading) {
             UserInformationView()
             NavigationLink(destination: RestaurantsListView()) {
-                WhiteArea {
+                WhiteArea(spacing: 8) {
                     HStack {
-                        Text("Restaurantes").foregroundStyle(.black)
+                        Text("Restaurantes").foregroundStyle(Color.text)
                         Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
+                        Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
                     }
                 }
             }.padding(.vertical, 30)
-            ConectionsListView()
+            ConectionsListView(isLoading: $isLoading)
         }
     }
 }

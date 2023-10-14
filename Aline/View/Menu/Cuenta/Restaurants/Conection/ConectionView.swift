@@ -35,6 +35,6 @@ struct ConectionView: View {
             Spacer()
             Text(value)
                 .foregroundStyle(.secondary)
-        }
+        }.padding(.vertical, 8)
     }
 }

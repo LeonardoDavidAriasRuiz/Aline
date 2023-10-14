@@ -7,21 +7,15 @@
 
 import SwiftUI
 
-enum MenuSection {
-    case account
-    case beneficiaries
+enum MenuSubsection {
+    case newBeneficiary
     case cashOut
-    case checks
-    case contador
-    case deposits
-    case employees
+    case newDeposit
     case login
-    case spendings
-    case payRoll
-    case sales
-    case tips
-    case tipsDay
-    
+    case spendingTypes
+    case newSpending
+    case newEmployee
+    case tipsReview
     case resturants
     case conectionSent
     case conectionReceived
@@ -33,20 +27,14 @@ enum MenuSection {
     
     var title: String {
         switch self {
-            case .account: return "Cuenta"
-            case .beneficiaries: return "Beneficiarios"
+            case .newBeneficiary: return "Nuevo beneficiario"
             case .cashOut: return "Corte"
-            case .checks: return "Cheques"
-            case .contador: return "Contador"
-            case .deposits: return "Depósitos"
-            case .employees: return "Empleados"
+            case .newDeposit: return "Nuevo deposito"
             case .login: return "Registro"
-            case .spendings: return "Gastos"
-            case .payRoll: return "PayRoll"
-            case .sales: return "Ventas"
-            case .tips: return "Propinas"
-            case .tipsDay: return "Tips del Día"
-                
+            case .spendingTypes: return "Tipos de gastos"
+            case .newSpending: return "Nuevo gasto"
+            case .newEmployee: return "Nuevo empleado"
+            case .tipsReview: return "Revisión de tips"
             case .resturants: return "Restaurantes"
             case .conectionReceived: return "Invitación pendiente"
             case .conectionSent: return "Invitación pendiente"
@@ -55,33 +43,6 @@ enum MenuSection {
             case .editableName: return "Nombre"
             case .restaurant: return "Restaurante"
             case .inviteUser: return "Invitar usuario"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-            case .account: return Color.green
-            case .beneficiaries: return Color.green
-            case .cashOut: return Color.green
-            case .checks: return Color.blue
-            case .contador: return Color.blue
-            case .deposits: return Color.blue
-            case .employees: return Color.orange
-            case .login: return Color.green
-            case .spendings: return Color.red
-            case .payRoll: return Color.red
-            case .sales: return Color.green
-            case .tips: return Color.orange
-            case .tipsDay: return Color.red
-                
-            case .resturants: return Color.green
-            case .conectionReceived: return Color.green
-            case .conectionSent: return Color.green
-            case .conection: return Color.green
-            case .editableEmail: return AccentColor().tint
-            case .editableName: return AccentColor().tint
-            case .restaurant: return Color.green
-            case .inviteUser: return Color.green
         }
     }
 }

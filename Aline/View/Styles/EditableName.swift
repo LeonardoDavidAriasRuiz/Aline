@@ -23,6 +23,7 @@ struct EditableName: View {
                     .autocorrectionDisabled(true)
                     .onAppear(perform: onApper)
                     .onChange(of: newName, isValidName)
+                    .padding(.vertical, 8)
             }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -43,7 +44,7 @@ struct EditableName: View {
                 updateButtonDisabled = true
                 return
             } else {
-                let nameRegex = "^[a-zA-Z ]+$"
+                let nameRegex = "^[a-zA-ZÀ-ÖØ-öø-ÿ .]+$"
                 let namePredicate = NSPredicate(format: "SELF MATCHES %@", nameRegex)
                 updateButtonDisabled = !namePredicate.evaluate(with: newName)
             }

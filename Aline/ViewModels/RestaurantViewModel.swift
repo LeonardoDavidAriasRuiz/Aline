@@ -9,18 +9,16 @@ import Foundation
 import CloudKit
 
 
-class RestaurantViewModel: ObservableObject {
-    
-    private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
-    private let restaurantKeys = RestaurantKeys()
+class RestaurantViewModel: PublicCloud {
+    private let keys: RestaurantKeys = RestaurantKeys()
     
     func save(_ restaurant: Restaurant, isNew: Bool) {
-        let record = isNew ? CKRecord(recordType: restaurantKeys.type) : restaurant.record
-        record[restaurantKeys.id] = restaurant.id
-        record[restaurantKeys.name] = restaurant.name
-        record[restaurantKeys.email] = restaurant.email
-        record[restaurantKeys.adminUsersIds] = restaurant.adminUsersIds
-        record[restaurantKeys.emploUsersIds] = restaurant.emploUsersIds
+        let record = isNew ? CKRecord(recordType: keys.type) : restaurant.record
+        record[keys.id] = restaurant.id
+        record[keys.name] = restaurant.name
+        record[keys.email] = restaurant.email
+        record[keys.adminUsersIds] = restaurant.adminUsersIds
+        record[keys.emploUsersIds] = restaurant.emploUsersIds
         
         dataBase.save(record) { _, error in
             guard let _ = error else { return }
@@ -28,68 +26,31 @@ class RestaurantViewModel: ObservableObject {
     }
     
     func fetchRestaurant(with id: String, completion: @escaping (Restaurant?) -> Void) {
+        let predicate = NSPredicate(format: "\(keys.id) == %@", id)
+        let query = CKQuery(recordType: keys.type, predicate: predicate)
         
-        let predicate = NSPredicate(format: "\(restaurantKeys.id) == %@", id)
-        let query = CKQuery(recordType: restaurantKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
-        
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    completion(Restaurant(record: record))
-                case .failure:
-                    completion(.none)
-            }
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result,
+                  case .success(let record) = data.matchResults.first?.1 else { completion(.none); return }
+            completion(Restaurant(record: record))
         }
-        dataBase.add(queryOperation)
     }
+    
     
     func fetchRestaurants(for restaurantsList: [String], completion: @escaping ([Restaurant]?) -> Void) {
-        var restaurants: [Restaurant] = []
+        let predicate = NSPredicate(format: "\(keys.id) IN %@", restaurantsList)
+        let query = CKQuery(recordType: keys.type, predicate: predicate)
         
-        let predicate = NSPredicate(format: "\(restaurantKeys.id) IN %@", restaurantsList)
-        let query = CKQuery(recordType: restaurantKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
-        
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    restaurants.append(Restaurant(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            let restaurants: [Restaurant] = data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else {completion(.none); return nil }
+                return Restaurant(record: record)
             }
-        }
-        
-        queryOperation.queryResultBlock = { result in
             completion(restaurants)
         }
-        dataBase.add(queryOperation)
-        
     }
-    
-    func fetchRestaurantsDictionary(for restaurantsList: [String], completion: @escaping ([String : Restaurant]?) -> Void) {
-        var restaurants: [String : Restaurant] = [:]
-        
-        let predicate = NSPredicate(format: "\(restaurantKeys.id) IN %@", restaurantsList)
-        let query = CKQuery(recordType: restaurantKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
-        
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    let restaurant: Restaurant = Restaurant(record: record)
-                    restaurants[restaurant.id] = restaurant
-                case .failure:
-                    completion(.none)
-            }
-        }
-        
-        queryOperation.queryResultBlock = { result in
-            completion(restaurants)
-        }
-        
-        dataBase.add(queryOperation)
-    }
+
     
     func getRestaurants(adminIds: [String], emploIds: [String], completion: @escaping (_ admin: [Restaurant]?, _ emplo: [Restaurant]?) -> Void) {
         var adminRts: [Restaurant]?

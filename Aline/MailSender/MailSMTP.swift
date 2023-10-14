@@ -12,36 +12,53 @@ import MailCore
 import UIKit
 
 struct MailSMTP {
-    func send(to: User, subject: String, body: String, completion: @escaping (Bool) -> Void) {
-        let name = to.name
-        let email = to.email
-        let subject = subject
-        let body = body
-        sendEmail(name: name, email: email, subject: subject, body: body) { result in
-            completion(result)
+    func send(to: User, subject: String, body: String, action: @escaping () -> Void, ifNot: @escaping () -> Void, alwaysDo: @escaping () -> Void) {
+        sendEmail(name: to.name, email: to.email, subject: subject, body: body, data: nil, fileName: "") { sent in
+            if sent {
+                action()
+            } else {
+                ifNot()
+            }
+            alwaysDo()
         }
     }
     
-    func send(name: String, email: String, subject: String, body: String, completion: @escaping (Bool) -> Void) {
-        let name = name
-        let email = email
-        let subject = subject
-        let body = body
-        sendEmail(name: name, email: email, subject: subject, body: body) { result in
-            completion(result)
+    func send(name: String, email: String, subject: String, body: String, action: @escaping () -> Void, ifNot: @escaping () -> Void, alwaysDo: @escaping () -> Void) {
+        sendEmail(name: name, email: email, subject: subject, body: body, data: nil, fileName: "") { sent in
+            if sent {
+                action()
+            } else {
+                ifNot()
+            }
+            alwaysDo()
         }
     }
     
-    private func sendEmail(name: String, email: String, subject: String, body: String, completion: @escaping (Bool) -> Void) {
+    func send(name: String, email: String, subject: String, body: String, data: Data, fileName: String, action: @escaping () -> Void, ifNot: @escaping () -> Void, alwaysDo: @escaping () -> Void) {
+        sendEmail(name: name, email: email, subject: subject, body: body, data: data, fileName: fileName) { sent in
+            if sent {
+                action()
+            } else {
+                ifNot()
+            }
+            alwaysDo()
+        }
+    }
+    
+    private func sendEmail(name: String, email: String, subject: String, body: String, data: Data?, fileName: String, completion: @escaping (Bool) -> Void) {
         // Crear el mensaje utilizando MCOMessageBuilder
         let builder = MCOMessageBuilder()
         builder.header.to = [MCOAddress(displayName: name, mailbox: email)!]
         builder.header.from = MCOAddress(displayName: "Aline", mailbox: "alineapplication@icloud.com")
         builder.header.subject = subject
         builder.htmlBody = body
+        if let data = data {
+            builder.addAttachment(MCOAttachment(data: data, filename: fileName))
+        }
 
         // Obtener los datos del mensaje como Data
         guard let data = builder.data() else {
+            print("No se pudo obtener los datos del mensaje como Data")
             completion(false)
             return
         }
@@ -57,7 +74,9 @@ struct MailSMTP {
         // Enviar el mensaje utilizando la sesión SMTP
         let operation = smtpSession.sendOperation(with: data)
         operation?.start { error in
-            completion(error != nil)
+            completion(error == nil)
         }
     }
 }
+
+

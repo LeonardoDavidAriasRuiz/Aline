@@ -8,83 +8,96 @@
 import SwiftUI
 
 struct Sheet<Content: View>: View {
-    private var title: String
-    private var tint: Color
+    private var title: String?
+    @Binding var isLoading: Bool
     private let content: () -> Content
     
-    init(section: MenuSection, @ViewBuilder content: @escaping () -> Content) {
+    init(section: MenuSubsection, isLoading: Binding<Bool> , @ViewBuilder content: @escaping () -> Content) {
         self.title = section.title
-        self.tint = section.color
+        self._isLoading = isLoading
+        self.content = content
+    }
+    
+    init(section: MenuSubsection, @ViewBuilder content: @escaping () -> Content) {
+        self.title = section.title
+        self._isLoading = .constant(false)
+        self.content = content
+    }
+    
+    init(isLoading: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+        self.title = nil
+        self._isLoading = isLoading
+        self.content = content
+    }
+    
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.title = nil
+        self._isLoading = .constant(false)
         self.content = content
     }
     
     var body: some View {
-        ScrollView {
-            VStack {
-                content()
+        NavigationStack {
+            Loading($isLoading) {
+                ScrollView {
+                    VStack {
+                        if let title = title {
+                            content().navigationTitle(title)
+                        } else {
+                            content()
+                        }
+                    }
+                    .frame(maxWidth: 800)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.background)
             }
-            .frame(maxWidth: 800)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
         }
-        .tint(tint)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
     }
 }
 
 struct FullSheet<Content: View>: View {
+    private let title: String?
+    @Binding var isLoading: Bool
     private let content: () -> Content
-    private let tint: Color
-    private let title: String
     
-    init(section: MenuSection, @ViewBuilder content: @escaping () -> Content) {
+    init(section: MenuSubsection, isLoading: Binding<Bool> , @ViewBuilder content: @escaping () -> Content) {
         self.title = section.title
-        self.tint = section.color
+        self._isLoading = isLoading
+        self.content = content
+    }
+    
+    init(isLoading: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+        self.title = nil
+        self._isLoading = isLoading
+        self.content = content
+    }
+    
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.title = nil
+        self._isLoading = .constant(false)
         self.content = content
     }
     
     var body: some View {
-        ScrollView {
-            VStack(content: content)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-        }
-        .tint(tint)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
-    }
-}
-
-struct SheetWithoutScroll<Content: View>: View {
-    let content: () -> Content
-    let color: Color
-    let title: String
-    
-    init(color: Color, title: String, @ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-        self.color = color
-        self.title = title
-    }
-    
-    var body: some View {
-        ZStack {
-            VStack {
-                HStack {}.frame(maxWidth: .infinity, maxHeight: 1).background(.white)
-                Spacer()
+        NavigationStack {
+            Loading($isLoading) {
+                ScrollView {
+                    VStack {
+                        if let title = title {
+                            content().navigationTitle(title)
+                        } else {
+                            content()
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.background)
             }
-            
-            VStack(content: content)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Gradient(colors: [color, Color.background, Color.background]))
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

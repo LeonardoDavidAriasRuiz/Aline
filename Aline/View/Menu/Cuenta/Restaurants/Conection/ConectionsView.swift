@@ -8,10 +8,6 @@
 import SwiftUI
 
 struct ConectionsView: View {
-    
-    let restaurant: Restaurant
-    
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
@@ -20,6 +16,8 @@ struct ConectionsView: View {
     @State private var emploUsers: [User] = []
     @State private var sentConections: [Conection] = []
     @State private var firstAppear: Bool = true
+    
+    let restaurant: Restaurant
     
     var body: some View {
         list
@@ -33,11 +31,11 @@ struct ConectionsView: View {
                 ForEach(adminUsers, id: \.self) { user in
                     NavigationLink(destination: ConectionView(user: user, isAdmin: true)) {
                         HStack {
-                            Text(user.name).foregroundStyle(.black)
+                            Text(user.name).foregroundStyle(Color.text)
                             Spacer()
-                            Text("Administrador").foregroundStyle(.black.secondary)
-                            Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                        }
+                            Text("Administrador").foregroundStyle(Color.text.secondary)
+                            Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                        }.padding(.vertical, 8)
                     }
                     if adminUsers.isNotEmpty {
                         Divider()
@@ -46,11 +44,11 @@ struct ConectionsView: View {
                 ForEach(emploUsers, id: \.self) { user in
                     NavigationLink(destination: ConectionView(user: user, isAdmin: false)) {
                         HStack {
-                            Text(user.name).foregroundStyle(.black)
+                            Text(user.name).foregroundStyle(Color.text)
                             Spacer()
-                            Text("Limitado").foregroundStyle(.black.secondary)
-                            Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                        }
+                            Text("Limitado").foregroundStyle(Color.text.secondary)
+                            Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                        }.padding(.vertical, 8)
                     }
                     if emploUsers.isNotEmpty {
                         Divider()
@@ -64,14 +62,14 @@ struct ConectionsView: View {
                                 Spacer()
                                 Text(conection.isAdmin ? "Administrador" : "Limitado").foregroundStyle(Color.blue.secondary)
                                 Image(systemName: "chevron.right").foregroundStyle(Color.blue.secondary)
-                            }
+                            }.padding(.vertical, 8)
                         }
                         Divider()
                     }
                 }
                 
                 NavigationLink(destination: NewConectionView(conections: $sentConections, usersEmails: getUsersEmails(), restaurant: restaurant)) {
-                    Text("Invitar").frame(maxWidth: .infinity)
+                    Text("Invitar").frame(maxWidth: .infinity).padding(.vertical, 8)
                 }
             }
         }

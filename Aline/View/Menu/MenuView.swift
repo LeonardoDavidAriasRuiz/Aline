@@ -8,16 +8,17 @@
 import SwiftUI
 
 struct MenuView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
+    @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
-    @EnvironmentObject private var loadingVM: LoadingViewModel
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @State private var changingRestaurant: Bool = false
     
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Loading($loadingVM.isLoading) {
+        Loading($isLoading) {
             if !changingRestaurant {
-                NavigationView {
+                NavigationSplitView {
                     menuList
                         .background(Color.background)
                         .navigationTitle("Menu")
@@ -26,7 +27,8 @@ struct MenuView: View {
                                 restaurantPicker
                             }
                         }
-                    SalesView()
+                }  detail: {
+                    
                 }
             }
         }
@@ -52,82 +54,53 @@ struct MenuView: View {
     
     private var menuList: some View {
         List {
-            MenuOption(title: "Tips Día", content: { TipsCashOutView() })
-            if let adminRts = restaurantM.adminRts,
-               let restaurant = restaurantM.restaurant {
-                if adminRts.contains(restaurant) {
-                    MenuOption(title: "Ventas", content: { SalesView() })
-                    MenuOption(title: "Tips", content: { TipsView() })
-                    MenuOption(title: "Depositos", content: { DepositsView() })
-                    MenuOption(title: "Gastos", content: { SpendingsView() })
-                    MenuOption(title: "Beneficiarios", content: { BeneficiariosView() })
-                    MenuOption(title: "Cheques", content: { ChecksView() })
-                    MenuOption(title: "PayRoll", content: { PayRollView() })
-                    MenuOption(title: "Empleados", content: { EmployeesView() })
-                    MenuOption(title: "Contador", content: { ContadorView() })
-                }
+            MenuViewSection(title: "Tips del día", tint: Color.red, icon: "list.bullet.clipboard.fill", destination: TipsCashOutView())
+            if let adminRts = restaurantM.adminRts, let restaurant = restaurantM.restaurant, adminRts.contains(restaurant) {
+                MenuViewSection(title: "Ventas",        tint: Color.green,  icon: "chart.bar.xaxis",                destination: SalesView())
+                MenuViewSection(title: "Tips",          tint: Color.orange, icon: "dollarsign.circle.fill",         destination: TipsView())
+                MenuViewSection(title: "Depositos",     tint: Color.blue,   icon: "tray.full.fill",                 destination: DepositsView())
+                MenuViewSection(title: "Gastos",        tint: Color.red,    icon: "cart.fill",                      destination: SpendingsView())
+                MenuViewSection(title: "Beneficiarios", tint: Color.green,  icon: "person.line.dotted.person.fill", destination: BeneficiariosView())
+                MenuViewSection(title: "Cheques",       tint: Color.blue,   icon: "banknote.fill",                  destination: ChecksView())
+                MenuViewSection(title: "Payroll",       tint: Color.red,    icon: "calendar",                       destination: PayrollView())
+                MenuViewSection(title: "Empleados",     tint: Color.orange, icon: "person.3.fill",                  destination: EmployeesView())
+                MenuViewSection(title: "Contador",      tint: Color.blue,   icon: "person.text.rectangle.fill",     destination: AccountantView())
             }
-            MenuOption(title: "Cuenta", content: { AccountView() })
+            MenuViewSection(title: "Cuenta",     tint: Color.green,          icon: "person.crop.circle", destination: AccountView())
         }
     }
     
     private func setRestaurant() {
         withAnimation {
             changingRestaurant = true
-            loadingVM.isLoading = true
-            if let adminRts = restaurantM.adminRts,
-               let emploRts = restaurantM.emploRts {
+            isLoading = true
+            if let adminRts = restaurantM.adminRts, let emploRts = restaurantM.emploRts {
                 let restaurants = adminRts + emploRts
                 restaurantM.restaurant = restaurants.first(where: { $0.id == restaurantM.currentId })
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                loadingVM.isLoading = false
+                isLoading = false
                 changingRestaurant = false
             }
         }
     }
-}
-
-fileprivate struct MenuOption<Content: View>: View {
-    @EnvironmentObject private var accentColor: AccentColor
-    let title: String
-    let content: () -> Content
     
-    var body: some View {
-        NavigationLink( destination: content().onAppear(perform: setAccentColor), label: {options[title]})
-    }
-    
-    private let options = [
-        "Tips Día" :      OptionTitleView(color: .red,  title: "Tips Día",             icon: "list.bullet.clipboard.fill"),
-        "Ventas" :        OptionTitleView(color: .green,   title: "Ventas",         icon: "chart.bar.fill"),
-        "Tips" :          OptionTitleView(color: .orange,    title: "Tips",         icon: "dollarsign.circle.fill"),
-        "Depositos" :     OptionTitleView(color: .blue, title: "Depositos",         icon: "tray.and.arrow.down.fill"),
-        "Gastos" :        OptionTitleView(color: .red, title: "Gastos",             icon: "cart.fill"),
-        "Beneficiarios" : OptionTitleView(color: .green,  title: "Beneficiarios",   icon: "person.line.dotted.person.fill"),
-        "Cheques" :       OptionTitleView(color: .blue,   title: "Cheques",         icon: "banknote.fill"),
-        "PayRoll" :       OptionTitleView(color: .red,    title: "PayRoll",         icon: "calendar"),
-        "Empleados" :     OptionTitleView(color: .orange, title: "Empleados",       icon: "person.2.fill"),
-        "Contador" :      OptionTitleView(color: .blue, title: "Contador",          icon: "person.text.rectangle.fill"),
-        "Cuenta" :        OptionTitleView(color: .green,  title: "Cuenta",          icon: "person.crop.circle")
-    ]
-    
-    private func setAccentColor() {
-        accentColor.set(options[title]?.color ?? Color.green)
-    }
-}
-
-fileprivate struct OptionTitleView: View {
-    let color: Color
-    let title: String
-    let icon: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .frame(width: 35)
-                .font(.title2)
-            Text(title)
+    func MenuViewSection(title: String, tint: Color, icon: String, destination: some View) -> some View {
+        NavigationLink {
+            destination
+                .tint(tint)
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.large)
+                .onAppear(perform: {
+                    accentColor.set(tint)
+                })
+        } label: {
+            Label(
+                title: { Text(title) },
+                icon: { Image(systemName: icon).foregroundStyle(tint) }
+            )
         }
     }
 }
+
+

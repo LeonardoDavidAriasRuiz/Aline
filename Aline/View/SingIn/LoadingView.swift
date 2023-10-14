@@ -18,7 +18,7 @@ struct LoadingView: View {
             ForEach(0..<4) { index in
                 RoundedRectangle(cornerRadius: 50)
                     .frame(maxWidth: 40, maxHeight: rectHeights[index])
-                    .foregroundColor(colors[index])
+                    .foregroundStyle(colors[index])
                     .padding(.horizontal, 15)
             }
         }

@@ -28,6 +28,14 @@ extension View {
         }
     }
     
+    func alertExport(showed: Binding<Bool>, action: @escaping () -> Void)  -> some View {
+        self.alert(isPresented: showed) {
+            Alert(title: Text(AlertType.confirmExport.message),
+                  primaryButton: .default(Text("Exportar"), action: action),
+                  secondaryButton: .cancel(Text("Cancelar")))
+        }
+    }
+    
     func alertCacelInvitation(showed: Binding<Bool>, action: @escaping () -> Void)  -> some View {
         self.alert(isPresented: showed) {
             Alert(title: Text(AlertType.confirmCancelingInvitation.message),
@@ -48,11 +56,15 @@ enum AlertType {
     case sendingVerificationCodeError
     case confirmDelete
     case confirmDecline
+    case confirmExport
     case verificationCodeResent
     case verificationCodeMismatch
     case signingInError
     case emailAlreadyUsed
     case confirmCancelingInvitation
+    case exportationConfirmation
+    case exportationError
+    
     
     
     var message: String {
@@ -77,6 +89,8 @@ enum AlertType {
                 return "¿Estás seguro de que lo quieres eliminar?"
             case .confirmDecline:
                 return "¿Estás seguro de que la quieres rechazar?"
+            case .confirmExport:
+                return "¿Estás seguro de que quieres exportar los datos?"
             case .verificationCodeResent:
                 return "El código se ha reenviado."
             case .verificationCodeMismatch:
@@ -87,6 +101,10 @@ enum AlertType {
                 return "Este email ya está registrado en el restaurante."
             case .confirmCancelingInvitation:
                 return "¿Estás seguro de que quieres cancelar la invitación?"
+            case .exportationConfirmation:
+                return "Se envió correctamente la información."
+            case .exportationError:
+                return "Sucedió un error al tratar de enviar la información."
         }
     }
 }

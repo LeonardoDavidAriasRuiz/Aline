@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SalesTable: View {
+    @EnvironmentObject private var alertVM: AlertViewModel
     @Binding var sales: [Sale]
     let totalBy: TotalBy
     @State var showed: Bool = false
@@ -17,8 +18,8 @@ struct SalesTable: View {
     private let invalidDate: Date = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1))!
     
     var body: some View {
-        WhiteArea {
-            if sales.isNotEmpty {
+        if sales.isNotEmpty {
+            WhiteArea {
                 OpenSectionButton(pressed: $showed, text: "Ventas")
                 if showed {
                     Divider()
@@ -47,7 +48,7 @@ struct SalesTable: View {
                             }
                         }.bold().frame(width: 100)
                         ScrollView(.horizontal) {
-                            HStack {
+                            LazyHStack {
                                 ForEach(sales.sorted(by: {$0.date < $1.date})) { sale in
                                     Divider()
                                     HStack {
@@ -88,19 +89,16 @@ struct SalesTable: View {
                                             }
                                         }
                                     }
-                                    .background(.white)
                                     .onTapGesture(perform: {selectSaleOnTap(sale)})
                                 }
                             }
                         }
-                    }
+                    }.padding(.vertical, 8)
                     .alertDelete(showed: $deletedButtonPressed, action: {deleteSale(tappedSale ?? Sale())})
                 }
-            } else {
-                Text("No hay datos para estas fechas")
-                    .font(.largeTitle)
-                    .padding(.vertical, 100)
             }
+        } else {
+            Text("")
         }
     }
     
@@ -110,10 +108,10 @@ struct SalesTable: View {
     
     private func deleteSale(_ sale: Sale) {
         withAnimation {
-            SaleViewModel().delete(sale) { deleted in
-                if deleted {
-                    sales.removeAll { $0.date == sale.date }
-                }
+            SaleViewModel().delete(sale.record) {
+                sales.removeAll { $0.date == sale.date }
+            } ifNot: {
+                alertVM.show(.deletingError)
             }
         }
     }
@@ -156,8 +154,8 @@ struct SalesTable: View {
     
     private func validateDate(_ date: Date) -> Text {
         let isDateValid: Bool = date > invalidDate
-        let textColor: Color = isDateValid ? .black : .red
-        return Text(date.short).foregroundStyle(textColor).bold()
+        let textColor: Color = isDateValid ? .primary : .red
+        return Text(date.shortDate).foregroundStyle(textColor).bold()
     }
     
     func getCustomColor(value: Double) -> Color {

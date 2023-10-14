@@ -10,11 +10,8 @@ import Charts
 
 struct SalesView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
-    @EnvironmentObject private var loading: LoadingViewModel
-    @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
-    
-    @State private var filtersShowed: Bool = false
+    @EnvironmentObject private var userVM: UserViewModel
     
     @State private var totalBy: TotalBy = .day
     @State private var rangeIn: RangeIn = .currentMonth
@@ -32,94 +29,110 @@ struct SalesView: View {
     @State private var sales: [Sale] = []
     @State private var salesTableShowed: Bool = false
     
-    @State private var documentPickerShowed: Bool = false
     @State private var data: String?
     @State private var importedSales: [Sale]?
     @State private var errorsInImportedSales: Int?
+    @State private var fileSelector: Bool = false
+    
+    @State private var showedQuantities: Bool = false
+    @State private var showedDaysByWeekDay: Bool = false
     
     let invalidDate: Date = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1))!
     let invalidQuantity: Double = -10.0
     
+    @State private var isLoading: Bool = true
+    
     var body: some View {
-        FullSheet(section: .sales) {
-            filters
+        FullSheet(isLoading: $isLoading) {
             SalesChart(
-                title: "\(customFrom.short) - \(customTo.short)",
+                title: "\(customFrom.shortDate) - \(customTo.shortDate)",
                 data: $sales,
-                totalBy: $totalBy
+                totalBy: $totalBy,
+                showedQuantities: $showedQuantities,
+                showedDaysByWeekDay: $showedDaysByWeekDay
             )
             SalesTable(sales: $sales.animation(), totalBy: totalBy)
-            NavigationLink(destination: SalesCashOutView()) {
-                WhiteArea {
-                    HStack {
-                        Text("Corte")
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                    }
-                }
-            }
             importDataArea
             
         }
-        .onAppear(perform: onApper)
-    }
-    
-    private var filters: some View {
-        WhiteArea {
-            OpenSectionButton(pressed: $filtersShowed, text: "Filtros")
-            if filtersShowed {
-                Divider()
-                HStack {
-                    Text("Total por")
-                    Picker("Total por", selection: $totalBy) {
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarLeading) {
+                NewRecordToolbarButton(destination: SalesCashOutView())
+                UpdateRecordsToolbarButton(action: getSales)
+            }
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if customRangeSelected {
+                    DatePicker("", selection: $customFrom, displayedComponents: .date)
+                        .onChange(of: customFrom, validateCustomFrom)
+                    DatePicker("", selection: $customTo, displayedComponents: .date)
+                        .onChange(of: customTo, validateCustomTo)
+                }
+                ExportToolbarButton(data: createCSV()).disabled(sales.isEmpty)
+                ImportToolbarButton { self.data = $0 }.onChange(of: data, getSalesFromData)
+                FiltersToolBarMenu(fill: rangeIn != .currentMonth || totalBy != .day || showedQuantities != false || showedDaysByWeekDay != false) {
+                    Picker(selection: $totalBy) {
                         Text("Día").tag(TotalBy.day)
                         Text("Semana").tag(TotalBy.week)
                         Text("Mes").tag(TotalBy.month)
+                    } label: {
+                        Label("Total por", systemImage: "calendar.day.timeline.left")
                     }
-                    .pickerStyle(.palette)
+                    .pickerStyle(.menu)
                     .onChange(of: totalBy, validationTotalBy)
-                }
-                HStack {
-                    Text("En")
-                    Picker("En", selection: $rangeIn) {
+                    Picker(selection: $rangeIn) {
                         rangeInCurrentWeekAviable ? Text("Semana actual").tag(RangeIn.currentWeek) : nil
                         rangeInCurrentMonthAviable ? Text("Mes actual").tag(RangeIn.currentMonth) : nil
                         rangeInCurrentYearAviable ? Text("Año actual").tag(RangeIn.currentYear) : nil
                         Text("Personalizado").tag(RangeIn.customRange)
+                    } label: {
+                        Label("En", systemImage: rangeIn == .currentMonth ? "calendar.circle" : "calendar.circle.fill")
                     }
-                    .pickerStyle(.palette)
+                    .pickerStyle(.menu)
                     .onChange(of: rangeIn, validateRangeIn)
-                }
-                if customRangeSelected {
-                    HStack {
-                        Spacer()
-                        DatePicker("Del", selection: $customFrom, displayedComponents: .date)
-                            .frame(maxWidth: 200)
-                            .onChange(of: customFrom, validateCustomFrom)
-                        Spacer()
-                        DatePicker("A", selection: $customTo, displayedComponents: .date)
-                            .frame(maxWidth: 200)
-                            .onChange(of: customTo, validateCustomTo)
-                        Spacer()
+                    Divider()
+                    Toggle(isOn: $showedQuantities.animation()) {
+                        Label("Mostrar cantidades", systemImage: showedQuantities ?  "dollarsign.circle.fill" : "dollarsign.circle")
+                    }
+                    if totalBy == .day {
+                        Toggle(isOn: $showedDaysByWeekDay.animation()) {
+                            Label("Ver por día de semana", systemImage: showedDaysByWeekDay ?  "calendar.circle.fill" : "calendar.circle")
+                        }
+                    }
+                    if !(rangeIn == .currentMonth &&
+                        totalBy == .day &&
+                        showedQuantities == false &&
+                        showedDaysByWeekDay == false) {
+                        Divider()
+                        Button(role: .destructive, action: clearFilters) {
+                            Label("Quitar filtros", systemImage: "xmark")
+                        }
                     }
                 }
             }
         }
+        .overlay {
+            if sales.isEmpty, !isLoading, importedSales == nil {
+                ContentUnavailableView(label: {
+                    Label(
+                        title: { Text("Sin ventas") },
+                        icon: { Image(systemName: "chart.bar.xaxis").foregroundStyle(Color.green) }
+                    )
+                }, description: {
+                    Text("Las nuevas ventas se mostrarán aquí.")
+                })
+            }
+        }
+        .onAppear(perform: onApper)
     }
     
     private var importDataArea: some View {
         WhiteArea {
-            Button(action: {documentPickerShowed.toggle()}) {
-                Spacer()
-                Text("Importar ventas")
-                Spacer()
-            }
-            .sheet(isPresented: $documentPickerShowed) {
-                DocumentPicker(data: $data)
-            }
-            .onChange(of: data, getSalesFromData)
             if let importedSales = importedSales,
                importedSales.isNotEmpty {
+                HStack {
+                    Text("Datos importados").bold().font(.title).padding(.vertical, 10)
+                    Spacer()
+                }
                 Divider()
                 HStack {
                     VStack(alignment: .leading) {
@@ -151,7 +164,7 @@ struct SalesView: View {
                                 Divider()
                                 VStack(alignment: .leading) {
                                     VStack {
-                                        Text(sale.date.short).foregroundStyle(!validateDate(sale.date) ? .red : .black).bold()
+                                        Text(sale.date.shortDate).foregroundStyle(!validateDate(sale.date) ? .red : .primary).bold()
                                         Divider()
                                         Text(sale.rtonos.comasText).foregroundStyle(!validateQuantity(sale.rtonos) ? .red : .secondary)
                                         Divider()
@@ -176,6 +189,7 @@ struct SalesView: View {
                         }
                     }
                 }.frame(maxWidth: .infinity)
+                    .padding(.top, 8)
                 Divider()
                 if let errorsInImportedSales = errorsInImportedSales,
                    errorsInImportedSales > 0 {
@@ -190,13 +204,14 @@ struct SalesView: View {
     private func saveAllImportedSales() {
         guard let importedSales = importedSales else { return }
         for sale in importedSales {
-            SaleViewModel().save(sale) { sale in
-                if let sale = sale {
-                    withAnimation {
-                        sales.append(sale)
-                        sales.sort(by: { $0.date < $1.date })
-                    }
-                    self.importedSales?.removeAll(where: {$0.date == sale.date})
+            SaleViewModel().save(sale.record) {
+                self.importedSales?.removeAll(where: {$0.date == sale.date})
+            } ifNot: {
+                alertVM.show(.crearingError)
+            } alwaysDo: {
+                if let empty = self.importedSales?.isEmpty, empty {
+                    self.importedSales = nil
+                    self.data = nil
                 }
             }
         }
@@ -240,6 +255,15 @@ struct SalesView: View {
         
     }
     
+    private func clearFilters() {
+        withAnimation {
+            rangeIn = .currentMonth
+            totalBy = .day
+            showedQuantities = false
+            showedDaysByWeekDay = false
+        }
+    }
+    
     private func validationTotalBy() {
         switch totalBy {
             case .day: selectTotalByDay()
@@ -273,7 +297,7 @@ struct SalesView: View {
     
     private func selectTotalByDay() {
         withAnimation {
-            getSales(from: customFrom, to: customTo)
+            getSales()
             totalBy = .day
             totalByChart = .day
             rangeInCurrentWeekAviable = true
@@ -285,7 +309,7 @@ struct SalesView: View {
     
     private func selectTotalByWeek() {
         withAnimation {
-            getSales(from: customFrom, to: customTo)
+            getSales()
             if rangeIn == .currentWeek {
                 rangeIn = .currentMonth
             }
@@ -301,7 +325,7 @@ struct SalesView: View {
     
     private func selectTotalByMonth() {
         withAnimation {
-            getSales(from: customFrom, to: customTo)
+            getSales()
             if rangeIn == .currentWeek ||
                 rangeIn == .currentMonth {
                 rangeIn = .currentYear
@@ -342,16 +366,16 @@ struct SalesView: View {
             if let startDate = firstDay, let endDate = lastDay {
                 customFrom = startDate
                 customTo = endDate
-                getSales(from: startDate, to: endDate)
+                getSales()
             }
         }
     }
     
-    private func getSales(from: Date, to: Date) {
+    private func getSales() {
         withAnimation {
-            loading.isLoading = true
+            isLoading = true
             if let restaurantId = restaurantM.restaurant?.id {
-                SaleViewModel().fetchSales(for: restaurantId, from: from, to: to) { sales in
+                SaleViewModel().fetchSales(for: restaurantId, from: customFrom, to: customTo) { sales in
                     if let sales = sales {
                         switch totalBy {
                             case .day: self.sales = sales.sorted(by: { $0.date < $1.date })
@@ -362,16 +386,15 @@ struct SalesView: View {
                     } else {
                         alertVM.show(.dataObtainingError)
                     }
-                    loading.isLoading = false
+                    isLoading = false
                 }
             }
         }
     }
     
     private func onApper() {
-        accentColor.green()
         selectTotalByDay()
-        selectRange(.currentYear)
+        selectRange(.currentMonth)
     }
     
     private func validateQuantity(_ quantity: Double) -> Bool {
@@ -380,5 +403,17 @@ struct SalesView: View {
     
     private func validateDate(_ date: Date) -> Bool {
         !(date <= invalidDate)
+    }
+    
+    func createCSV() -> Data? {
+        var csvString = "Fecha,CarmenTRJTA,Depo,DScan,DoorDash,Online,GrubHub,TacoBar,VEquipo,RTonos\n"
+        for sale in sales {
+            let saleString = """
+            \(sale.date.shortDate),\(sale.carmenTRJTA),\(sale.depo),\
+            \(sale.dscan),\(sale.doordash),\(sale.online),\(sale.grubhub),\(sale.tacobar),\(sale.vequipo),\(sale.rtonos)\n
+            """
+            csvString.append(saleString)
+        }
+        return csvString.data(using: .utf8)
     }
 }

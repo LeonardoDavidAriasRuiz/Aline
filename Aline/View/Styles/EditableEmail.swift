@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EditableEmail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @EnvironmentObject private var loading: LoadingViewModel
     
     @Binding var email: String
     let accion: () -> Void
@@ -26,8 +25,10 @@ struct EditableEmail: View {
     
     @State private var alertShowed: Bool = false
     
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Sheet(section: .editableEmail) {
+        Sheet(section: .editableEmail, isLoading: $isLoading) {
             editableEmailArea
             isCodeValidationAreaVisible ? codeValidationArea : nil
         }
@@ -45,6 +46,7 @@ struct EditableEmail: View {
                 .autocorrectionDisabled(true)
                 .onAppear(perform: onApper)
                 .onChange(of: newEmail, isValidEmail)
+                .padding(.vertical, 8)
         }
     }
     
@@ -84,9 +86,11 @@ struct EditableEmail: View {
             name: newEmail,
             email: newEmail,
             subject: emailInfo.subject,
-            body: emailInfo.body(code: String(code))) { result in
-            alertShowed = !result
-        }
+            body: emailInfo.body(code: String(code))) {
+                alertShowed = false
+            } ifNot: {
+                alertShowed = true
+            } alwaysDo: {}
         withAnimation {
             codeSent = String(code)
             isEmailWithCodeSent = true
@@ -126,6 +130,71 @@ struct EditableEmail: View {
                 isCodeValidationAreaVisible = (emailPredicate.evaluate(with: newEmail) && newEmail.isNotEmpty)
             } else {
                 isCodeValidationAreaVisible = false
+            }
+        }
+    }
+    
+    private func update() {
+        self.presentationMode.wrappedValue.dismiss()
+        email = newEmail
+        accion()
+    }
+}
+
+struct EditableEmailNoConfirmation: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
+    @Binding var email: String
+    let accion: () -> Void
+    
+    @State private var isUpdateButtonDisabled: Bool = true
+    @State private var newEmail: String = ""
+    
+    @State private var alertShowed: Bool = false
+    
+    @State private var isLoading: Bool = false
+    
+    var body: some View {
+        Sheet(section: .editableEmail, isLoading: $isLoading) {
+            editableEmailArea
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing, content: {updateButton})
+        }
+        .alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
+    }
+    
+    private var editableEmailArea: some View {
+        WhiteArea {
+            TextField("Email", text: $newEmail)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.emailAddress)
+                .autocorrectionDisabled(true)
+                .onAppear(perform: onApper)
+                .onChange(of: newEmail, isValidEmail)
+                .padding(.vertical, 8)
+        }
+    }
+    
+    private var updateButton: some View {
+        Button("Actualizar", action: update)
+            .disabled(isUpdateButtonDisabled)
+    }
+    
+    private func onApper() {
+        newEmail = email
+    }
+    
+    private func isValidEmail() {
+        withAnimation {
+            isUpdateButtonDisabled = true
+            
+            if email != newEmail {
+                let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+                let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
+                isUpdateButtonDisabled = !(emailPredicate.evaluate(with: newEmail) && newEmail.isNotEmpty)
+            } else {
+                isUpdateButtonDisabled = true
             }
         }
     }

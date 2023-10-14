@@ -8,14 +8,12 @@
 import SwiftUI
 
 struct RestaurantView: View {
-    
-    let restaurant: Restaurant
-    
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var restaurantEditable: Restaurant
+    
+    let restaurant: Restaurant
     
     private let nameTitle = "Nombre"
     private let emailTitle = "Email"
@@ -41,15 +39,15 @@ struct RestaurantView: View {
                     destination:
                         EditableName(
                             name: $restaurantEditable.name,
-                            accion: {restaurantVM.save(restaurantEditable, isNew: false)}
+                            accion: {RestaurantViewModel().save(restaurantEditable, isNew: false)}
                         ),
                     label: {
                         HStack {
-                            Text(nameTitle).foregroundStyle(.black)
+                            Text(nameTitle).foregroundStyle(Color.text)
                             Spacer()
-                            Text(restaurantEditable.name).foregroundStyle(.black.opacity(0.5))
-                            Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                        }
+                            Text(restaurantEditable.name).foregroundStyle(Color.text.opacity(0.5))
+                            Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                        }.padding(.vertical, 8)
                     }
                 )
                 Divider()
@@ -57,15 +55,15 @@ struct RestaurantView: View {
                     destination:
                         EditableEmail(
                             email: $restaurantEditable.email,
-                            accion: {restaurantVM.save(restaurantEditable, isNew: false)}
+                            accion: {RestaurantViewModel().save(restaurantEditable, isNew: false)}
                         ),
                     label: {
                         HStack {
-                            Text(emailTitle).foregroundStyle(.black)
+                            Text(emailTitle).foregroundStyle(Color.text)
                             Spacer()
-                            Text(restaurantEditable.email).foregroundStyle(.black.opacity(0.5))
-                            Image(systemName: "chevron.right").foregroundStyle(.black.opacity(0.5))
-                        }
+                            Text(restaurantEditable.email).foregroundStyle(Color.text.opacity(0.5))
+                            Image(systemName: "chevron.right").foregroundStyle(Color.text.opacity(0.5))
+                        }.padding(.vertical, 8)
                     }
                 )
             }

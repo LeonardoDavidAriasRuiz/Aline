@@ -16,23 +16,23 @@ struct UserInformationView: View {
     var body: some View {
         VStack {
             WhiteArea {
-                NavigationLink(destination: EditableName(name: $userVM.user.name, accion: userVM.save), label: {
+                NavigationLink(destination: EditableName(name: $userVM.user.name, accion: userVM.save)){
                     HStack {
-                        Text(nameTitle).foregroundStyle(.black)
+                        Text(nameTitle).foregroundStyle(Color.text)
                         Spacer()
-                        Text(userVM.user.name).foregroundStyle(.black.secondary)
-                        Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                    }
-                })
+                        Text(userVM.user.name).foregroundStyle(Color.text.secondary)
+                        Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                    }.padding(.vertical, 8)
+                }
                 Divider()
-                NavigationLink(destination: EditableEmail(email: $userVM.user.email, accion: userVM.save), label: {
+                NavigationLink(destination: EditableEmail(email: $userVM.user.email, accion: userVM.save)) {
                     HStack {
-                        Text(emailTitle).foregroundStyle(.black)
+                        Text(emailTitle).foregroundStyle(Color.text)
                         Spacer()
-                        Text(userVM.user.email).foregroundStyle(.black.secondary)
-                        Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                    }
-                })
+                        Text(userVM.user.email).foregroundStyle(Color.text.secondary)
+                        Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                    }.padding(.vertical, 8)
+                }
             }
         }
     }

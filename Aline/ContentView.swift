@@ -11,7 +11,6 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var userVM: UserViewModel
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     
     @State private var content: AnyView = AnyView(iCloudOffView())
@@ -79,7 +78,7 @@ struct ContentView: View {
     private func setRestaurantList() {
         let adminIds = userVM.user.adminIds
         let emploIds = userVM.user.emploIds
-        restaurantVM.getRestaurants(adminIds: adminIds, emploIds: emploIds) { adminRts, emploRts in
+        RestaurantViewModel().getRestaurants(adminIds: adminIds, emploIds: emploIds) { adminRts, emploRts in
             if let emploRts = emploRts {
                 restaurantM.emploRts = emploRts
                 if let restaurant = emploRts.first{

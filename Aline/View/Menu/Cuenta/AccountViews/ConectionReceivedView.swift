@@ -9,9 +9,7 @@ import SwiftUI
 
 struct ConectionReceivedView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
@@ -27,8 +25,10 @@ struct ConectionReceivedView: View {
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Sheet(section: .conectionReceived) {
+        Sheet(section: .conectionReceived, isLoading: $isLoading) {
             WhiteArea {
                 userInfo(title: nameText, value: restaurant.name)
                 Divider()
@@ -44,14 +44,14 @@ struct ConectionReceivedView: View {
     }
     
     private func getRestaurantInformation() {
-        loading.isLoading = true
-        restaurantVM.fetchRestaurant(with: conection.restaurantId) { result in
+        isLoading = true
+        RestaurantViewModel().fetchRestaurant(with: conection.restaurantId) { result in
             if let restaurant = result {
                 self.restaurant = restaurant
             } else {
                 alertVM.show(.dataObtainingError)
             }
-            loading.isLoading = false
+            isLoading = false
         }
     }
     
@@ -64,12 +64,12 @@ struct ConectionReceivedView: View {
             restaurant.emploUsersIds.append(userVM.user.id)
         }
         userVM.save()
-        restaurantVM.save(restaurant, isNew: false)
+        RestaurantViewModel().save(restaurant, isNew: false)
         decline()
     }
     
     private func decline() {
-        loading.isLoading = true
+        isLoading = true
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll{ $0 == conection }
@@ -77,7 +77,7 @@ struct ConectionReceivedView: View {
             } else {
                 alertVM.show(.deletingError)
             }
-            loading.isLoading = false
+            isLoading = false
         }
     }
     
@@ -87,6 +87,6 @@ struct ConectionReceivedView: View {
             Spacer()
             Text(value)
                 .foregroundStyle(.secondary)
-        }
+        }.padding(.vertical, 8)
     }
 }

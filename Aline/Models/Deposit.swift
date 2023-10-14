@@ -16,24 +16,6 @@ struct Deposit: Hashable, Equatable {
      var restaurantId: String
     private var record: CKRecord?
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: Deposit, rhs: Deposit) -> Bool {
-        lhs.id == rhs.id &&
-        lhs.quantity == rhs.quantity &&
-        lhs.date == rhs.date &&
-        lhs.restaurantId == rhs.restaurantId
-    }
-    
-    init(id: String, quantity: Int, date: Date, restaurantId: String) {
-        self.id = id
-        self.quantity = quantity
-        self.date = date
-        self.restaurantId = restaurantId
-    }
-    
     init(record: CKRecord) {
         self.record = record
         self.id = record[keys.id] as? String ?? ""
@@ -55,5 +37,16 @@ struct Deposit: Hashable, Equatable {
         record[keys.date] = self.date
         record[keys.restaurantId] = self.restaurantId
         return record
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Deposit, rhs: Deposit) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.quantity == rhs.quantity &&
+        lhs.date == rhs.date &&
+        lhs.restaurantId == rhs.restaurantId
     }
 }

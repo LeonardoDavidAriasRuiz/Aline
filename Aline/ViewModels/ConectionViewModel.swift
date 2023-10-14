@@ -13,7 +13,7 @@ class ConectionViewModel: ObservableObject {
     private let userKeys: UserKeys = UserKeys()
     private let conectionKeys: ConectionKeys = ConectionKeys()
     
-    func save(_ conection: Conection, completion: @escaping (Conection?) -> Void) {
+    func save(_ conection: Conection, completion: @escaping (Bool) -> Void) {
         let record: CKRecord = CKRecord(recordType: conectionKeys.type)
         record[conectionKeys.id] = conection.id
         record[conectionKeys.email] = conection.email
@@ -21,80 +21,51 @@ class ConectionViewModel: ObservableObject {
         record[conectionKeys.restaurantId] = conection.restaurantId
         record[conectionKeys.restaurantName] = conection.restaurantName
         
-        dataBase.save(record) { (record, error) in
-            if let record = record {
-                completion(Conection(record: record))
-            } else {
-                completion(.none)
-            }
+        dataBase.save(record) { (record, _) in
+            completion(record != nil)
         }
     }
     
     func fetchConections(for userList: [String], completion: @escaping ([User]?) -> Void) {
-        var users: [User] = []
-        
         let predicate = NSPredicate(format: "\(userKeys.id) IN %@", userList)
         let query = CKQuery(recordType: userKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
         
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    users.append(User(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            let users: [User] = data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else {completion(.none); return nil }
+                return User(record: record)
             }
-        }
-        
-        queryOperation.queryResultBlock = { result in
             completion(users)
         }
-        dataBase.add(queryOperation)
     }
     
     func fetchReceivedConections(for email: String, completion: @escaping ([Conection]?) -> Void) {
-        var conections: [Conection] = []
-        
         let predicate = NSPredicate(format: "\(conectionKeys.email) == %@", email)
         let query = CKQuery(recordType: conectionKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
         
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    conections.append(Conection(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            let conections: [Conection] = data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else {completion(.none); return nil }
+                return Conection(record: record)
             }
-        }
-        
-        queryOperation.queryResultBlock = { result in
             completion(conections)
         }
-        dataBase.add(queryOperation)
     }
     
     func fetchSentConections(in restaurantId: String, completion: @escaping ([Conection]?) -> Void) {
-        var conections: [Conection] = []
-        
         let predicate = NSPredicate(format: "\(conectionKeys.restaurantId) == %@", restaurantId)
         let query = CKQuery(recordType: conectionKeys.type, predicate: predicate)
-        let queryOperation = CKQueryOperation(query: query)
         
-        queryOperation.recordMatchedBlock = { (_, result) in
-            switch result {
-                case .success(let record):
-                    conections.append(Conection(record: record))
-                case .failure:
-                    completion(.none)
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            let conections: [Conection] = data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else {completion(.none); return nil }
+                return Conection(record: record)
             }
-        }
-        
-        queryOperation.queryResultBlock = { result in
             completion(conections)
         }
-        
-        dataBase.add(queryOperation)
     }
     
     func delete(_ conection: Conection, completion: @escaping (Bool) -> Void) {

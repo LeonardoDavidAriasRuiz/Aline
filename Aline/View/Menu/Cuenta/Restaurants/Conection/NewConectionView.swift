@@ -10,7 +10,6 @@ import SwiftUI
 struct NewConectionView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     
     @State private var conection: Conection = Conection(restaurant: Restaurant())
@@ -21,8 +20,10 @@ struct NewConectionView: View {
     let usersEmails: [String]
     let restaurant: Restaurant
     
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Sheet(section: .inviteUser) {
+        Sheet(section: .inviteUser, isLoading: $isLoading) {
             WhiteArea {
                 HStack {
                     Text("Para:")
@@ -32,9 +33,9 @@ struct NewConectionView: View {
                         .keyboardType(.emailAddress)
                         .autocorrectionDisabled(true)
                         .onChange(of: conection.email, isValidEmail)
-                }
+                }.padding(.vertical, 8)
                 Divider()
-                Toggle("Administrador", isOn: $conection.isAdmin)
+                Toggle("Administrador", isOn: $conection.isAdmin).padding(.vertical, 8)
             }
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
@@ -50,7 +51,7 @@ struct NewConectionView: View {
         if usersEmails.contains(conection.email) {
             alertVM.show(.emailAlreadyUsed)
         } else {
-            loading.isLoading = true
+            isLoading = true
             let name = restaurant.name
             let isAdmin = conection.isAdmin
             let email = conection.email
@@ -58,8 +59,8 @@ struct NewConectionView: View {
             conection.restaurantId = restaurant.id
             conection.restaurantName = restaurant.name
             
-            conectionVM.save(conection) { conection in
-                if let conection = conection {
+            conectionVM.save(conection) { saved in
+                if saved {
                     DispatchQueue.main.async {
                         self.conections.append(conection)
                         MailSMTP().send(
@@ -67,18 +68,16 @@ struct NewConectionView: View {
                             email: email,
                             subject: emailInfo.subject,
                             body: emailInfo.body(isAdmin: isAdmin, restaurantName: name)
-                        ) { sent in
-                            if sent {
-                                presentationMode.wrappedValue.dismiss()
-                            } else {
-                                alertVM.show(.sendingInvitationError)
-                            }
-                        }
+                        ) {
+                            presentationMode.wrappedValue.dismiss()
+                        } ifNot: {
+                            alertVM.show(.sendingInvitationError)
+                        } alwaysDo: {}
                     }
                 } else {
                     alertVM.show(.dataObtainingError)
                 }
-                loading.isLoading = false
+                isLoading = false
             }
         }
     }

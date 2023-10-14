@@ -18,12 +18,14 @@ struct OpenSectionButton: View {
     var body: some View {
         
         Button(action: {withAnimation{pressed.toggle()}}) {
-            Text(text)
-            Spacer()
-            Image(systemName: "chevron.down")
-                .font(.title2)
-                .rotationEffect(Angle(degrees: pressed ? -180 : 0))
-                .symbolEffect(.bounce, value: pressed)
+            HStack {
+                Text(text)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .font(.title2)
+                    .rotationEffect(Angle(degrees: pressed ? -180 : 0))
+                    .symbolEffect(.bounce, value: pressed)
+            }.padding(.vertical, 8)
         }
     }
 }
@@ -47,6 +49,7 @@ struct NewButton: View {
                     .rotationEffect(Angle(degrees: pressed ? 45 : 0))
                     .symbolEffect(.bounce, value: pressed)
             }
+            .padding(.vertical, 8)
         }
     }
 }
@@ -55,7 +58,7 @@ struct SaveButton: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            Text("Guardar").frame(maxWidth: .infinity)
+            Text("Guardar").frame(maxWidth: .infinity).padding(.vertical, 8)
         }
     }
 }
@@ -64,7 +67,7 @@ struct CancelButton: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            Text("Cancelar").frame(maxWidth: .infinity)
+            Text("Cancelar").frame(maxWidth: .infinity).padding(.vertical, 8)
         }
     }
 }
@@ -73,7 +76,7 @@ struct UpdateButton: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            Text("Actualizar").frame(maxWidth: .infinity)
+            Text("Actualizar").frame(maxWidth: .infinity).padding(.vertical, 8)
         }
     }
 }
@@ -85,7 +88,7 @@ struct DeleteButton: View {
     
     var body: some View {
         Button(action: showDeleteAlert) {
-            Text("Eliminar").frame(maxWidth: .infinity)
+            Text("Eliminar").frame(maxWidth: .infinity).padding(.vertical, 8)
         }
         .alertDelete(showed: $deleteAlertShowed, action: action)
     }
@@ -101,7 +104,7 @@ struct SaveButtonWhite: View {
     var body: some View {
         Button(action: action) {
             WhiteArea {
-                Text("Guardar").frame(maxWidth: .infinity)
+                Text("Guardar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
     }
@@ -113,7 +116,7 @@ struct CancelButtonWhite: View {
     var body: some View {
         Button(action: action) {
             WhiteArea {
-                Text("Cancelar").frame(maxWidth: .infinity)
+                Text("Cancelar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
     }
@@ -125,7 +128,7 @@ struct UpdateButtonWhite: View {
     var body: some View {
         Button(action: action) {
             WhiteArea {
-                Text("Actualizar").frame(maxWidth: .infinity)
+                Text("Actualizar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
     }
@@ -139,7 +142,7 @@ struct DeleteButtonWhite: View {
     var body: some View {
         Button(action: showDeleteAlert) {
             WhiteArea {
-                Text("Eliminar").frame(maxWidth: .infinity)
+                Text("Eliminar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
         .alertDelete(showed: $deleteAlertShowed, action: action)
@@ -155,7 +158,7 @@ struct AcceptButtonWhite: View {
     var body: some View {
         Button(action: action) {
             WhiteArea {
-                Text("Aceptar").frame(maxWidth: .infinity)
+                Text("Aceptar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
     }
@@ -169,7 +172,7 @@ struct DeclineButtonWhite: View {
     var body: some View {
         Button(action: showDeclineAlert) {
             WhiteArea {
-                Text("Rechazar").frame(maxWidth: .infinity)
+                Text("Rechazar").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
         .alertDecline(showed: $declineAlertShowed, action: action)
@@ -189,7 +192,7 @@ struct CancelInvitationButtonWhite: View {
     var body: some View {
         Button(action: showDeclineAlert) {
             WhiteArea {
-                Text("Cancelar invitación").frame(maxWidth: .infinity)
+                Text("Cancelar invitación").frame(maxWidth: .infinity).padding(.vertical, 8)
             }
         }
         .alertCacelInvitation(showed: $cancelAlertShowed, action: action)

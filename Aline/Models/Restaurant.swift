@@ -8,39 +8,48 @@
 import Foundation
 import CloudKit
 
- struct Restaurant: Hashable, Equatable, Identifiable {
+struct Restaurant: Hashable, Equatable, Identifiable {
     private let keys: RestaurantKeys = RestaurantKeys()
     
-     var id: String
-     var name: String
-     var email: String
-     var adminUsersIds: [String]
-     var emploUsersIds: [String]
-     var record: CKRecord
+    var id: String
+    var name: String
+    var email: String
+    var adminUsersIds: [String]
+    var emploUsersIds: [String]
+    private var _record: CKRecord
     
-     init(record: CKRecord) {
-        self.id = record[keys.id] as? String ?? ""
-        self.name = record[keys.name] as? String ?? ""
-        self.email = record[keys.email] as? String ?? ""
-        self.adminUsersIds = record[keys.adminUsersIds] as? [String] ?? [""]
-        self.emploUsersIds = record[keys.emploUsersIds] as? [String] ?? [""]
-        self.record = record
+    var record: CKRecord {
+        _record[keys.id] = id
+        _record[keys.name] = name
+        _record[keys.email] = email
+        _record[keys.adminUsersIds] = adminUsersIds
+        _record[keys.emploUsersIds] = emploUsersIds
+        return _record
     }
     
-     init() {
+    init() {
         self.id = UUID().uuidString
         self.name = ""
         self.email = ""
         self.adminUsersIds = [""]
         self.emploUsersIds = [""]
-        self.record = CKRecord(recordType: keys.type)
+        self._record = CKRecord(recordType: keys.type)
     }
     
-     func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
+    init(record: CKRecord) {
+        self.id = record[keys.id] as? String ?? ""
+        self.name = record[keys.name] as? String ?? ""
+        self.email = record[keys.email] as? String ?? ""
+        self.adminUsersIds = record[keys.adminUsersIds] as? [String] ?? [""]
+        self.emploUsersIds = record[keys.emploUsersIds] as? [String] ?? [""]
+        self._record = record
+    }
     
-     static func ==(lhs: Restaurant, rhs: Restaurant) -> Bool {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Restaurant, rhs: Restaurant) -> Bool {
         lhs.id == rhs.id &&
         lhs.name == rhs.name &&
         lhs.email == rhs.email &&

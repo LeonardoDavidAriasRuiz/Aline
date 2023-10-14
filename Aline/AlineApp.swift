@@ -11,13 +11,9 @@ import Network
 @main
 struct AlineApp: App {
     private let userVM = UserViewModel()
-    private let restaurantVM = RestaurantViewModel()
-    private let employeeVM = EmployeeViewModel()
-    private let spendingVM = ExpenseViewModel()
+    private let spendingVM = SpendingViewModel()
     private let accentColor = AccentColor()
-    private let depositVM = DepositViewModel()
     private let conectionVM = ConectionViewModel()
-    private let loadingVM = LoadingViewModel()
     private let alertVM = AlertViewModel()
     let restaurantM = RestaurantPickerManager()
     
@@ -30,7 +26,7 @@ struct AlineApp: App {
                 contentView()
                 networkMonitor.isConnected ? nil : NoWifiConected()
             }
-            .preferredColorScheme(ColorScheme.light)
+//            .preferredColorScheme(ColorScheme.light)
         }
     }
     
@@ -39,13 +35,9 @@ struct AlineApp: App {
         return AnyView(
             ContentView()
                 .environmentObject(userVM)
-                .environmentObject(restaurantVM)
-                .environmentObject(employeeVM)
                 .environmentObject(spendingVM)
                 .environmentObject(accentColor)
-                .environmentObject(depositVM)
                 .environmentObject(conectionVM)
-                .environmentObject(loadingVM)
                 .environmentObject(alertVM)
                 .environmentObject(restaurantM)
         )
@@ -58,8 +50,8 @@ struct NoWifiConected: View {
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .foregroundStyle(.white.opacity(0.3))
-            Image(systemName: "wifi.slash")
-                .symbolEffect(.pulse)
+            Image(systemName: "wifi")
+                .symbolEffect(.variableColor.iterative.dimInactiveLayers.reversing)
                 .foregroundStyle(Color.red)
                 .font(.system(size: 350))
         }

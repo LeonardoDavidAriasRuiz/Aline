@@ -10,7 +10,6 @@ import SwiftUI
 struct ConectionSentView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     
     @Binding var conections: [Conection]
@@ -22,20 +21,21 @@ struct ConectionSentView: View {
     private let adminText: String = "Administrador"
     private let emploText: String = "Limitado"
     
+    @State private var isLoading: Bool = false
+    
     var body: some View {
-        Sheet(section: .conectionSent) {
+        Sheet(section: .conectionSent, isLoading: $isLoading) {
             WhiteArea {
                 userInfo(title: emailText, value: conection.email)
                 Divider()
                 userInfo(title: typeText, value: conection.isAdmin ? adminText : emploText)
             }
-            
             CancelInvitationButtonWhite(action: cancel)
         }
     }
     
     private func cancel() {
-        loading.isLoading = true
+        isLoading = true
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll { $0 == self.conection }
@@ -43,7 +43,7 @@ struct ConectionSentView: View {
             } else {
                 alertVM.show(.deletingError)
             }
-            loading.isLoading = false
+            isLoading = false
         }
     }
     
@@ -53,6 +53,6 @@ struct ConectionSentView: View {
             Spacer()
             Text(value)
                 .foregroundStyle(.secondary)
-        }
+        }.padding(.vertical, 8)
     }
 }

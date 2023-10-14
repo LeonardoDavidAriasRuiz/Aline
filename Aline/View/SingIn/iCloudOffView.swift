@@ -19,7 +19,7 @@ struct iCloudOffView: View {
         VStack {
             Image(systemName: notiCloudIcon)
                 .font(notiCloudIconFont)
-                .foregroundColor(notiCloudIconColor)
+                .foregroundStyle(notiCloudIconColor)
             Text(notiCloudMSG)
                 .padding(notiCloudMSGPadding)
         }

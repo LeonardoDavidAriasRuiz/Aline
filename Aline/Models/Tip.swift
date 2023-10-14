@@ -19,13 +19,11 @@ struct Tip: Identifiable, Equatable {
     private var _record: CKRecord
     
     var record: CKRecord {
-        get {
-            _record[keys.id] = id
-            _record[keys.date] = date
-            _record[keys.employeeId] = employeeId
-            _record[keys.quantity] = quantity
-            return _record
-        }
+        _record[keys.id] = id
+        _record[keys.date] = date
+        _record[keys.employeeId] = employeeId
+        _record[keys.quantity] = quantity
+        return _record
     }
     
     init() {

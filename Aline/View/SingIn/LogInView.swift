@@ -10,7 +10,6 @@ import SwiftUI
 struct LogInView: View {
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     
     @State private var fieldsValidated: Bool = false
     @State private var nameValided: Bool = false
@@ -25,7 +24,7 @@ struct LogInView: View {
     
     @Binding var loggedIn: Bool
     
-    private var section: MenuSection = .login
+    private var section: MenuSubsection = .login
     
     private let titleFont: Font = Font.system(size: 90)
     private let nameTitle: String = "Nombre"
@@ -105,11 +104,9 @@ struct LogInView: View {
     private func verifyEmail() {
         let code = Int.random(in: 100000...999999)
         let emailInfo: VerifyLoginEmail = VerifyLoginEmail()
-        MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)")) { sent in
-            if !sent {
-                alertVM.show(.sendingVerificationCodeError)
-            }
-        }
+        MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)")) {} ifNot: {
+            alertVM.show(.sendingVerificationCodeError)
+        } alwaysDo: {}
         withAnimation {
             rightCode = String(code)
             emailSent = true

@@ -8,22 +8,20 @@
 import SwiftUI
 
 struct DecimalField: View {
-    @State private var decimalInText: String = ""
+    @State private var decimalInText: String
     let titleKey: String
     @Binding var decimal: Double
     
     init(_ titleKey: String, decimal: Binding<Double>) {
         self.titleKey = titleKey
         self._decimal = decimal
-        if decimal.wrappedValue != 0.0 {
-            decimalInText = String(decimal.wrappedValue)
-        }
+        self.decimalInText = decimal.wrappedValue > 0.0 ? String(decimal.wrappedValue) : ""
     }
     
     var body: some View {
         TextField(titleKey, text: $decimalInText)
             .keyboardType(.decimalPad)
-            .foregroundStyle(Color.black.secondary)
+            .foregroundStyle(.secondary)
             .onChange(of: decimalInText, validateTipsQuantity)
             .onChange(of: decimal, returnDecimalToCero)
     }

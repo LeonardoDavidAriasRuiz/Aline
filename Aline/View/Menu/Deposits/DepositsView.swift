@@ -8,15 +8,11 @@
 import SwiftUI
 
 struct DepositsView: View {
-    
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
-    @EnvironmentObject private var depositVM: DepositViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
-    @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
-    @State private var editableDeposit = Deposit()
+    @State private var selectedDeposit: Deposit?
     @State private var editableDepositAreaOpen: Bool = false
     @State private var deposits: [Deposit] = []
     @State private var deleteDepositButtonVisible: Bool = false
@@ -29,12 +25,34 @@ struct DepositsView: View {
     private let saveButtonText: String = "Guardar"
     private let errorMessage: String = "No se pudo completar la operación."
     
-    
+    @State private var isLoading: Bool = true
     
     var body: some View {
-        Sheet(section: .deposits) {
-            editableDepositArea
-            deposits.isEmpty ? nil : depositsListArea
+        Sheet(isLoading: $isLoading) {
+            if deposits.isNotEmpty {
+                depositsListArea
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarLeading) {
+                NewRecordToolbarButton(destination: NewDepositView())
+                UpdateRecordsToolbarButton(action: getDeposits)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ExportToolbarButton(data: createCSV()).disabled(deposits.isEmpty)
+            }
+        }
+        .overlay {
+            if deposits.isEmpty, !isLoading {
+                ContentUnavailableView(label: {
+                    Label(
+                        title: { Text("Sin depositos") },
+                        icon: { Image(systemName: "tray.full.fill").foregroundStyle(Color.blue) }
+                    )
+                }, description: {
+                    Text("Los nuevos depósitos se mostrarán aquí.")
+                })
+            }
         }
         .onAppear(perform: getDeposits)
     }
@@ -42,15 +60,29 @@ struct DepositsView: View {
     private var depositsListArea: some View {
         WhiteArea {
             ForEach(deposits, id: \.self) { deposit in
-                Button(action: {selectDeposit(deposit)}, label: {
-                    HStack {
-                        Text(deposit.date.short).foregroundStyle(.black)
-                        Spacer()
-                        Text("\(deposit.quantity)").foregroundStyle(.black.secondary)
-                        Image(systemName: "chevron.forward").foregroundStyle(.black.secondary)
+                HStack {
+                    Button(action: {selectDeposit(deposit)}) {
+                        HStack {
+                            Text(deposit.date.shortDate).foregroundStyle(Color.text)
+                            Spacer()
+                            Text("\(deposit.quantity)").foregroundStyle(Color.text.secondary)
+                            if selectedDeposit != deposit {
+                                Image(systemName: "ellipsis").foregroundStyle(Color.text.secondary)
+                            }
+                        }.padding(.vertical, 8)
                     }
-                    
-                })
+                    if selectedDeposit == deposit {
+                        Button(action: delete) {
+                            Image(systemName: "trash.fill")
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .font(.title3)
+                                .background(Color.red)
+                                .clipShape(Circle())
+                                .padding(3)
+                        }
+                    }
+                }
                 if deposits.last != deposit {
                     Divider()
                 }
@@ -58,109 +90,55 @@ struct DepositsView: View {
         }
     }
     
-    private var editableDepositArea: some View {
-        WhiteArea {
-            Button(action: toggleEditableDepositArea) {
-                HStack {
-                    Text(editableDepositAreaOpen ? cancelButtonText : newDepositButtonText)
-                    Spacer()
-                    Image(systemName: plusImageName)
-                        .font(.title2)
-                        .rotationEffect(Angle(degrees: editableDepositAreaOpen ? 45 : 0))
-                        .symbolEffect(.bounce, value: editableDepositAreaOpen)
-                }
-            }
-            if editableDepositAreaOpen {
-                Divider()
-                HStack {
-                    Stepper("$\(editableDeposit.quantity)",
-                            value: $editableDeposit.quantity,
-                            in: newDepositRangeForStepper,
-                            step: newDepositStepQuantity
-                    )
-                    DatePicker("",
-                               selection: $editableDeposit.date,
-                               displayedComponents: .date
-                    )
-                }
-                Divider()
-                Button("Guardar", action: create)
-                
-                if deleteDepositButtonVisible {
-                    Divider()
-                    Button("Eliminar", action: delete)
-                }
-            }
-        }
-    }
-    
     private func selectDeposit(_ deposit: Deposit) {
         withAnimation {
-            if editableDeposit == deposit {
-                toggleEditableDepositArea()
+            if selectedDeposit == deposit {
+                selectedDeposit = nil
             } else {
-                deleteDepositButtonVisible = true
-                editableDeposit = deposit
-                editableDepositAreaOpen = true
-            }
-        }
-    }
-    
-    private func create() {
-        withAnimation {
-            loading.isLoading = true
-            if let restaurantId = restaurantM.restaurant?.id {
-                editableDeposit.restaurantId = restaurantId
-                depositVM.save(editableDeposit) { deposit in
-                    if let deposit = deposit {
-                        deposits.append(deposit)
-                        toggleEditableDepositArea()
-                        deposits.sort { $0.date > $1.date }
-                    } else {
-                        alertVM.show(.crearingError)
-                    }
-                    loading.isLoading = false
-                }
+                selectedDeposit = deposit
             }
         }
     }
     
     private func delete() {
         withAnimation {
-            loading.isLoading = true
-            depositVM.delete(deposit: editableDeposit) { deleted in
-                if deleted {
-                    guard let index = deposits.firstIndex(of: editableDeposit) else { return }
+            isLoading = true
+            if let  deposit = selectedDeposit {
+                DepositViewModel().delete(deposit.getCKRecord()) {
+                    guard let index = deposits.firstIndex(of: deposit) else { return }
                     deposits.remove(at: index)
-                    toggleEditableDepositArea()
-                } else {
+                } ifNot: {
                     alertVM.show(.deletingError)
+                } alwaysDo: {
+                    isLoading = false
                 }
-                loading.isLoading = false
+            } else {
+                alertVM.show(.deletingError)
             }
-        }
-    }
-    
-    private func toggleEditableDepositArea() {
-        withAnimation {
-            editableDepositAreaOpen.toggle()
-            deleteDepositButtonVisible = false
-            editableDeposit = Deposit()
         }
     }
     
     private func getDeposits() {
-        loading.isLoading = true
-        if let restaurantId = restaurantM.restaurant?.id {
-            depositVM.fetchDeposits(for: restaurantId) { deposits in
+        withAnimation {
+            isLoading = true
+            DepositViewModel().fetch(restaurantId: restaurantM.currentId) { deposits in
                 if let deposits = deposits {
-                    self.deposits = deposits
+                    self.deposits = deposits.sorted(by: {$0.date > $1.date})
                 } else {
                     alertVM.show(.dataObtainingError)
                 }
-                loading.isLoading = false
+                isLoading = false
             }
         }
+    }
+    
+    func createCSV() -> Data? {
+        var csvString = "Fecha,Cantidad\n"
+        for deposit in deposits {
+            let depositString = "\(deposit.date.shortDate),\(deposit.quantity)\n"
+            csvString.append(depositString)
+        }
+        return csvString.data(using: .utf8)
     }
 }
 

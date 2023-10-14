@@ -9,176 +9,88 @@ import SwiftUI
 
 struct EmployeesView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
-    @EnvironmentObject private var employeeVM: EmployeeViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
-    @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var employees: [Employee] = []
-    @State private var editableEmployee = Employee()
-    
-    @State private var employeeSelected: Bool = false
-    @State private var editableEmployeeAreaOpened: Bool = false
-    @State private var isNewEmployeeReadyToSave: Bool = false
-    
-    private let newEmployeeButtonText: String = "Nuevo empleado"
-    private let nameFieldText: String = "Nombre"
-    private let lastNameFieldText: String = "Apellido"
-    private let employeeButtonSymbolName: String = "chevron.right"
+    @State private var showInactiveEmployees: Bool = false
+    @State private var isLoading: Bool = true
     
     var body: some View {
-        Sheet(section: .employees) {
-            editableEmployeeArea
-            employees.isNotEmpty ? employeesListArea : nil
+        Sheet(isLoading: $isLoading) {
+            if employees.isNotEmpty { employeesListArea }
         }
-        .onChange(of: editableEmployee, validateEmployee)
-        .onChange(of: employees, sortEmployees)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarLeading) {
+                NewRecordToolbarButton(destination: EditableEmployeeView())
+                UpdateRecordsToolbarButton(action: getEmployees)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                ExportToolbarButton(data: createCSV()).disabled(employees.isEmpty)
+            }
+        }
+        .overlay {
+            if employees.isEmpty, !isLoading {
+                ContentUnavailableView(label: {
+                    Label(
+                        title: { Text("Sin empleados") },
+                        icon: { Image(systemName: "person.3.fill").foregroundStyle(Color.orange) }
+                    )
+                }, description: {
+                    Text("Los nuevos empleados se mostrarán aquí.")
+                })
+            }
+        }
         .onAppear(perform: getEmployees)
     }
     
     private var employeesListArea: some View {
         WhiteArea {
+            Toggle("Mostrar inactivos", isOn: $showInactiveEmployees.animation()).padding(.vertical, 8)
+            Divider()
             ForEach(employees, id: \.self) { employee in
-                Button(action: {select(employee)}) {
-                    HStack {
-                        Text(employee.lastName).foregroundStyle(Color.black)
-                        Text(employee.name).foregroundStyle(Color.black)
-                        Spacer()
-                        Text(employee.isActive ? "" : "Inactivo").foregroundStyle(.black.secondary)
-                        Image(systemName: employeeButtonSymbolName)
-                            .foregroundStyle(Color.black.opacity(0.5))
+                if employee.isActive || (showInactiveEmployees && !employee.isActive)  {
+                    NavigationLink(destination: EditableEmployeeView(employee: employee)) {
+                        HStack {
+                            Text(employee.fullName).foregroundStyle(Color.text)
+                            Spacer()
+                            Text(employee.isActive ? "" : "Inactivo").foregroundStyle(Color.text.secondary)
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(Color.text.secondary)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    if employees.last != employee {
+                        Divider()
                     }
                 }
-                if employees.last != employee {
-                    Divider()
-                }
-            }
-        }
-    }
-    
-    private var editableEmployeeArea: some View {
-        WhiteArea {
-            NewButton(pressed: $editableEmployeeAreaOpened, newText: newEmployeeButtonText, action: toggleEditableDepositArea)
-            if editableEmployeeAreaOpened {
-                Divider()
-                TextField(nameFieldText, text: $editableEmployee.name).foregroundStyle(.secondary)
-                Divider()
-                TextField(lastNameFieldText, text: $editableEmployee.lastName).foregroundStyle(.secondary)
-                Divider()
-                Toggle("Activo", isOn: $editableEmployee.isActive)
-                Divider()
-                if employeeSelected {
-                    UpdateButton(action: update).disabled(!isNewEmployeeReadyToSave)
-                    Divider()
-                    DeleteButton(action: delete)
-                } else {
-                    SaveButton(action: create).disabled(!isNewEmployeeReadyToSave)
-                }
-            }
-        }
-        
-    }
-    
-    private func toggleEditableDepositArea() {
-        withAnimation {
-            editableEmployeeAreaOpened.toggle()
-            employeeSelected = false
-            editableEmployee = Employee()
-        }
-    }
-    
-    private func sortEmployees() {
-        withAnimation {
-            employees.sort { $0 < $1 }
-        }
-    }
-    
-    private func validateEmployee() {
-        withAnimation {
-            if editableEmployee.name.isNotEmpty, editableEmployee.lastName.isNotEmpty {
-                isNewEmployeeReadyToSave = true
-            } else {
-                isNewEmployeeReadyToSave = false
-            }
-        }
-    }
-    
-    private func select(_ employee: Employee) {
-        withAnimation {
-            if editableEmployee == employee {
-                toggleEditableDepositArea()
-            } else {
-                employeeSelected = true
-                editableEmployee = employee
-                editableEmployeeAreaOpened = true
-            }
-        }
-    }
-    
-    private func create() {
-        withAnimation {
-            loading.isLoading = true
-            if let restaurantId = restaurantM.restaurant?.id {
-                editableEmployee.restaurantId = restaurantId
-                employeeVM.save(editableEmployee, isNew: true) { saved in
-                    if saved {
-                        employees.append(editableEmployee)
-                        toggleEditableDepositArea()
-                    } else {
-                        alertVM.show(.crearingError)
-                    }
-                    loading.isLoading = false
-                }
-            }
-        }
-    }
-    
-    private func update() {
-        withAnimation {
-            loading.isLoading = true
-            employeeVM.save(editableEmployee, isNew: false) { saved in
-                if saved {
-                    guard let index = employees.firstIndex(where: { $0.id == editableEmployee.id }) else { return }
-                    employees[index] = editableEmployee
-                    toggleEditableDepositArea()
-                } else {
-                    alertVM.show(.updatingError)
-                }
-                loading.isLoading = false
-            }
-        }
-    }
-    
-    private func delete() {
-        withAnimation {
-            loading.isLoading = true
-            employeeVM.delete(editableEmployee) { deleted in
-                if deleted {
-                    employees.removeAll { $0 == editableEmployee }
-                    toggleEditableDepositArea()
-                } else {
-                    alertVM.show(.deletingError)
-                }
-                loading.isLoading = false
             }
         }
     }
     
     private func getEmployees() {
         withAnimation {
-            loading.isLoading = true
+            isLoading = true
             if let restaurantId = restaurantM.restaurant?.id {
-                employeeVM.fetchEmployees(for: restaurantId) { employees in
+                EmployeeViewModel().fetch(restaurantId: restaurantId) { employees in
                     if let employees = employees {
-                        self.employees = employees
+                        self.employees = employees.sorted(by: {$0 > $1})
                     } else {
                         alertVM.show(.dataObtainingError)
                     }
-                    loading.isLoading = false
+                    isLoading = false
                 }
             }
         }
+    }
+    
+    func createCSV() -> Data? {
+        var csvString = "Id,Nombre,Apellido,Activo\n"
+        for employee in employees {
+            let depositString = "\(employee.id),\(employee.name),\(employee.lastName),\(employee.isActive)\n"
+            csvString.append(depositString)
+        }
+        return csvString.data(using: .utf8)
     }
 }
 

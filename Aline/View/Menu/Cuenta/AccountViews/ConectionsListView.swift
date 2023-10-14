@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct ConectionsListView: View {
-    @EnvironmentObject private var restaurantVM: RestaurantViewModel
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
-    @EnvironmentObject private var loading: LoadingViewModel
     
     @State private var receivedConections: [Conection] = []
     
+    @Binding var isLoading: Bool
     
     var body: some View {
         VStack {
@@ -31,11 +30,11 @@ struct ConectionsListView: View {
                 ForEach(receivedConections, id: \.self) { conection in
                     NavigationLink(destination: ConectionReceivedView(conections: $receivedConections, conection: conection)) {
                         HStack {
-                            Text(conection.restaurantName).foregroundStyle(.black)
+                            Text(conection.restaurantName).foregroundStyle(Color.text)
                             Spacer()
-                            Text(conection.isAdmin ? "Administrador" : "Limitado").foregroundStyle(.black.secondary)
-                            Image(systemName: "chevron.right").foregroundStyle(.black.secondary)
-                        }
+                            Text(conection.isAdmin ? "Administrador" : "Limitado").foregroundStyle(Color.text.secondary)
+                            Image(systemName: "chevron.right").foregroundStyle(Color.text.secondary)
+                        }.padding(.vertical, 8)
                     }
                     if conection != receivedConections.last {
                         Divider()
@@ -47,7 +46,7 @@ struct ConectionsListView: View {
     
     private func getConections() {
         withAnimation {
-            loading.isLoading = true
+            isLoading = true
             conectionVM.fetchReceivedConections(for: userVM.user.email) { conections in
                 DispatchQueue.main.async {
                     if let conections = conections {
@@ -55,7 +54,7 @@ struct ConectionsListView: View {
                     } else {
                         alertVM.show(.dataObtainingError)
                     }
-                    loading.isLoading = false
+                    isLoading = false
                 }
             }
         }

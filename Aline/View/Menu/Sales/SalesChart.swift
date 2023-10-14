@@ -11,28 +11,29 @@ struct SalesChart: View {
     @State private var height: CGFloat = 300;
     @State private var colorLimit: Double = 4000
     @State private var hoverSection: Sale?
-    @State private var showedQuantities: Bool = false
-    @State private var showedDaysByWeekDay: Bool = false
     
     let title: String
     @Binding var data: [Sale]
     @Binding var totalBy: TotalBy
-
+    @Binding var showedQuantities: Bool
+    @Binding var showedDaysByWeekDay: Bool
+    
     var body: some View {
-        WhiteArea {
-            if data.isNotEmpty {
+        if data.isNotEmpty {
+            WhiteArea {
                 HStack {
                     Text(title).font(.largeTitle).bold()
                     Spacer()
                 }
+                
                 ScrollView(.horizontal) {
-                    HStack(spacing: 10) {
+                    LazyHStack(spacing: 10) {
                         ForEach(data) { item in
                             VStack {
                                 Spacer()
                                 Text(item.rtonos.comasText)
                                     .fixedSize(horizontal: false, vertical: true)
-                                    .foregroundStyle(hoverSection == item ? .black : .secondary)
+                                    .foregroundStyle(hoverSection == item ? .primary : .secondary)
                                     .font(hoverSection == item ? .largeTitle : showedQuantities ? .body : .system(size: 0.1))
                                 RoundedRectangle(cornerRadius: 35)
                                     .foregroundStyle(getItemColor(for: item))
@@ -40,7 +41,7 @@ struct SalesChart: View {
                                     .frame(width: getItemWidth(for: item))
                                     .onTapGesture(perform: {selectSaleOnTap(item)})
                                 Text(getXAxi1(for: item))
-                                    .foregroundStyle(showedDaysByWeekDay && (item.date.weekdayInitial == "d")  && totalBy == .day ? .black : .secondary)
+                                    .foregroundStyle(showedDaysByWeekDay && (item.date.weekdayInitial == "d")  && totalBy == .day ? .primary : .secondary)
                                     .bold(showedDaysByWeekDay && (item.date.weekdayInitial == "d")  && totalBy == .day ? true : false)
                                 Text(getXAxi2(for: item))
                                     .opacity(getXAxi2Opcaity(for: item))
@@ -52,16 +53,6 @@ struct SalesChart: View {
                     .padding(.bottom, 20)
                 }
                 .frame(height: height + 200)
-            } else {
-                Text("No hay datos para estas fechas")
-                    .font(.largeTitle)
-                    .padding(.vertical, 100)
-            }
-            Divider()
-            Toggle("Mostrar cantidades", isOn: $showedQuantities.animation())
-            if totalBy == .day {
-                Divider()
-                Toggle("Ver por día de semana", isOn: $showedDaysByWeekDay.animation())
             }
         }
     }
