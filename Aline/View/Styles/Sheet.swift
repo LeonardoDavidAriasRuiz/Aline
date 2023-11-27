@@ -12,27 +12,9 @@ struct Sheet<Content: View>: View {
     @Binding var isLoading: Bool
     private let content: () -> Content
     
-    init(section: MenuSubsection, isLoading: Binding<Bool> , @ViewBuilder content: @escaping () -> Content) {
-        self.title = section.title
+    init(section: MenuSubsection = .none, isLoading: Binding<Bool> = .constant(false), @ViewBuilder content: @escaping () -> Content) {
+        self.title = section == .none ? nil : section.title
         self._isLoading = isLoading
-        self.content = content
-    }
-    
-    init(section: MenuSubsection, @ViewBuilder content: @escaping () -> Content) {
-        self.title = section.title
-        self._isLoading = .constant(false)
-        self.content = content
-    }
-    
-    init(isLoading: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
-        self.title = nil
-        self._isLoading = isLoading
-        self.content = content
-    }
-    
-    init(@ViewBuilder content: @escaping () -> Content) {
-        self.title = nil
-        self._isLoading = .constant(false)
         self.content = content
     }
     
@@ -63,21 +45,9 @@ struct FullSheet<Content: View>: View {
     @Binding var isLoading: Bool
     private let content: () -> Content
     
-    init(section: MenuSubsection, isLoading: Binding<Bool> , @ViewBuilder content: @escaping () -> Content) {
-        self.title = section.title
+    init(section: MenuSubsection = .none, isLoading: Binding<Bool> = .constant(false), @ViewBuilder content: @escaping () -> Content) {
+        self.title = section == .none ? nil : section.title
         self._isLoading = isLoading
-        self.content = content
-    }
-    
-    init(isLoading: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
-        self.title = nil
-        self._isLoading = isLoading
-        self.content = content
-    }
-    
-    init(@ViewBuilder content: @escaping () -> Content) {
-        self.title = nil
-        self._isLoading = .constant(false)
         self.content = content
     }
     

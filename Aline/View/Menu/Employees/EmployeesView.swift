@@ -9,48 +9,56 @@ import SwiftUI
 
 struct EmployeesView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
-    @State private var employees: [Employee] = []
     @State private var showInactiveEmployees: Bool = false
-    @State private var isLoading: Bool = true
+    @State private var editableEmployeeSheetOpen: Bool = false
+    @State private var isLoading: Bool = false
+    @State private var employeeSelected: Employee = Employee()
     
     var body: some View {
         Sheet(isLoading: $isLoading) {
-            if employees.isNotEmpty { employeesListArea }
+            if employeeVM.employees.isNotEmpty {
+                employeesListArea
+            }
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
-                NewRecordToolbarButton(destination: EditableEmployeeView())
-                UpdateRecordsToolbarButton(action: getEmployees)
+                NewRecordToolbarButton(destination: NewEmployeeView())
+                UpdateRecordsToolbarButton(action: updateRecords)
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                ExportToolbarButton(data: createCSV()).disabled(employees.isEmpty)
-            }
-        }
-        .overlay {
-            if employees.isEmpty, !isLoading {
-                ContentUnavailableView(label: {
-                    Label(
-                        title: { Text("Sin empleados") },
-                        icon: { Image(systemName: "person.3.fill").foregroundStyle(Color.orange) }
-                    )
-                }, description: {
-                    Text("Los nuevos empleados se mostrarán aquí.")
-                })
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                ExportCSVToolbarButton(data: createCSV()).disabled(employeeVM.employees.isEmpty)
+                FiltersToolbarMenu(fill: showInactiveEmployees) {
+                    Toggle("Mostrar inactivos", isOn: $showInactiveEmployees.animation())
+                }
             }
         }
-        .onAppear(perform: getEmployees)
+        .overlay { if employeeVM.employees.isEmpty, !isLoading { EmptyEmployeesView() } }
+        .sheet(isPresented: $editableEmployeeSheetOpen){
+            NavigationStack {
+                EditableEmployeeView(employee: $employeeSelected)
+                    .toolbar {
+                        ToolbarItem(placement: .keyboard) {
+                            HideKeyboardToolbarButton()
+                        }
+                    }
+            }
+        }
     }
     
     private var employeesListArea: some View {
         WhiteArea {
-            Toggle("Mostrar inactivos", isOn: $showInactiveEmployees.animation()).padding(.vertical, 8)
-            Divider()
-            ForEach(employees, id: \.self) { employee in
+            ForEach(employeeVM.employees, id: \.self) { employee in
                 if employee.isActive || (showInactiveEmployees && !employee.isActive)  {
-                    NavigationLink(destination: EditableEmployeeView(employee: employee)) {
+                    if employee != employeeVM.employees.first {
+//                        if !showInactiveEmployees,  {
+                            Divider()
+//                        }
+                    }
+                    Button(action: {selectEmployee(employee)}) {
                         HStack {
                             Text(employee.fullName).foregroundStyle(Color.text)
                             Spacer()
@@ -60,33 +68,35 @@ struct EmployeesView: View {
                         }
                         .padding(.vertical, 8)
                     }
-                    if employees.last != employee {
-                        Divider()
-                    }
                 }
             }
         }
     }
     
-    private func getEmployees() {
+    private func dismiss() {
+        employeeSelected = Employee()
+    }
+    
+    private func selectEmployee(_ employee: Employee) {
+        editableEmployeeSheetOpen = true
+        employeeSelected = employee
+    }
+    
+    private func updateRecords() {
         withAnimation {
             isLoading = true
-            if let restaurantId = restaurantM.restaurant?.id {
-                EmployeeViewModel().fetch(restaurantId: restaurantId) { employees in
-                    if let employees = employees {
-                        self.employees = employees.sorted(by: {$0 > $1})
-                    } else {
-                        alertVM.show(.dataObtainingError)
-                    }
-                    isLoading = false
+            employeeVM.fetch(restaurantId: restaurantM.currentId) { fetched in
+                if !fetched {
+                    alertVM.show(.dataObtainingError)
                 }
+                isLoading = false
             }
         }
     }
     
     func createCSV() -> Data? {
         var csvString = "Id,Nombre,Apellido,Activo\n"
-        for employee in employees {
+        for employee in employeeVM.employees {
             let depositString = "\(employee.id),\(employee.name),\(employee.lastName),\(employee.isActive)\n"
             csvString.append(depositString)
         }

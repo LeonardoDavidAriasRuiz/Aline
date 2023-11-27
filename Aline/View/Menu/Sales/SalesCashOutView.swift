@@ -8,25 +8,22 @@
 import SwiftUI
 
 struct SalesCashOutView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
-    @State private var sale: Sale = Sale()
+    @Environment(\.dismiss) private var dismiss
     
+    @State private var sale: Sale = Sale()
     @State private var alertShowed: Bool = false
     @State private var alertType: AlertType = .crearingError
-    
-    @State private var datePickerShowed: Bool = false
+    @State private var isLoading: Bool = false
     
     let saleVM: SaleViewModel = SaleViewModel()
     
-    @State private var isLoading: Bool = false
-    
     var body: some View {
         Sheet(section: .cashOut, isLoading: $isLoading) {
-            datePicker.padding(.top, 20)
             totals.padding(.top, 20)
             sales.padding(.top, 20)
+            datePicker.padding(.top, 20)
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
@@ -41,7 +38,7 @@ struct SalesCashOutView: View {
     }
     
     private var discardToolBarButton: some View {
-        Button(action: discard) {
+        Button(action: {dismiss()}) {
             Text("Descartar").foregroundStyle(Color.red)
         }
     }
@@ -62,63 +59,60 @@ struct SalesCashOutView: View {
     
     private var datePicker: some View {
         WhiteArea {
-            OpenSectionButton(pressed: $datePickerShowed, text: sale.date.shortDate)
-            if datePickerShowed {
-                Divider()
-                DatePicker("", selection: $sale.date, displayedComponents: .date)
-                    .datePickerStyle(.graphical)
-            }
+            DatePicker("", selection: $sale.date, displayedComponents: .date)
+                .datePickerStyle(.graphical)
         }
     }
     
     private var totals: some View {
         VStack(alignment: .leading){
             Header("Totales")
-            WhiteArea(spacing: 8) {
+            WhiteArea(spacing: 0) {
                 HStack {
                     Text("RTO. Nos:").bold()
-                    DecimalField("0.0", decimal: $sale.rtonos)
+                    DecimalField("0.0", decimal: $sale.rtonos.animation(), alignment: .leading)
                     HStack {
                         Text(String(format: "%.2f", sale.rtonosCalculated))
-                            .frame(width: 50)
-                            .padding(2)
-                            .padding(.horizontal, 5)
-                            .background(Color.whiteArea)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                        Spacer()
-                        Text(String(format: "%.2f", sale.rtonosCalculated - sale.rtonos))
-                            .frame(width: 50)
-                            .foregroundStyle(.white)
+                            .padding(.vertical, 5)
+                            .frame(maxWidth: .infinity)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 50))
+                            .font(.footnote)
+                        if sale.rtonosCalculated != sale.rtonos {
+                            Text(String(format: "%.2f", sale.rtonosCalculated - sale.rtonos))
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.white)
+                                .font(.footnote)
+                        }
                     }
-                    .frame(width: 115)
-                    .padding(2)
-                    .padding(.trailing, 5)
+                    .frame(width: 140)
+                    .padding(3)
                     .background(sale.rtonosCalculated != sale.rtonos ? Color.red : Color.green)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                    
-                }
+                    .clipShape(RoundedRectangle(cornerRadius: 50))
+                }.padding(.vertical, 8)
                 Divider()
                 HStack {
-                    Text("V. equipo:")
-                    DecimalField("0.0", decimal: $sale.vequipo)
+                    Text("V. equipo:").bold()
+                    DecimalField("0.0", decimal: $sale.vequipo.animation(), alignment: .leading)
                     HStack {
                         Text(String(format: "%.2f", sale.vequipoCalculated))
-                            .padding(2)
-                            .frame(width: 50)
-                            .padding(.horizontal, 5)
-                            .background(Color.whiteArea)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                        Spacer()
-                        Text(String(format: "%.2f", sale.vequipoCalculated - sale.vequipo))
-                            .frame(width: 50)
-                            .foregroundStyle(.white)
+                            .padding(.vertical, 5)
+                            .frame(maxWidth: .infinity)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 50))
+                            .font(.footnote)
+                        if sale.vequipoCalculated != sale.vequipo {
+                            Text(String(format: "%.2f", sale.vequipoCalculated - sale.vequipo))
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(.white)
+                                .font(.footnote)
+                        }
                     }
-                    .frame(width: 105)
-                    .padding(2)
-                    .padding(.trailing, 5)
+                    .frame(width: 140)
+                    .padding(3)
                     .background(sale.vequipoCalculated != sale.vequipo ? Color.red : Color.green)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                }
+                    .clipShape(RoundedRectangle(cornerRadius: 50))
+                }.padding(.vertical, 8)
             }
         }
     }
@@ -134,55 +128,51 @@ struct SalesCashOutView: View {
     }
     
     private var inDoorSales: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 Text("CarmenTRJTA:")
-                DecimalField("0.0", decimal: $sale.carmenTRJTA)
+                DecimalField("0.0", decimal: $sale.carmenTRJTA.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
             HStack {
                 Text("Depo:")
-                DecimalField("0.0", decimal: $sale.depo)
+                DecimalField("0.0", decimal: $sale.depo.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
             HStack {
                 Text("DSCAN:")
-                DecimalField("0.0", decimal: $sale.dscan)
+                DecimalField("0.0", decimal: $sale.dscan.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
         }
     }
     
     private var servicesSales: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 Text("Door Dash:").foregroundStyle(Color.red)
-                DecimalField("0.0", decimal: $sale.doordash)
+                DecimalField("0.0", decimal: $sale.doordash.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
             HStack {
                 Text("Online:").foregroundStyle(Color.green)
-                DecimalField("0.0", decimal: $sale.online)
+                DecimalField("0.0", decimal: $sale.online.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
             HStack {
                 Text("GrubHub:").foregroundStyle(Color.orange)
-                DecimalField("0.0", decimal: $sale.grubhub)
+                DecimalField("0.0", decimal: $sale.grubhub.animation(), alignment: .leading)
             }.padding(.vertical, 8)
             Divider()
             HStack {
                 Text("Taco Bar:").foregroundStyle(Color.blue)
-                DecimalField("0.0", decimal: $sale.tacobar)
+                DecimalField("0.0", decimal: $sale.tacobar.animation(), alignment: .leading)
             }.padding(.vertical, 8)
         }
     }
     
     private func checkIfSpendingReadyToSave() -> Bool {
         sale.rtonos == sale.rtonosCalculated && sale.vequipo == sale.vequipoCalculated
-    }
-    
-    private func discard() {
-        self.presentationMode.wrappedValue.dismiss()
     }
     
     private func save() {

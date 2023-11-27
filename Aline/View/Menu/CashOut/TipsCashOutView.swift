@@ -9,24 +9,22 @@ import SwiftUI
 
 struct TipsCashOutView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     
     @State private var tipsTotal: Double = 0.0
-    @State private var employees: [Employee] = []
-    @State private var isEmployeeSelected: [Bool] = []
+    @State private var tipsForEmployees: [TipForEmployee] = []
     @State private var employeesCountSelected: Int = 0
     @State private var tipsForReview: TipsReview = TipsReview()
-    @State private var fromDatePickerShowed: Bool = false
-    @State private var toDatePickerShowed: Bool = false
     @State private var isLoading: Bool = false
     
     var body: some View {
         Sheet(isLoading: $isLoading) {
-            if employees.isNotEmpty {
-                dateTimesPickers2
+            if employeeVM.employees.isNotEmpty {
                 quantityArea
                 employeesSelection
                 notesArea
+                dateTimesPickers
             }
         }
         .toolbar  {
@@ -37,18 +35,8 @@ struct TipsCashOutView: View {
                 saveToolBarButton
             }
         }
-        .overlay {
-            if employees.isEmpty, !isLoading {
-                ContentUnavailableView(label: {
-                    Label(
-                        title: { Text("Sin empleados") },
-                        icon: { Image(systemName: "person.3.fill").foregroundStyle(Color.red) }
-                    )
-                }, description: {
-                    Text("Los nuevos empleados se mostrarán aquí.")
-                })
-            }
-        }
+        .overlay { if employeeVM.employees.isEmpty, !isLoading { EmptyEmployeesCashOutView() } }
+        .onChange(of: employeeVM.employees, getEmployees)
         .onAppear(perform: getEmployees)
     }
     
@@ -74,24 +62,23 @@ struct TipsCashOutView: View {
         }
     }
     
-    private var dateTimesPickers2: some View {
+    private var dateTimesPickers: some View {
         WhiteArea {
-            OpenSectionButton(pressed: $fromDatePickerShowed, text: "\(tipsForReview.from.shortDateTime) - \(tipsForReview.to.time)")
-            if fromDatePickerShowed {
-                Divider()
-                HStack {
-                    DatePicker("", selection: $tipsForReview.from, displayedComponents: .date)
-                        .datePickerStyle(.compact)
-                        .onTapGesture (perform: hideKeyboard)
-                    DatePicker("", selection: $tipsForReview.from, displayedComponents: .hourAndMinute)
-                        .datePickerStyle(.graphical)
-                        .onTapGesture (perform: hideKeyboard)
-                        .onChange(of: tipsForReview.from, validateCustomFrom)
-                    DatePicker("", selection: $tipsForReview.to, displayedComponents: .hourAndMinute)
-                        .datePickerStyle(.graphical)
-                        .onTapGesture (perform: hideKeyboard)
-                        .onChange(of: tipsForReview.to, validateCustomTo)
-                }
+            Divider()
+            DatePicker("", selection: $tipsForReview.from, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+//                .onTapGesture (perform: hideKeyboard)
+            HStack {
+                DatePicker("De:", selection: $tipsForReview.from, displayedComponents: .hourAndMinute)
+                    .frame(maxWidth: 200)
+                    .datePickerStyle(.graphical)
+//                    .onTapGesture (perform: hideKeyboard)
+                    .onChange(of: tipsForReview.from, validateCustomFrom)
+                DatePicker("A:", selection: $tipsForReview.to, displayedComponents: .hourAndMinute)
+                    .frame(maxWidth: 200)
+                    .datePickerStyle(.graphical)
+//                    .onTapGesture (perform: hideKeyboard)
+                    .onChange(of: tipsForReview.to, validateCustomTo)
             }
         }
     }
@@ -99,37 +86,30 @@ struct TipsCashOutView: View {
     private var quantityArea: some View {
         WhiteArea {
             HStack {
-                Text("Cantidad: ").onTapGesture (perform: hideKeyboard)
-                DecimalField("Tips", decimal: $tipsTotal)
+                Text("Cantidad: ")
+                DecimalField("Tips", decimal: $tipsTotal, alignment: .leading)
             }.padding(.vertical, 8)
         }
     }
     
     private var employeesSelection: some View {
         WhiteArea {
-            ForEach(employees.indices, id: \.self) { index in
+            ForEach(tipsForEmployees.indices, id: \.self) { index in
                 HStack {
-                    Text(employees[index].fullName)
+                    Text(tipsForEmployees[index].employee.fullName)
                     Spacer()
-                    if employeesCountSelected != 0,
-                    isEmployeeSelected[index],
-                    tipsTotal != 0.0 {
+                    if employeesCountSelected != 0, tipsForEmployees[index].selected, tipsTotal != 0.0 {
                         let tipAmount: Double = tipsTotal / Double(employeesCountSelected)
-                        Text(String(format: "%.2f", tipAmount))
-                            .foregroundStyle(.secondary)
+                        Text(tipAmount.comasTextWithDecimals).foregroundStyle(.secondary)
                     }
-                    if $isEmployeeSelected.isNotEmpty {
-                        Toggle("", isOn: $isEmployeeSelected[index])
-                            .frame(width: 50)
-                            .onChange(of: isEmployeeSelected, getNumberOfEmployeesSelected)
-                    }
+                    Toggle("", isOn: $tipsForEmployees[index].selected).frame(width: 50)
+                        .onChange(of: tipsForEmployees, getNumberOfEmployeesSelected)
                 }.padding(.vertical, 8)
-                if employees.last != employees[index] {
+                if tipsForEmployees.last != tipsForEmployees[index] {
                     Divider()
                 }
             }
         }
-        .onTapGesture (perform: hideKeyboard)
     }
     
     private var notesArea: some View {
@@ -142,21 +122,20 @@ struct TipsCashOutView: View {
     
     private func sendTipsForReview() {
         isLoading = true
-        for index in employees.indices {
-            if isEmployeeSelected[index] {
-                tipsForReview.employeesIds.append(employees[index].id)
+        for tipForEmployee in tipsForEmployees {
+            if tipForEmployee.selected {
+                tipsForReview.employeesIds.append(tipForEmployee.employee.id)
                 tipsForReview.quantityForEach = tipsTotal / Double(employeesCountSelected)
             }
         }
         tipsForReview.restaurantId = restaurantM.currentId
-        TipsReviewViewModel().save(tipsForReview) { saved in
-            if saved {
-                tipsForReview = TipsReview()
-                tipsTotal = 0.0
-                isEmployeeSelected = isEmployeeSelected.map({_ in false})
-            } else {
-                alertVM.show(.crearingError)
-            }
+        TipsReviewViewModel().delete(tipsForReview.record) {
+            tipsForReview = TipsReview()
+            tipsTotal = 0.0
+            getEmployees()
+        } ifNot: {
+            alertVM.show(.crearingError)
+        } alwaysDo: {
             isLoading = false
         }
     }
@@ -170,7 +149,6 @@ struct TipsCashOutView: View {
     }
     
     private func validateCustomTo(_ oldValue: Date, _ newValue: Date) {
-        
         if newValue < tipsForReview.from {
             tipsForReview.from = newValue
         } else if newValue.timeIntervalSince(tipsForReview.from) > 86400 {
@@ -186,26 +164,23 @@ struct TipsCashOutView: View {
     
     private func getNumberOfEmployeesSelected() {
         withAnimation {
-            employeesCountSelected = isEmployeeSelected.filter { $0 }.count
+            employeesCountSelected = tipsForEmployees.filter { $0.selected }.count
         }
     }
     
     private func getEmployees() {
-        isLoading = true
-        if let restaurantId = restaurantM.restaurant?.id {
-            EmployeeViewModel().fetch(restaurantId: restaurantId) { employees in
-                if let employees = employees {
-                    self.employees = employees.filter { $0.isActive }
-                    isEmployeeSelected = Array(repeating: false, count: employees.count)
-                } else {
-                    alertVM.show(.dataObtainingError)
+        withAnimation {
+            tipsForEmployees = []
+            for employee in employeeVM.employees {
+                if employee.isActive {
+                    tipsForEmployees.append(TipForEmployee(employee: employee))
                 }
-                isLoading = false
             }
         }
     }
-    
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
+}
+
+struct TipForEmployee: Equatable {
+    let employee: Employee
+    var selected: Bool = false
 }

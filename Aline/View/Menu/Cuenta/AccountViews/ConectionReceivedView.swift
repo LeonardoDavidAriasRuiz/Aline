@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct ConectionReceivedView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var restaurant: Restaurant = Restaurant()
     
@@ -73,7 +73,7 @@ struct ConectionReceivedView: View {
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll{ $0 == conection }
-                self.presentationMode.wrappedValue.dismiss()
+                dismiss()
             } else {
                 alertVM.show(.deletingError)
             }

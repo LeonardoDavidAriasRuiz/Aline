@@ -15,6 +15,7 @@ struct Tip: Identifiable, Equatable {
     var date: Date
     var employeeId: String
     var quantity: Double
+    var employee: Employee?
     
     private var _record: CKRecord
     
@@ -27,8 +28,18 @@ struct Tip: Identifiable, Equatable {
     }
     
     init() {
-        self.date = Date()
+        let dateComponents = DateComponents(year: Date().yearInt, month: Date().monthInt, day: Date().dayInt)
+        self.date = Calendar.current.date(from: dateComponents)!
         self.employeeId = ""
+        self.quantity = 0.0
+        self._record = CKRecord(recordType: keys.type)
+    }
+    
+    init(employee: Employee, date: Date = Date(), quantity: Double = 0.0) {
+        let dateComponents = DateComponents(year: date.yearInt, month: date.monthInt, day: date.dayInt)
+        self.date = Calendar.current.date(from: dateComponents)!
+        self.employeeId = employee.id
+        self.employee = employee
         self.quantity = 0.0
         self._record = CKRecord(recordType: keys.type)
     }
@@ -45,5 +56,9 @@ struct Tip: Identifiable, Equatable {
         lhs.date == rhs.date &&
         lhs.employeeId == rhs.employeeId &&
         lhs.quantity == rhs.quantity
+    }
+    
+    func checkNameAndDate(_ tip: Tip) -> Bool {
+        self.date == tip.date && self.employeeId == tip.employeeId
     }
 }

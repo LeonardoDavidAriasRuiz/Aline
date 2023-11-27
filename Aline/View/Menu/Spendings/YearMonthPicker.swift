@@ -92,3 +92,33 @@ struct YearPicker<Label: View>: View {
         }
     }
 }
+
+struct YearListToPick<Label: View>: View {
+    let startYear: Int = 2020
+    let currentYear: Int = Date().yearInt
+    @Binding var selectedDate: Date
+    
+    init(date: Binding<Date>) {
+        self._selectedDate = date
+    }
+    
+    init(_ title: String, date: Binding<Date>) where Label == Text {
+        self._selectedDate = date
+    }
+    
+    var body: some View {
+        ForEach(Array(startYear...currentYear+1), id: \.self) { year in
+            Button(action: {selectYear(year)}) {
+                Text(String(year))
+            }
+        }
+    }
+    
+    func selectYear(_ year: Int) {
+        var dateComponents = Calendar.current.dateComponents([.year, .month], from: selectedDate)
+        dateComponents.year = year
+        if let newDate = Calendar.current.date(from: dateComponents) {
+            selectedDate = newDate
+        }
+    }
+}

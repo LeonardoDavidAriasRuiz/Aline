@@ -21,9 +21,6 @@ class SaleViewModel: PublicCloud {
         let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
         let query = CKQuery(recordType: keys.type, predicate: compoundPredicate)
         
-        let queryOperation = CKQueryOperation(query: query)
-        queryOperation.resultsLimit = CKQueryOperation.maximumResults
-        
         dataBase.fetch(withQuery: query) { result in
             guard case .success(let data) = result else { completion(.none); return }
             sales += data.matchResults.compactMap { _, result in
@@ -34,17 +31,14 @@ class SaleViewModel: PublicCloud {
         }
         
         func fetchNextPage(cursor: CKQueryOperation.Cursor?) {
-            if let cursor = cursor {
-                self.dataBase.fetch(withCursor: cursor) { result in
-                    guard case .success(let data) = result else { completion(.none); return }
-                    sales += data.matchResults.compactMap { _, result in
-                        guard case .success(let record) = result else { return nil }
-                        return Sale(record: record)
-                    }
-                    fetchNextPage(cursor: data.queryCursor)
+            guard let cursor = cursor else { completion(sales); return }
+            self.dataBase.fetch(withCursor: cursor) { result in
+                guard case .success(let data) = result else { completion(.none); return }
+                sales += data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else { return nil }
+                    return Sale(record: record)
                 }
-            } else {
-                completion(sales)
+                fetchNextPage(cursor: data.queryCursor)
             }
         }
     }

@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct NewDepositView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var newDeposit = Deposit()
     @State private var isLoading: Bool = false
+    
+    @Binding var deposits: [Deposit]
     
     private let newDepositRangeForStepper: ClosedRange<Int> = 50...10000
     private let newDepositStepQuantity: Int = 50
@@ -45,7 +47,7 @@ struct NewDepositView: View {
     }
     
     private var discardToolBarButton: some View {
-        Button(action: discard) {
+        Button(action: {dismiss()}) {
             Text("Descartar").foregroundStyle(Color.red)
         }
     }
@@ -71,16 +73,15 @@ struct NewDepositView: View {
     private func save() {
         isLoading = true
         newDeposit.restaurantId = restaurantM.currentId
-        DepositViewModel().save(newDeposit.getCKRecord()) {
-            discard()
-        } ifNot: {
-            alertVM.show(.crearingError)
-        } alwaysDo: {
+        DepositViewModel().save(newDeposit.getCKRecord(), recordReturned: { record in
+            if let record = record {
+                deposits.append(Deposit(record: record))
+                deposits.sort(by: {$0.date > $1.date})
+                dismiss()
+            } else {
+                alertVM.show(.crearingError)
+            }
             isLoading = false
-        }
-    }
-    
-    private func discard() {
-        self.presentationMode.wrappedValue.dismiss()
+        })
     }
 }

@@ -15,9 +15,10 @@ struct AlineApp: App {
     private let accentColor = AccentColor()
     private let conectionVM = ConectionViewModel()
     private let alertVM = AlertViewModel()
-    let restaurantM = RestaurantPickerManager()
+    let employeeVM = EmployeeViewModel()
+    private let restaurantM = RestaurantPickerManager()
     
-    @ObservedObject var networkMonitor = NetworkMonitor()
+    @ObservedObject private var networkMonitor = NetworkMonitor()
     private let start: Date = Date()
     
     var body: some Scene {
@@ -26,7 +27,6 @@ struct AlineApp: App {
                 contentView()
                 networkMonitor.isConnected ? nil : NoWifiConected()
             }
-//            .preferredColorScheme(ColorScheme.light)
         }
     }
     
@@ -38,6 +38,7 @@ struct AlineApp: App {
                 .environmentObject(spendingVM)
                 .environmentObject(accentColor)
                 .environmentObject(conectionVM)
+                .environmentObject(employeeVM)
                 .environmentObject(alertVM)
                 .environmentObject(restaurantM)
         )

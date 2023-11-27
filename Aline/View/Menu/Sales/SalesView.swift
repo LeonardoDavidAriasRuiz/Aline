@@ -11,7 +11,6 @@ import Charts
 struct SalesView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
-    @EnvironmentObject private var userVM: UserViewModel
     
     @State private var totalBy: TotalBy = .day
     @State private var rangeIn: RangeIn = .currentMonth
@@ -27,15 +26,26 @@ struct SalesView: View {
     @State private var customTo: Date = Date()
     
     @State private var sales: [Sale] = []
-    @State private var salesTableShowed: Bool = false
     
     @State private var data: String?
     @State private var importedSales: [Sale]?
     @State private var errorsInImportedSales: Int?
-    @State private var fileSelector: Bool = false
     
     @State private var showedQuantities: Bool = false
     @State private var showedDaysByWeekDay: Bool = false
+    
+    @State private var objective: Double = 4000
+    @State private var objectiveShowed: Bool = false
+    
+    @State private var salesType: SalesType = .rtonos
+    
+    @State private var mondayShowed: Bool = true
+    @State private var tuesdayShowed: Bool = true
+    @State private var wednesdayShowed: Bool = true
+    @State private var thursdayShowed: Bool = true
+    @State private var fridayShowed: Bool = true
+    @State private var saturdayShowed: Bool = true
+    @State private var sundayShowed: Bool = true
     
     let invalidDate: Date = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1))!
     let invalidQuantity: Double = -10.0
@@ -46,30 +56,87 @@ struct SalesView: View {
         FullSheet(isLoading: $isLoading) {
             SalesChart(
                 title: "\(customFrom.shortDate) - \(customTo.shortDate)",
-                data: $sales,
+                sales: $sales,
                 totalBy: $totalBy,
                 showedQuantities: $showedQuantities,
-                showedDaysByWeekDay: $showedDaysByWeekDay
+                showedDaysByWeekDay: $showedDaysByWeekDay, 
+                colorLimit: $objective,
+                salesType: $salesType,
+                mondayShowed: $mondayShowed,
+                tuesdayShowed: $tuesdayShowed,
+                wednesdayShowed: $wednesdayShowed,
+                thursdayShowed: $thursdayShowed,
+                fridayShowed: $fridayShowed,
+                saturdayShowed: $saturdayShowed,
+                sundayShowed: $sundayShowed
             )
             SalesTable(sales: $sales.animation(), totalBy: totalBy)
             importDataArea
             
         }
+        .background(AlertWithTextField(isPresented: $objectiveShowed, text: $objective.animation(), title: "Establece el objetivo"))
+        .onChange(of: restaurantM.currentId, getSales)
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
                 NewRecordToolbarButton(destination: SalesCashOutView())
                 UpdateRecordsToolbarButton(action: getSales)
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
-                if customRangeSelected {
-                    DatePicker("", selection: $customFrom, displayedComponents: .date)
-                        .onChange(of: customFrom, validateCustomFrom)
-                    DatePicker("", selection: $customTo, displayedComponents: .date)
-                        .onChange(of: customTo, validateCustomTo)
-                }
-                ExportToolbarButton(data: createCSV()).disabled(sales.isEmpty)
+                customRangeSelected ? DatePicker("", selection: $customFrom, displayedComponents: .date).onChange(of: customFrom, validateCustomFrom) : nil
+                customRangeSelected ? DatePicker("", selection: $customTo, displayedComponents: .date).onChange(of: customTo, validateCustomTo) : nil
+                ExportCSVToolbarButton(data: createCSV()).disabled(sales.isEmpty)
                 ImportToolbarButton { self.data = $0 }.onChange(of: data, getSalesFromData)
-                FiltersToolBarMenu(fill: rangeIn != .currentMonth || totalBy != .day || showedQuantities != false || showedDaysByWeekDay != false) {
+                FiltersToolbarMenu(fill: rangeIn != .currentMonth || totalBy != .day || showedQuantities != false || showedDaysByWeekDay != false) {
+                    Toggle(isOn: $objectiveShowed, label: {
+                        Label("Objetivo", systemImage: "chart.line.flattrend.xyaxis")
+                    })
+                    Menu {
+                        Button("Ninguno") {
+                            withAnimation {
+                                mondayShowed = false
+                                tuesdayShowed = false
+                                wednesdayShowed = false
+                                thursdayShowed = false
+                                fridayShowed = false
+                                saturdayShowed = false
+                                sundayShowed = false
+                            }
+                        }
+                        Toggle(WeekDays.monday.rawValue, isOn: $mondayShowed.animation())
+                        Toggle(WeekDays.tuesday.rawValue, isOn: $tuesdayShowed.animation())
+                        Toggle(WeekDays.wednesday.rawValue, isOn: $wednesdayShowed.animation())
+                        Toggle(WeekDays.thursday.rawValue, isOn: $thursdayShowed.animation())
+                        Toggle(WeekDays.friday.rawValue, isOn: $fridayShowed.animation())
+                        Toggle(WeekDays.saturday.rawValue, isOn: $saturdayShowed.animation())
+                        Toggle(WeekDays.sunday.rawValue, isOn: $sundayShowed.animation())
+                        Button("Todos") {
+                            withAnimation {
+                                mondayShowed = true
+                                tuesdayShowed = true
+                                wednesdayShowed = true
+                                thursdayShowed = true
+                                fridayShowed = true
+                                saturdayShowed = true
+                                sundayShowed = true
+                            }
+                        }
+                    } label: {
+                        Label("Mostrar", systemImage: "calendar.day.timeline.left")
+                    }.menuStyle(.borderlessButton)
+
+                    Picker(selection: $salesType.animation()) {
+                        Text(SalesType.rtonos.rawValue).tag(SalesType.rtonos)
+                        Text(SalesType.vequipo.rawValue).tag(SalesType.vequipo)
+                        Text(SalesType.carmenTRJTA.rawValue).tag(SalesType.carmenTRJTA)
+                        Text(SalesType.depo.rawValue).tag(SalesType.depo)
+                        Text(SalesType.dscan.rawValue).tag(SalesType.dscan)
+                        Text(SalesType.doordash.rawValue).tag(SalesType.doordash)
+                        Text(SalesType.online.rawValue).tag(SalesType.online)
+                        Text(SalesType.grubhub.rawValue).tag(SalesType.grubhub)
+                        Text(SalesType.tacobar.rawValue).tag(SalesType.tacobar)
+                    } label: {
+                        Label("Tipo", systemImage: "list.triangle")
+                    }
                     Picker(selection: $totalBy) {
                         Text("Día").tag(TotalBy.day)
                         Text("Semana").tag(TotalBy.week)
@@ -110,19 +177,8 @@ struct SalesView: View {
                 }
             }
         }
-        .overlay {
-            if sales.isEmpty, !isLoading, importedSales == nil {
-                ContentUnavailableView(label: {
-                    Label(
-                        title: { Text("Sin ventas") },
-                        icon: { Image(systemName: "chart.bar.xaxis").foregroundStyle(Color.green) }
-                    )
-                }, description: {
-                    Text("Las nuevas ventas se mostrarán aquí.")
-                })
-            }
-        }
-        .onAppear(perform: onApper)
+        .overlay { if sales.isEmpty, !isLoading, importedSales == nil { EmptySalesView() } }
+        .onAppear(perform: onAppear)
     }
     
     private var importDataArea: some View {
@@ -172,8 +228,6 @@ struct SalesView: View {
                                         Divider()
                                         Text(sale.carmenTRJTA.comasText).foregroundStyle(!validateQuantity(sale.carmenTRJTA) ? .red : .secondary)
                                         Divider()
-                                    }
-                                    VStack {
                                         Text(sale.depo.comasText).foregroundStyle(!validateQuantity(sale.depo) ? .red : .secondary)
                                         Divider()
                                         Text(sale.doordash.comasText).foregroundStyle(!validateQuantity(sale.doordash) ? .red : .secondary)
@@ -188,8 +242,7 @@ struct SalesView: View {
                             }
                         }
                     }
-                }.frame(maxWidth: .infinity)
-                    .padding(.top, 8)
+                }.frame(maxWidth: .infinity).padding(.top, 8)
                 Divider()
                 if let errorsInImportedSales = errorsInImportedSales,
                    errorsInImportedSales > 0 {
@@ -261,6 +314,14 @@ struct SalesView: View {
             totalBy = .day
             showedQuantities = false
             showedDaysByWeekDay = false
+            objective = 4000
+            mondayShowed = true
+            tuesdayShowed = true
+            wednesdayShowed = true
+            thursdayShowed = true
+            fridayShowed = true
+            saturdayShowed = true
+            sundayShowed = true
         }
     }
     
@@ -374,35 +435,33 @@ struct SalesView: View {
     private func getSales() {
         withAnimation {
             isLoading = true
-            if let restaurantId = restaurantM.restaurant?.id {
-                SaleViewModel().fetchSales(for: restaurantId, from: customFrom, to: customTo) { sales in
-                    if let sales = sales {
-                        switch totalBy {
-                            case .day: self.sales = sales.sorted(by: { $0.date < $1.date })
-                            case .week: self.sales = sales.groupByWeek.sorted(by: { $0.date < $1.date })
-                            case .month: self.sales = sales.groupByMonth.sorted(by: { $0.date < $1.date })
-                        }
-//                        SaleViewModel().delete(self.sales)
-                    } else {
-                        alertVM.show(.dataObtainingError)
+            SaleViewModel().fetchSales(for: restaurantM.currentId, from: customFrom, to: customTo) { sales in
+                if let sales = sales {
+                    switch totalBy {
+                        case .day: self.sales = sales.sorted(by: { $0.date < $1.date })
+                        case .week: self.sales = sales.groupByWeek.sorted(by: { $0.date < $1.date })
+                        case .month: self.sales = sales.groupByMonth.sorted(by: { $0.date < $1.date })
                     }
-                    isLoading = false
+//                    SaleViewModel().delete(self.sales)
+                } else {
+                    alertVM.show(.dataObtainingError)
                 }
+                isLoading = false
             }
         }
     }
     
-    private func onApper() {
+    private func onAppear() {
         selectTotalByDay()
         selectRange(.currentMonth)
     }
     
     private func validateQuantity(_ quantity: Double) -> Bool {
-        !(quantity < 0)
+        return quantity >= 0
     }
     
     private func validateDate(_ date: Date) -> Bool {
-        !(date <= invalidDate)
+        return date > invalidDate
     }
     
     func createCSV() -> Data? {
@@ -417,3 +476,69 @@ struct SalesView: View {
         return csvString.data(using: .utf8)
     }
 }
+
+struct AlertWithTextField: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    @Binding var text: Double
+    let title: String
+    @State private var message: String = "Escribe correctamente el objetivo."
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<AlertWithTextField>) -> UIViewController {
+        let controller = UIViewController()
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<AlertWithTextField>) {
+        if isPresented {
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            
+            alert.addTextField { textField in
+                textField.placeholder = "Objetivo mínimo"
+                textField.text = String(Int(self.text))
+            }
+            
+            let okAction = UIAlertAction(title: "Aplicar", style: .default) { _ in
+                if let textField = alert.textFields?.first,
+                   let text = textField.text,
+                   let double = Double(text) {
+                    self.text = double
+                }
+                self.isPresented = false
+            }
+            
+            let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel) { _ in
+                self.isPresented = false
+            }
+            
+            alert.addAction(okAction)
+            alert.addAction(cancelAction)
+            
+            DispatchQueue.main.async {
+                uiViewController.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+}
+
+enum SalesType: String {
+    case rtonos = "Rtonos"
+    case vequipo = "Vequipo"
+    case carmenTRJTA = "CarmenTRJTA"
+    case depo = "Depo"
+    case dscan = "Dscan"
+    case doordash = "Doordash"
+    case online = "Online"
+    case grubhub = "Grubhub"
+    case tacobar = "Tacobar"
+}
+
+enum WeekDays: String {
+    case monday = "Lunes"
+    case tuesday = "Martes"
+    case wednesday = "Miércoles"
+    case thursday = "Jueves"
+    case friday = "Viernes"
+    case saturday = "Sábado"
+    case sunday = "Domingo"
+}
+

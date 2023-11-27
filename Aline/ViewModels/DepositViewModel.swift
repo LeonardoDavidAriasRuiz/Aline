@@ -11,10 +11,15 @@ import CloudKit
 class DepositViewModel: PublicCloud {
     private let keys: DepositKeys = DepositKeys()
     
-    func fetch(restaurantId: String, completion: @escaping ([Deposit]?) -> Void) {
+    func fetch(restaurantId: String, year: Date, completion: @escaping ([Deposit]?) -> Void) {
         var deposits: [Deposit] = []
-        let predicate = NSPredicate(format: "\(keys.restaurantId) == %@", restaurantId)
-        let query = CKQuery(recordType: keys.type, predicate: predicate)
+        let predicates = [
+            NSPredicate(format: "\(keys.restaurantId) == %@", restaurantId),
+            NSPredicate(format: "\(keys.date) >= %@", year.firstDayOfYear as NSDate),
+            NSPredicate(format: "\(keys.date) <= %@", year.lastDayOfYear as NSDate)
+        ]
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        let query = CKQuery(recordType: keys.type, predicate: compoundPredicate)
         
         dataBase.fetch(withQuery: query) { result in
             guard case .success(let data) = result else { completion(nil); return }

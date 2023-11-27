@@ -34,9 +34,9 @@ struct SalesTable: View {
                                 Divider()
                                 Text("Tarjetas:")
                                 Divider()
-                            }
-                            VStack {
                                 Text("Depo:")
+                                Divider()
+                                Text("DSCAN:")
                                 Divider()
                                 Text("Door Dash:").foregroundStyle(Color.red)
                                 Divider()
@@ -57,6 +57,8 @@ struct SalesTable: View {
                                                 validateDate(sale.date)
                                                 Divider()
                                                 validateRtonos(sale.rtonos)
+                                                Divider()
+                                                validateQuantity(sale.vequipo)
                                                 Divider()
                                                 validateQuantity(sale.carmenTRJTA)
                                                 Divider()
@@ -155,7 +157,13 @@ struct SalesTable: View {
     private func validateDate(_ date: Date) -> Text {
         let isDateValid: Bool = date > invalidDate
         let textColor: Color = isDateValid ? .primary : .red
-        return Text(date.shortDate).foregroundStyle(textColor).bold()
+        var dateText: String = ""
+        switch totalBy {
+            case .day: dateText = date.shortDate
+            case .week: dateText = "\(date.firstDayOfWeek.day) - \(date.lastDayOfWeek.shortDate)"
+            case .month: dateText = date.month
+        }
+        return Text(dateText).foregroundStyle(textColor).bold()
     }
     
     func getCustomColor(value: Double) -> Color {

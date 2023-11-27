@@ -7,23 +7,25 @@
 
 import SwiftUI
 import CloudKit
+import PDFKit
 
-struct Worksheet: Identifiable, Hashable, Equatable {
+struct Worksheet: Identifiable, Hashable, Equatable, Comparable {
     private let keys: WorksheetKeys = WorksheetKeys()
     var id: String
     var payDate: Date
     var bonus: Bool
     var notes: String
-    var sent: Bool
     var restaurantId: String
+    var pdf: PDFDocument?
+    var url: URL?
     private var _record: CKRecord
     
     var record: CKRecord {
         _record[keys.id] = id
         _record[keys.payDate] = payDate
-        _record[keys.bonus] = bonus
-        _record[keys.notes] = notes
-        _record[keys.sent] = sent
+        if let pdf = convertPDFToCKAsset(pdf) {
+            _record[keys.pdf] = pdf
+        }
         _record[keys.restaurantId] = restaurantId
         return _record
     }
@@ -44,18 +46,22 @@ struct Worksheet: Identifiable, Hashable, Equatable {
         self.payDate = date
         self.bonus = false
         self.notes = ""
-        self.sent = false
         self.restaurantId = ""
         self._record = CKRecord(recordType: keys.type)
     }
     
     init(record: CKRecord) {
+        self.bonus = false
+        self.notes = ""
+        
         self._record = record
         self.id = record[keys.id] ?? ""
         self.payDate = record[keys.payDate] ?? Date()
-        self.bonus = record[keys.bonus] ?? false
-        self.notes = record[keys.notes] ?? ""
-        self.sent = record[keys.sent] ?? false
+        if let asset = record[keys.pdf] as? CKAsset,
+           let url = asset.fileURL {
+            self.url = url
+            self.pdf = PDFDocument(url: url)
+        }
         self.restaurantId = record[keys.restaurantId] ?? ""
     }
     
@@ -68,8 +74,27 @@ struct Worksheet: Identifiable, Hashable, Equatable {
         lhs.payDate == rhs.payDate &&
         lhs.bonus == rhs.bonus &&
         lhs.notes == rhs.notes &&
-        lhs.sent == rhs.sent &&
+        lhs.pdf == rhs.pdf &&
         lhs.restaurantId == rhs.restaurantId
+    }
+    
+    static func < (lhs: Worksheet, rhs: Worksheet) -> Bool {
+        lhs.payDate < rhs.payDate
+    }
+    
+    func convertPDFToCKAsset(_ pdfDocument: PDFDocument?) -> CKAsset? {
+        if let pdfDocument = pdfDocument, let data = pdfDocument.dataRepresentation() {
+            let tempDirectory = FileManager.default.temporaryDirectory
+            let fileURL = tempDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("pdf")
+            
+            do {
+                try data.write(to: fileURL)
+                return CKAsset(fileURL: fileURL)
+            } catch {
+                return nil
+            }
+        }
+        return nil
     }
 }
 

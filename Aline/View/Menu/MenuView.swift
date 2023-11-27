@@ -8,32 +8,58 @@
 import SwiftUI
 
 struct MenuView: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
-    @EnvironmentObject private var restaurantM: RestaurantPickerManager
-    @State private var changingRestaurant: Bool = false
     
+    @State private var changingRestaurant: Bool = false
     @State private var isLoading: Bool = false
+    @State private var section: Section = .none
     
     var body: some View {
-        Loading($isLoading) {
-            if !changingRestaurant {
-                NavigationSplitView {
-                    menuList
-                        .background(Color.background)
-                        .navigationTitle("Menu")
-                        .toolbar {
-                            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                                restaurantPicker
-                            }
-                        }
-                }  detail: {
-                    
+        HStack(spacing: 0) {
+            menuList
+            Divider()
+            NavigationStack {
+                AnyView(
+                    self.section.destination
+                        .onAppear(perform: {accentColor.set(self.section.color)})
+                )
+                .navigationTitle(self.section.title)
+                .toolbar {
+                    ToolbarItem(placement: .keyboard) {
+                        HideKeyboardToolbarButton()
+                    }
                 }
-            }
+            }.tint(self.section.color)
         }
+        .background(Color.background)
         .alertInfo(alertVM.alertType, showed: $alertVM.alertInfoShowed)
         .onChange(of: restaurantM.currentId, setRestaurant)
+    }
+    
+    private var menuList: some View {
+        VStack {
+            restaurantPicker
+            ScrollView {
+                VStack {
+                    MenuViewSection(section: .tipsCashOutView)
+                    if let adminRts = restaurantM.adminRts, let restaurant = restaurantM.restaurant, adminRts.contains(restaurant) {
+                        MenuViewSection(section: .sales)
+                        MenuViewSection(section: .tips)
+                        MenuViewSection(section: .deposits)
+                        MenuViewSection(section: .spendings)
+                        MenuViewSection(section: .beneficiaries)
+                        MenuViewSection(section: .checks)
+                        MenuViewSection(section: .payroll)
+                        MenuViewSection(section: .employees)
+                    }
+                }.padding(.horizontal, 7)
+            }
+            MenuViewSection(section: .account).padding(.bottom, 7)
+        }
+        .frame(width: 70)
     }
     
     private var restaurantPicker: some View {
@@ -42,9 +68,24 @@ struct MenuView: View {
                let emploRts = restaurantM.emploRts {
                 let restaurants = adminRts + emploRts
                 if adminRts.isNotEmpty || emploRts.isNotEmpty {
-                    Picker("Restaurantes", selection: $restaurantM.currentId) {
-                        ForEach(restaurants) { restaurant in
-                            Text(restaurant.name).tag(restaurant.id)
+                    Menu {
+                        Picker("Restaurantes", selection: $restaurantM.currentId.animation()) {
+                            ForEach(restaurants) { restaurant in
+                                Text(restaurant.name).tag(restaurant.id)
+                            }
+                        }.pickerStyle(.inline)
+                    } label: {
+                        if let restaurant = restaurantM.restaurant {
+                            Circle()
+                                .padding(.horizontal, 8)
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(getGradient())
+                                .overlay {
+                                    Text(getInitials(from: restaurant.name))
+                                        .bold()
+                                        .font(.title2)
+                                        .foregroundStyle(.white)
+                                }
                         }
                     }
                 }
@@ -52,55 +93,147 @@ struct MenuView: View {
         }
     }
     
-    private var menuList: some View {
-        List {
-            MenuViewSection(title: "Tips del día", tint: Color.red, icon: "list.bullet.clipboard.fill", destination: TipsCashOutView())
-            if let adminRts = restaurantM.adminRts, let restaurant = restaurantM.restaurant, adminRts.contains(restaurant) {
-                MenuViewSection(title: "Ventas",        tint: Color.green,  icon: "chart.bar.xaxis",                destination: SalesView())
-                MenuViewSection(title: "Tips",          tint: Color.orange, icon: "dollarsign.circle.fill",         destination: TipsView())
-                MenuViewSection(title: "Depositos",     tint: Color.blue,   icon: "tray.full.fill",                 destination: DepositsView())
-                MenuViewSection(title: "Gastos",        tint: Color.red,    icon: "cart.fill",                      destination: SpendingsView())
-                MenuViewSection(title: "Beneficiarios", tint: Color.green,  icon: "person.line.dotted.person.fill", destination: BeneficiariosView())
-                MenuViewSection(title: "Cheques",       tint: Color.blue,   icon: "banknote.fill",                  destination: ChecksView())
-                MenuViewSection(title: "Payroll",       tint: Color.red,    icon: "calendar",                       destination: PayrollView())
-                MenuViewSection(title: "Empleados",     tint: Color.orange, icon: "person.3.fill",                  destination: EmployeesView())
-                MenuViewSection(title: "Contador",      tint: Color.blue,   icon: "person.text.rectangle.fill",     destination: AccountantView())
-            }
-            MenuViewSection(title: "Cuenta",     tint: Color.green,          icon: "person.crop.circle", destination: AccountView())
-        }
-    }
-    
     private func setRestaurant() {
         withAnimation {
-            changingRestaurant = true
-            isLoading = true
             if let adminRts = restaurantM.adminRts, let emploRts = restaurantM.emploRts {
                 let restaurants = adminRts + emploRts
                 restaurantM.restaurant = restaurants.first(where: { $0.id == restaurantM.currentId })
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                isLoading = false
-                changingRestaurant = false
+                updateRecords()
             }
         }
     }
     
-    func MenuViewSection(title: String, tint: Color, icon: String, destination: some View) -> some View {
-        NavigationLink {
-            destination
-                .tint(tint)
-                .navigationTitle(title)
-                .navigationBarTitleDisplayMode(.large)
-                .onAppear(perform: {
-                    accentColor.set(tint)
-                })
+    func MenuViewSection(section: Section) -> some View {
+        Button {
+            withAnimation {
+                self.section =  self.section == section ? .none : section
+            }
         } label: {
-            Label(
-                title: { Text(title) },
-                icon: { Image(systemName: icon).foregroundStyle(tint) }
-            )
+            HStack {
+                section.icon
+                    .padding(.horizontal, 4)
+                    .foregroundStyle(self.section == section ? .white : section.color)
+                    .font(.title2)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(self.section.color.opacity(self.section == section ? 1 : 0))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+    
+    private func getInitials(from string: String) -> String {
+        let words = string.split(separator: " ")
+        let initials = words.compactMap { $0.first }
+        return initials.map { String($0) }.joined()
+    }
+    
+    private func getGradient() -> Gradient {
+        switch accentColor.tint {
+            case Color.green:
+                Gradient(colors: [Color.green, Color.orange])
+            case Color.blue:
+                Gradient(colors: [Color.blue, Color.red])
+            case Color.red:
+                Gradient(colors: [Color.red, Color.green])
+            case Color.orange:
+                Gradient(colors: [Color.orange, Color.blue])
+            default:
+                Gradient(colors: [Color.blue, Color.red])
+        }
+    }
+    
+    private func updateRecords() {
+        withAnimation {
+            isLoading = true
+            employeeVM.fetch(restaurantId: restaurantM.currentId) { fetched in
+                if !fetched {
+                    alertVM.show(.dataObtainingError)
+                }
+                isLoading = false
+            }
         }
     }
 }
 
+
+
+
+enum Section {
+    case none
+    case tipsCashOutView
+    case sales
+    case tips
+    case deposits
+    case spendings
+    case beneficiaries
+    case checks
+    case payroll
+    case employees
+    case account
+    
+    var title: String {
+        switch self {
+            case .none: ""
+            case .tipsCashOutView: "Tips del día"
+            case .sales: "Ventas"
+            case .tips: "Tips"
+            case .deposits: "Depositos"
+            case .spendings: "Gastos"
+            case .beneficiaries: "Beneficiarios"
+            case .checks: "Cheques"
+            case .payroll: "Payroll"
+            case .employees: "Empleados"
+            case .account: "Cuenta"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+            case .none: Color.green
+            case .tipsCashOutView: Color.red
+            case .sales: Color.green
+            case .tips: Color.orange
+            case .deposits: Color.blue
+            case .spendings: Color.red
+            case .beneficiaries: Color.green
+            case .checks: Color.blue
+            case .payroll: Color.red
+            case .employees: Color.orange
+            case .account: Color.green
+        }
+    }
+    
+    var destination: any View {
+        switch self {
+            case .none: WelcomeView()
+            case .tipsCashOutView: TipsCashOutView()
+            case .sales: SalesView()
+            case .tips: TipsView()
+            case .deposits: DepositsView()
+            case .spendings: SpendingsView()
+            case .beneficiaries: BeneficiariosView()
+            case .checks: ChecksView()
+            case .payroll: PayrollView()
+            case .employees: EmployeesView()
+            case .account: AccountView()
+        }
+    }
+    
+    var icon: Image {
+        switch self {
+            case .none: Image("")
+            case .tipsCashOutView: Image(systemName: "list.bullet.clipboard.fill")
+            case .sales: Image(systemName: "chart.bar.xaxis")
+            case .tips: Image(systemName: "dollarsign.circle.fill")
+            case .deposits: Image(systemName: "tray.full.fill")
+            case .spendings: Image(systemName: "cart.fill")
+            case .beneficiaries: Image(systemName: "person.line.dotted.person.fill")
+            case .checks: Image(systemName: "banknote.fill")
+            case .payroll: Image(systemName: "calendar")
+            case .employees: Image(systemName: "person.3.fill")
+            case .account: Image(systemName: "person.crop.circle.fill")
+        }
+    }
+}
 

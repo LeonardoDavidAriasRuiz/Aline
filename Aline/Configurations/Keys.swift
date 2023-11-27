@@ -88,14 +88,6 @@ struct TipReviewKeys {
     let notes = "notes"
 }
 
-struct AccountantKeys {
-    let type = "Accountants"
-    let restaurantId = "restaurantId"
-    let name = "name"
-    let email = "email"
-    let message = "message"
-}
-
 struct SpendingKeys {
     let type = "Spendings"
     let id = "id"
@@ -133,7 +125,7 @@ struct WorksheetKeys {
     let payDate = "payDate"
     let bonus = "bonus"
     let notes = "notes"
-    let sent = "sent"
+    let pdf = "pdf"
     let restaurantId = "restaurantId"
 }
 
@@ -150,4 +142,24 @@ struct WorksheetRecordKeys {
     let cashTips = "cashTips"
     let cargedTips = "cargedTips"
     let garnishment = "garnishment"
+}
+
+struct WorksheetSettingsKeys {
+    let type = "WorksheetsSettings"
+    let id = "id"
+    let worksheetTitle = "worksheetTitle"
+    let companyName = "companyName"
+    let numberStreetSte = "numberStreetSte"
+    let cityStatePC = "cityStatePC"
+    let logo = "logo"
+    let restaurantId = "restaurantId"
+}
+
+struct CheckKeys {
+    let type = "Checks"
+    let id = "id"
+    let cash = "cash"
+    let direct = "direct"
+    let employeeId = "employeeId"
+    let restaurantId = "restaurantId"
 }

@@ -8,9 +8,14 @@
 import SwiftUI
 
 enum MenuSubsection {
+    case none
     case newBeneficiary
     case cashOut
+    case checks
     case newDeposit
+    case newWorksheet
+    case pdfWorksheet
+    case worksheetSettings
     case login
     case spendingTypes
     case newSpending
@@ -27,12 +32,17 @@ enum MenuSubsection {
     
     var title: String {
         switch self {
+            case .none: return ""
             case .newBeneficiary: return "Nuevo beneficiario"
             case .cashOut: return "Corte"
+            case .checks: return "Cheques"
             case .newDeposit: return "Nuevo deposito"
             case .login: return "Registro"
-            case .spendingTypes: return "Tipos de gastos"
+            case .spendingTypes: return "Categorías"
             case .newSpending: return "Nuevo gasto"
+            case .newWorksheet: return "Nueva Worksheet"
+            case .pdfWorksheet: return "Worksheet"
+            case .worksheetSettings: return "Worksheet settings"
             case .newEmployee: return "Nuevo empleado"
             case .tipsReview: return "Revisión de tips"
             case .resturants: return "Restaurantes"

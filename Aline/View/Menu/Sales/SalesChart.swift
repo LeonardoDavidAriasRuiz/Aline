@@ -8,18 +8,27 @@
 import SwiftUI
 
 struct SalesChart: View {
-    @State private var height: CGFloat = 300;
-    @State private var colorLimit: Double = 4000
+    private let height: CGFloat = 300;
     @State private var hoverSection: Sale?
     
     let title: String
-    @Binding var data: [Sale]
+    @Binding var sales: [Sale]
     @Binding var totalBy: TotalBy
     @Binding var showedQuantities: Bool
     @Binding var showedDaysByWeekDay: Bool
+    @Binding var colorLimit: Double
+    @Binding var salesType: SalesType
+    
+    @Binding var mondayShowed: Bool
+    @Binding var tuesdayShowed: Bool
+    @Binding var wednesdayShowed: Bool
+    @Binding var thursdayShowed: Bool
+    @Binding var fridayShowed: Bool
+    @Binding var saturdayShowed: Bool
+    @Binding var sundayShowed: Bool
     
     var body: some View {
-        if data.isNotEmpty {
+        if sales.isNotEmpty {
             WhiteArea {
                 HStack {
                     Text(title).font(.largeTitle).bold()
@@ -28,25 +37,38 @@ struct SalesChart: View {
                 
                 ScrollView(.horizontal) {
                     LazyHStack(spacing: 10) {
-                        ForEach(data) { item in
-                            VStack {
-                                Spacer()
-                                Text(item.rtonos.comasText)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .foregroundStyle(hoverSection == item ? .primary : .secondary)
-                                    .font(hoverSection == item ? .largeTitle : showedQuantities ? .body : .system(size: 0.1))
-                                RoundedRectangle(cornerRadius: 35)
-                                    .foregroundStyle(getItemColor(for: item))
-                                    .frame(height: getItemHeight(for: item))
-                                    .frame(width: getItemWidth(for: item))
-                                    .onTapGesture(perform: {selectSaleOnTap(item)})
-                                Text(getXAxi1(for: item))
-                                    .foregroundStyle(showedDaysByWeekDay && (item.date.weekdayInitial == "d")  && totalBy == .day ? .primary : .secondary)
-                                    .bold(showedDaysByWeekDay && (item.date.weekdayInitial == "d")  && totalBy == .day ? true : false)
-                                Text(getXAxi2(for: item))
-                                    .opacity(getXAxi2Opcaity(for: item))
-                                    .frame(maxWidth: .infinity)
-                                    .bold()
+                        ForEach(sales) { item in
+                            if (item.date.weekdayInt == 1 && sundayShowed) ||
+                                (item.date.weekdayInt == 2 && mondayShowed) ||
+                                (item.date.weekdayInt == 3 && tuesdayShowed) ||
+                                (item.date.weekdayInt == 4 && wednesdayShowed) ||
+                                (item.date.weekdayInt == 5 && thursdayShowed) ||
+                                (item.date.weekdayInt == 6 && fridayShowed) ||
+                                (item.date.weekdayInt == 7 && saturdayShowed) {
+                                VStack {
+                                    Spacer()
+                                    Text(getQuantity(item).comasText)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .foregroundStyle(hoverSection == item ? .primary : .secondary)
+                                        .font(hoverSection == item ? .largeTitle : showedQuantities ? .body : .system(size: 0.1))
+                                    RoundedRectangle(cornerRadius: 35)
+                                        .foregroundStyle(getItemColor(for: item))
+                                        .frame(height: getItemHeight(for: item))
+                                        .frame(width: getItemWidth(for: item))
+                                        
+                                    Text(getXAxi1(for: item))
+                                        .foregroundStyle((item.date.dayInt == 1)  && totalBy == .day ? .primary : .secondary)
+                                        .bold((item.date.dayInt == 1)  && totalBy == .day ? true : false)
+                                    if showedDaysByWeekDay {
+                                        Text(item.date.weekdayInitial)
+                                            .foregroundStyle(showedDaysByWeekDay && (item.date.weekdayInt == 1)  && totalBy == .day ? .primary : .secondary)
+                                            .bold(showedDaysByWeekDay && (item.date.weekdayInt == 1)  && totalBy == .day ? true : false)
+                                    }
+                                    Text(getXAxi2(for: item))
+                                        .opacity(getXAxi2Opcaity(for: item))
+                                        .frame(maxWidth: .infinity)
+                                        .bold()
+                                }.onTapGesture(perform: {selectSaleOnTap(item)})
                             }
                         }
                     }
@@ -64,7 +86,7 @@ struct SalesChart: View {
     }
     
     private func getItemHeight(for item: Sale) -> CGFloat {
-        item.rtonos / (data.max(by: {$0.rtonos < $1.rtonos})?.rtonos ?? 0.0) * (height - 20)
+        (getQuantity(item) / getMaxQuantity()) * (height - 20)
     }
     
     private func getItemWidth(for item: Sale) -> CGFloat {
@@ -76,23 +98,19 @@ struct SalesChart: View {
     }
     
     private func getItemColor(for item: Sale) -> Color {
-        if item.rtonos < colorLimit {
-            return Color.red.opacity(1-((item.rtonos - 2000)  / (data.max(by: {$0.rtonos < $1.rtonos})?.rtonos ?? 1.0)))
+        if getQuantity(item) < colorLimit {
+            return Color.red.opacity(1-((getQuantity(item) - 2000)  / getMaxQuantity()))
         } else {
-            return Color.green.opacity(item.rtonos / (data.max(by: {$0.rtonos < $1.rtonos})?.rtonos ?? 1.0))
+            return Color.green.opacity(getQuantity(item) / getMaxQuantity())
         }
     }
     
     private func getXAxi1(for item: Sale) ->  String {
         switch totalBy {
             case .day:
-                return showedDaysByWeekDay ? item.date.weekdayInitial : item.date.day
+                return item.date.day
             case .week:
-                if let sixDaysBefore = Calendar.current.date(byAdding: DateComponents(month: 0, day: -6), to: item.date)?.day {
-                    return "\(sixDaysBefore) - \(item.date.day)"
-                } else {
-                    return item.date.day
-                }
+                return "\(item.date.firstDayOfWeek.day) - \(item.date.lastDayOfWeek.day)"
             case .month:
                 return item.date.month
         }
@@ -116,10 +134,46 @@ struct SalesChart: View {
         case .day:
             return item.date.day == "1" || hoverSection == item ? 1 : 0
         case .week:
-//            return "1234567".contains(item.date.day) || hoverSection == item ? 1 : 0
-                return 1
+            return "1234567".contains(item.date.day) || hoverSection == item ? 1 : 0
+//                return 1
         case .month:
             return item.date.monthNumber == "01" || hoverSection == item ? 1 : 0
         }
+    }
+    
+    private func getMaxQuantity() -> Double {
+        let salesFiltered = sales.compactMap { sale in
+            if (sale.date.weekdayInt == 1 && sundayShowed) ||
+                (sale.date.weekdayInt == 2 && mondayShowed) ||
+                (sale.date.weekdayInt == 3 && tuesdayShowed) ||
+                (sale.date.weekdayInt == 4 && wednesdayShowed) ||
+                (sale.date.weekdayInt == 5 && thursdayShowed) ||
+                (sale.date.weekdayInt == 6 && fridayShowed) ||
+                (sale.date.weekdayInt == 7 && saturdayShowed) {
+                return sale
+            } else {
+                return nil
+            }
+        }
+        return getQuantity(salesFiltered.max { sale1, sale2 in
+            getQuantity(sale1) < getQuantity(sale2)
+        } ?? Sale())
+    }
+    
+    private func getQuantity(_ item: Sale) -> Double {
+        var quantity: Double = 0
+        switch salesType {
+            case .rtonos: quantity = item.rtonos
+            case .vequipo: quantity = item.vequipo
+            case .carmenTRJTA: quantity = item.carmenTRJTA
+            case .depo: quantity = item.depo
+            case .dscan: quantity = item.dscan
+            case .doordash: quantity = item.doordash
+            case .online: quantity = item.online
+            case .grubhub: quantity = item.grubhub
+            case .tacobar: quantity = item.tacobar
+        }
+        
+        return quantity
     }
 }

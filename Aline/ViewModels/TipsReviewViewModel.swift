@@ -8,9 +8,7 @@
 import CloudKit
 import SwiftUI
 
-class TipsReviewViewModel: ObservableObject {
-    
-    private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
+class TipsReviewViewModel: PublicCloud {
     private let keys: TipReviewKeys = TipReviewKeys()
     
     func save(_ tip: TipsReview, completion: @escaping (Bool) -> Void) {

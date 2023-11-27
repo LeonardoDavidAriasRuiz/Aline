@@ -14,6 +14,8 @@ struct Sale: Identifiable, Equatable {
     var id: String = UUID().uuidString
     var date: Date = Date()
     var restaurantId: String
+    var rtonos: Double
+    var vequipo: Double
     var carmenTRJTA: Double
     var depo: Double
     var dscan: Double
@@ -21,8 +23,6 @@ struct Sale: Identifiable, Equatable {
     var online: Double
     var grubhub: Double
     var tacobar: Double
-    var vequipo: Double
-    var rtonos: Double
     var vequipoCalculated: Double { carmenTRJTA + depo }
     var rtonosCalculated: Double {
         carmenTRJTA +

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct NewSpendingView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var newSpending: Spending = Spending()
     @State private var beneficiaries: [Beneficiary] = []
@@ -61,7 +61,7 @@ struct NewSpendingView: View {
     }
     
     private var discardToolBarButton: some View {
-        Button(action: discard) {
+        Button(action: {dismiss()}) {
             Text("Descartar").foregroundStyle(Color.red)
         }
     }
@@ -90,7 +90,7 @@ struct NewSpendingView: View {
     
     private var spendingQuantityField: some View {
         WhiteArea {
-            DecimalField("Cantidad", decimal: $newSpending.quantity)
+            DecimalField("Cantidad", decimal: $newSpending.quantity, alignment: .leading)
                 .padding(.vertical, 8)
         }
     }
@@ -106,7 +106,7 @@ struct NewSpendingView: View {
         } label: {
             WhiteArea(spacing: 8) {
                 HStack {
-                    Text("Tipo de gasto")
+                    Text("Categoría")
                     Spacer()
                     Text(getSpendingTypeName(for: newSpending))
                 }
@@ -161,17 +161,13 @@ struct NewSpendingView: View {
         SpendingViewModel().saveSpending(newSpending) { saved in
             DispatchQueue.main.async {
                 if saved {
-                    discard()
+                    dismiss()
                 } else {
+                    isLoading = false
                     alertVM.show(.crearingError)
                 }
-                isLoading = false
             }
         }
-    }
-    
-    private func discard() {
-        self.presentationMode.wrappedValue.dismiss()
     }
     
     private func rewriteDefaultNote() {

@@ -19,9 +19,7 @@ extension View {
             hostingController.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             hostingController.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             hostingController.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            hostingController.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            
-//            hostingController.widthAnchor.constraint(equalToConstant: screenBounds().width)
+            hostingController.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         ]
         
         scrollView.addSubview(hostingController)
@@ -66,7 +64,6 @@ extension View {
                 view.removeFromSuperview()
             }
         }
-        
     }
     
     func screenBounds() -> CGRect {

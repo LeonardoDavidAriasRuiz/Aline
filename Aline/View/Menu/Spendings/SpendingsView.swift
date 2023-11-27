@@ -34,36 +34,21 @@ struct SpendingsView: View {
                 UpdateRecordsToolbarButton(action: getTypes)
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
-                ExportToolbarButton(data: createCSV()).disabled(spendingTypes.isEmpty)
-                NavigationLink("Tipo de gastos") {
+                ExportCSVToolbarButton(data: createCSV()).disabled(spendingTypes.isEmpty)
+                NavigationLink("Categorías") {
                     SpendingTypesView(spendingTypes: $spendingTypes)
                 }
-                FiltersToolBarMenu(fill: date.monthNumber != Date().monthNumber || date.yearInt != Date().yearInt) {
+                CalendarToolbarMenu {
                     MonthPicker(date.month, date: $date)
                     YearPicker(date.year, date: $date)
                         .onChange(of: date, getTypes)
-                    if !(date.monthNumber == Date().monthNumber && date.yearInt == Date().yearInt) {
-                        Divider()
-                        Button(role: .destructive, action: clearFilters) {
-                            Label("Quitar filtros", systemImage: "xmark")
-                        }
-                    }
                 }
             }
         }
-        .overlay {
-            if spendingTypes.isEmpty, !isLoading {
-                ContentUnavailableView(label: {
-                    Label(
-                        title: { Text("Sin gastos") },
-                        icon: { Image(systemName: "creditcard.fill").foregroundStyle(Color.red) }
-                    )
-                }, description: {
-                    Text("Los nuevos gastos se mostrarán aquí.")
-                })
-            }
-        }
+        .overlay { if spendingTypes.isEmpty, !isLoading { EmptySpendingsView() } }
         .onAppear(perform: getTypes)
+        .onChange(of: restaurantM.currentId, getTypes)
+        .onChange(of: restaurantM.currentId, getBeneficiaries)
     }
     
     private var spendingsByTypeList: some View {
@@ -242,11 +227,13 @@ struct SpendingsView: View {
     }
     
     private func getBeneficiaries() {
-        BeneficiaryViewModel().fetch(for: restaurantM.currentId) { beneficiaries in
-            if let beneficiaries = beneficiaries {
-                self.beneficiaries = beneficiaries
-            } else {
-                alertVM.show(.dataObtainingError)
+        withAnimation {
+            BeneficiaryViewModel().fetch(for: restaurantM.currentId) { beneficiaries in
+                if let beneficiaries = beneficiaries {
+                    self.beneficiaries = beneficiaries
+                } else {
+                    alertVM.show(.dataObtainingError)
+                }
             }
         }
     }

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ConectionSentView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @Binding var conections: [Conection]
     
@@ -39,7 +39,7 @@ struct ConectionSentView: View {
         conectionVM.delete(conection) { deleted in
             if deleted {
                 conections.removeAll { $0 == self.conection }
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             } else {
                 alertVM.show(.deletingError)
             }

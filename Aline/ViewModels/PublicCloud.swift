@@ -8,10 +8,10 @@
 import Foundation
 import CloudKit
 
-class PublicCloud {
-    let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
+class PublicCloud: ObservableObject {
+    @Published var dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
     
-    func save(_ record: CKRecord, saved: @escaping () -> Void, ifNot: @escaping () -> Void, alwaysDo: @escaping () -> Void) {
+    func save(_ record: CKRecord, saved: @escaping () -> Void = {}, ifNot: @escaping () -> Void = {}, alwaysDo: @escaping () -> Void = {}) {
         dataBase.save(record) { record, error in
             if record != nil {
                 DispatchQueue.main.async {
@@ -28,21 +28,24 @@ class PublicCloud {
         }
     }
     
-    func save(_ record: CKRecord, saved: @escaping () -> Void, ifNot: @escaping () -> Void) {
+    func save(_ record: CKRecord, action: @escaping (Bool) -> Void = {_ in}) {
         dataBase.save(record) { record, error in
-            if record != nil {
-                DispatchQueue.main.async {
-                    saved()
-                }
+            action(record != nil)
+        }
+    }
+    
+    func save(_ record: CKRecord, recordReturned: @escaping (CKRecord?) -> Void) {
+        dataBase.save(record) { record, error in
+            if let record = record {
+                recordReturned(record)
             } else {
-                DispatchQueue.main.async {
-                    ifNot()
-                }
+                recordReturned(.none)
             }
         }
     }
     
-    func delete(_ record: CKRecord, saved: @escaping () -> Void, ifNot: @escaping () -> Void, alwaysDo: @escaping () -> Void) {
+    
+    func delete(_ record: CKRecord, saved: @escaping () -> Void = {}, ifNot: @escaping () -> Void = {}, alwaysDo: @escaping () -> Void = {}) {
         dataBase.delete(withRecordID: record.recordID) { recordID, _ in
             if recordID != nil {
                 DispatchQueue.main.async {
@@ -59,17 +62,11 @@ class PublicCloud {
         }
     }
     
-    func delete(_ record: CKRecord, saved: @escaping () -> Void, ifNot: @escaping () -> Void) {
+    func delete(_ record: CKRecord, action: @escaping (Bool) -> Void) {
         dataBase.delete(withRecordID: record.recordID) { recordID, _ in
-            if recordID != nil {
-                DispatchQueue.main.async {
-                    saved()
-                }
-            } else {
-                DispatchQueue.main.async {
-                    ifNot()
-                }
-            }
+            action(recordID != nil)
         }
     }
+    
+    
 }

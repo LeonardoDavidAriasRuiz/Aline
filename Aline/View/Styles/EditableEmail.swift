@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditableEmail: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     
     @Binding var email: String
     let accion: () -> Void
@@ -34,6 +34,9 @@ struct EditableEmail: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing, content: {updateButton})
+            ToolbarItem(placement: .keyboard) {
+                HideKeyboardToolbarButton()
+            }
         }
         .alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
     }
@@ -135,14 +138,14 @@ struct EditableEmail: View {
     }
     
     private func update() {
-        self.presentationMode.wrappedValue.dismiss()
+        dismiss()
         email = newEmail
         accion()
     }
 }
 
 struct EditableEmailNoConfirmation: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     
     @Binding var email: String
     let accion: () -> Void
@@ -160,6 +163,9 @@ struct EditableEmailNoConfirmation: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing, content: {updateButton})
+            ToolbarItem(placement: .keyboard) {
+                HideKeyboardToolbarButton()
+            }
         }
         .alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
     }
@@ -200,7 +206,7 @@ struct EditableEmailNoConfirmation: View {
     }
     
     private func update() {
-        self.presentationMode.wrappedValue.dismiss()
+        dismiss()
         email = newEmail
         accion()
     }

@@ -28,18 +28,7 @@ struct RestaurantsListView: View {
                 UpdateRecordsToolbarButton(action: getRestaurants)
             }
         }
-        .overlay {
-            if adminRestaurants.isEmpty, emploRestaurants.isEmpty, !isLoading {
-                ContentUnavailableView(label: {
-                    Label(
-                        title: { Text("Sin restaurantes") },
-                        icon: { Image(systemName: "building.2.fill").foregroundStyle(Color.green) }
-                    )
-                }, description: {
-                    Text("Los nuevos restaurantes se mostrarán aquí.")
-                })
-            }
-        }
+        .overlay { if adminRestaurants.isEmpty, emploRestaurants.isEmpty, !isLoading { EmptyRestaurantsView() } }
         .onAppear(perform: getRestaurants)
     }
     

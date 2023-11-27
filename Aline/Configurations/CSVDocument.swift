@@ -29,25 +29,3 @@ struct CSVDocument: FileDocument {
         return FileWrapper(regularFileWithContents: csvData)
     }
 }
-
-struct PDFDocument: FileDocument {
-    var pdfData: Data
-
-    init(_ initialData: Data) {
-        self.pdfData = initialData
-    }
-
-    static var readableContentTypes: [UTType] { [.pdf] }
-    static var writableContentTypes: [UTType] { [.pdf] }
-
-    init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents else {
-            throw CocoaError(.fileReadCorruptFile)
-        }
-        self.pdfData = data
-    }
-
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        return FileWrapper(regularFileWithContents: pdfData)
-    }
-}

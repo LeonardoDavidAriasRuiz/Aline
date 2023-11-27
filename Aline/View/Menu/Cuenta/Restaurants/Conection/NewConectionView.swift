@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct NewConectionView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var conectionVM: ConectionViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var conection: Conection = Conection(restaurant: Restaurant())
     @State private var isSendButtonDisabled: Bool = true
@@ -69,7 +69,7 @@ struct NewConectionView: View {
                             subject: emailInfo.subject,
                             body: emailInfo.body(isAdmin: isAdmin, restaurantName: name)
                         ) {
-                            presentationMode.wrappedValue.dismiss()
+                            dismiss()
                         } ifNot: {
                             alertVM.show(.sendingInvitationError)
                         } alwaysDo: {}

@@ -11,7 +11,7 @@ import CloudKit
 struct Employee: Hashable, Equatable, Identifiable, Comparable {
     private let keys: EmployeeKeys = EmployeeKeys()
     
-    var id: String
+    let id: String
     var name: String
     var lastName: String
     var isActive: Bool

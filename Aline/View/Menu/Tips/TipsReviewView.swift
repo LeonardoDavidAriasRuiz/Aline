@@ -8,16 +8,24 @@
 import SwiftUI
 
 struct TipsReviewView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var employees: [Employee] = []
     @State private var employeesWithTips: [(employee: Employee, tip: Tip?)] = []
+    @State private var isLoading: Bool = false
     
     @Binding var tipsReviews: [TipsReview]
+    
+    private let tipVM = TipViewModel()
+    private let tipReviewVM = TipsReviewViewModel()
     let tipsReview: TipsReview
     
-    @State private var isLoading: Bool = false
+    init(_ tipsReview: TipsReview, tipsReviews: Binding<[TipsReview]>) {
+        self.tipsReview = tipsReview
+        self._tipsReviews = tipsReviews
+    }
     
     var body: some View {
         Sheet(section: .tipsReview, isLoading: $isLoading) {
@@ -34,7 +42,7 @@ struct TipsReviewView: View {
             HStack {
                 Text(tipsReview.from.shortDate)
                 Spacer()
-                Text("\(tipsReview.from.time) - \(tipsReview.to.time)")
+                Text("\(tipsReview.from.hour) - \(tipsReview.to.hour)")
                     .foregroundStyle(.secondary)
             }
             Divider()
@@ -49,18 +57,18 @@ struct TipsReviewView: View {
     
     private var employeesList: some View {
         WhiteArea(spacing: 8) {
-            ForEach(employees) { employee in
+            ForEach(employeesWithTips, id: \.employee) { employeeWithTip in
+                if employeeWithTip != employeesWithTips.last ?? employeeWithTip {
+                    Divider()
+                }
                 HStack {
-                    Text(employee.fullName)
-                        .foregroundStyle(employee.isActive ? .primary : Color.red)
-                    Text(employee.isActive ? "" : " Empleado inactivo")
+                    Text(employeeWithTip.employee.fullName)
+                        .foregroundStyle(employeeWithTip.employee.isActive ? .primary : Color.red)
+                    Text(employeeWithTip.employee.isActive ? "" : " Empleado inactivo")
                         .foregroundStyle(.secondary)
                     Spacer()
                     Text(tipsReview.quantityForEach.comasTextWithDecimals)
                         .foregroundStyle(.secondary)
-                }
-                if employee != employees.last {
-                    Divider()
                 }
             }
         }
@@ -69,69 +77,45 @@ struct TipsReviewView: View {
     private func saveTips() {
         isLoading = true
         for index in employeesWithTips.indices {
-            if var tip = employeesWithTips[index].tip {
-                tip.quantity += tipsReview.quantityForEach
-                TipViewModel().save(tip) { saved in
-                    if !saved {
-                        alertVM.show(.crearingError)
-                    }
-                    if employeesWithTips[index] == employeesWithTips.last! {
-                        isLoading = false
-                        declineTips()
-                    }
-                }
-            } else {
-                var tip = Tip()
-                tip.date = tipsReview.from
-                tip.employeeId = employeesWithTips[index].employee.id
-                tip.quantity = tipsReview.quantityForEach
-                TipViewModel().save(tip) { saved in
-                    if !saved {
-                        alertVM.show(.crearingError)
-                    }
-                    if employeesWithTips[index] == employeesWithTips.last! {
-                        isLoading = false
-                        declineTips()
-                    }
+            var tip = employeesWithTips[index].tip ?? Tip(employee: employeesWithTips[index].employee, date: tipsReview.from)
+            tip.quantity += tipsReview.quantityForEach
+            tipVM.save(tip.record) {} ifNot: {
+                alertVM.show(.crearingError)
+            } alwaysDo: {
+                if employeesWithTips[index] == employeesWithTips.last! {
+                    declineTips()
                 }
             }
         }
     }
     
     private func declineTips() {
-        TipsReviewViewModel().delete(tipsReview) { deleted in
-            if deleted {
-                DispatchQueue.main.async {
-                    withAnimation {
-                        self.presentationMode.wrappedValue.dismiss()
-                    }
-                }
-            } else {
-                self.alertVM.show(.decliningError)
-            }
+        tipReviewVM.delete(tipsReview.record) {
+            DispatchQueue.main.async { dismiss() }
+        } ifNot: {
+            self.alertVM.show(.decliningError)
         }
     }
     
     private func getTotal() -> Double {
-        let employeesNumber = Double(tipsReview.employeesIds.count)
-        return tipsReview.quantityForEach * employeesNumber
+        tipsReview.quantityForEach * Double(tipsReview.employeesIds.count)
     }
     
     private func getEmployees() {
         isLoading = true
-        EmployeeViewModel().fetch(employeesIds: tipsReview.employeesIds) { employees in
-            if let employees = employees {
-                self.employees = employees
-                employeesWithTips = employees.map({($0, nil)})
-            } else {
-                alertVM.show(.dataObtainingError)
-            }
-            for index in employeesWithTips.indices {
-                TipViewModel().fetchTip(for: employeesWithTips[index].employee, date: tipsReview.from) { tip in
-                    employeesWithTips[index] = (employeesWithTips[index].employee, tip)
-                    if employeesWithTips[index] == employeesWithTips.last! {
-                        isLoading = false
-                    }
+        
+        employeesWithTips = []
+        employeesWithTips = employeeVM.employees.compactMap({ employee in
+            tipsReview.employeesIds.contains(employee.id) ? (employee, nil) : nil
+        })
+        
+        for index in employeesWithTips.indices {
+            tipVM.fetchTip(for: employeesWithTips[index].employee, date: tipsReview.from) { tip in
+                print(employeesWithTips[index].employee.fullName)
+                employeesWithTips[index] = (employeesWithTips[index].employee, tip)
+                print(employeesWithTips[index].employee.fullName)
+                if employeesWithTips[index] == employeesWithTips.last! {
+                    isLoading = false
                 }
             }
         }

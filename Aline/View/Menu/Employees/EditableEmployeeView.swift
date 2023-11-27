@@ -8,20 +8,14 @@
 import SwiftUI
 
 struct EditableEmployeeView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var isLoading: Bool = false
-    @State private var employee: Employee
     
-    init(employee: Employee) {
-        _employee = State(initialValue: employee)
-    }
-    
-    init() {
-        _employee = State(initialValue: Employee())
-    }
+    @Binding var employee: Employee
     
     var body: some View {
         Sheet(section: .newEmployee) {
@@ -37,7 +31,7 @@ struct EditableEmployeeView: View {
                         Text("Salary").tag(true)
                         Text("Rate").tag(false)
                     }.pickerStyle(.segmented)
-                    DecimalField(employee.salary ? "Salary" : "Rate", decimal: $employee.quantity)
+                    DecimalField(employee.salary ? "Salary" : "Rate", decimal: $employee.quantity, alignment: .leading)
                 }.padding(.vertical, 8)
             }
         }
@@ -53,7 +47,7 @@ struct EditableEmployeeView: View {
     }
     
     private var discardToolBarButton: some View {
-        Button(action: discard) {
+        Button(action: {dismiss()}) {
             Text("Descartar").foregroundStyle(Color.red)
         }
     }
@@ -84,16 +78,13 @@ struct EditableEmployeeView: View {
     private func save() {
         isLoading = true
         employee.restaurantId = restaurantM.currentId
-        EmployeeViewModel().save(employee.record) {
-            discard()
-        } ifNot: {
-            alertVM.show(.crearingError)
-        } alwaysDo: {
+        employeeVM.update(employee.record) { updated in
+            if updated {
+                dismiss()
+            } else {
+                alertVM.show(.crearingError)
+            }
             isLoading = false
         }
-    }
-    
-    private func discard() {
-        self.presentationMode.wrappedValue.dismiss()
     }
 }

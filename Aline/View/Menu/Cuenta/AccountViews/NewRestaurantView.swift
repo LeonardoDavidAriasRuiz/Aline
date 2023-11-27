@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct NewRestaurantView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var newRestaurant: Restaurant = Restaurant()
     @State private var isLoading: Bool = false
@@ -49,7 +49,7 @@ struct NewRestaurantView: View {
     }
     
     private var discardToolBarButton: some View {
-        Button(action: discard) {
+        Button(action: {dismiss()}) {
             Text("Descartar").foregroundStyle(Color.red)
         }
     }
@@ -83,7 +83,7 @@ struct NewRestaurantView: View {
         userVM.user.adminIds.append(newRestaurant.id)
         userVM.save()
         RestaurantViewModel().save(newRestaurant.record) {
-            discard()
+            dismiss()
         } ifNot: {
             alertVM.show(.crearingError)
         } alwaysDo: {
@@ -91,9 +91,5 @@ struct NewRestaurantView: View {
         }
 
         
-    }
-    
-    private func discard() {
-        self.presentationMode.wrappedValue.dismiss()
     }
 }

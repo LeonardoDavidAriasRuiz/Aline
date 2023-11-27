@@ -9,21 +9,24 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @EnvironmentObject private var accentColor: AccentColor
-    @EnvironmentObject private var userVM: UserViewModel
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
+    @EnvironmentObject private var accentColor: AccentColor
+    @EnvironmentObject private var alertVM: AlertViewModel
+    @EnvironmentObject private var userVM: UserViewModel
     
     @State private var content: AnyView = AnyView(iCloudOffView())
     @State private var readyToLogOrSignIn: Bool = false
     @State private var loggedIn: Bool = false
     @State private var signedIn: Bool = false
     @State private var twoSecondsPassed: Bool = false
+    @State private var employeedFetched: Bool = false
     
     @State private var error: Bool = false
     
     var body: some View {
         VStack {
-            if twoSecondsPassed, restaurantM.adminRts != nil, restaurantM.emploRts != nil, readyToLogOrSignIn {
+            if twoSecondsPassed, restaurantM.adminRts != nil, restaurantM.emploRts != nil, readyToLogOrSignIn, employeedFetched {
                 content
             } else if twoSecondsPassed, error {
                 ZStack {
@@ -84,6 +87,7 @@ struct ContentView: View {
                 if let restaurant = emploRts.first{
                     restaurantM.restaurant = restaurant
                     restaurantM.currentId = restaurant.id
+                    fetchEmployees()
                 }
             }
             if let adminRts = adminRts {
@@ -91,7 +95,18 @@ struct ContentView: View {
                 if let restaurant = adminRts.first {
                     restaurantM.restaurant = restaurant
                     restaurantM.currentId = restaurant.id
+                    fetchEmployees()
                 }
+            }
+        }
+    }
+    
+    private func fetchEmployees() {
+        employeeVM.fetch(restaurantId: restaurantM.currentId) { fetched in
+            if fetched {
+                employeedFetched = fetched
+            } else {
+                alertVM.show(.dataObtainingError)
             }
         }
     }
@@ -100,6 +115,7 @@ struct ContentView: View {
         userVM.checkIfLoggedIn { loggedIn in
             if loggedIn {
                 setRestaurantList()
+                
                 content = AnyView(SignInView(signedIn: $signedIn))
             } else {
                 content = AnyView(LogInView(loggedIn: $loggedIn))

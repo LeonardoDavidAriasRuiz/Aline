@@ -8,20 +8,51 @@
 import CloudKit
 import SwiftUI
 
-class TipViewModel: ObservableObject {
-    
-    private let dataBase: CKDatabase = CKContainer.default().publicCloudDatabase
+class TipViewModel: PublicCloud {
     private let keys: TipKeys = TipKeys()
     
-    func save(_ tip: Tip, completion: @escaping (Bool) -> Void) {
-        dataBase.save(tip.record) { record, _ in
-            completion(record != nil)
+    func fetchTips(employees: [Employee], monthDate: Date, list: @escaping ([Tip]?) -> Void) {
+        var employees = employees
+        guard let employee = employees.popLast() else { list(.none); return }
+        var tips: [Tip] = []
+        
+        let firstDateComponents = DateComponents(year: monthDate.yearInt, month: monthDate.monthInt, day: 1)
+        let firstDayCurrentMonth = Calendar.current.date(from: firstDateComponents)!
+        
+        let lastDateComponents = DateComponents(year: monthDate.yearInt, month: monthDate.monthInt == 12 ? 1 : monthDate.monthInt + 1, day: 1)
+        let firstDayNextMonth = Calendar.current.date(from: lastDateComponents)!
+        let lastDayCurrentMonth = Calendar.current.date(byAdding: .day, value: -1, to: firstDayNextMonth)!
+        
+        fetchNextPage(employee: employee)
+        
+        func fetchNextPage(employee: Employee) {
+            let predicates = [
+                NSPredicate(format: "\(keys.employeeId) == %@", employee.id),
+                NSPredicate(format: "\(keys.date) >= %@", firstDayCurrentMonth as NSDate),
+                NSPredicate(format: "\(keys.date) <= %@", lastDayCurrentMonth as NSDate)
+            ]
+            
+            let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+            let query = CKQuery(recordType: keys.type, predicate: compoundPredicate)
+            
+            dataBase.fetch(withQuery: query) { result in
+                guard case .success(let data) = result else { list(.none); return }
+                tips += data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else { list(.none); return nil }
+                    return Tip(record: record)
+                }
+                if let employee = employees.popLast() {
+                    fetchNextPage(employee: employee)
+                } else {
+                    list(tips)
+                }
+            }
         }
     }
     
-    func fetchTips(for employeeId: String, from fromDate: Date, to toDate: Date, completion: @escaping ([Tip]?) -> Void) {
+    func fetchTips(employee: Employee, from fromDate: Date, to toDate: Date, completion: @escaping ([Tip]?) -> Void) {
         let predicates = [
-            NSPredicate(format: "\(keys.employeeId) == %@", employeeId),
+            NSPredicate(format: "\(keys.employeeId) == %@", employee.id),
             NSPredicate(format: "\(keys.date) >= %@", fromDate as NSDate),
             NSPredicate(format: "\(keys.date) <= %@", toDate as NSDate)
         ]
@@ -56,12 +87,6 @@ class TipViewModel: ObservableObject {
             guard case .success(let data) = result,
                   case .success(let record) = data.matchResults.first?.1 else { completion(.none); return }
             completion(Tip(record: record))
-        }
-    }
-    
-    func delete(_ tip: Tip, completion: @escaping (Bool) -> Void) {
-        dataBase.delete(withRecordID: tip.record.recordID) { (recordID, _) in
-            completion(recordID != nil)
         }
     }
 }

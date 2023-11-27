@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditableName: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     
     @Binding var name: String
     @State private var newName: String = ""
@@ -29,6 +29,9 @@ struct EditableName: View {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button("Actualizar", action: update)
                         .disabled(updateButtonDisabled)
+                }
+                ToolbarItem(placement: .keyboard) {
+                    HideKeyboardToolbarButton()
                 }
             }
         }
@@ -54,7 +57,7 @@ struct EditableName: View {
     }
     
     private func update() {
-        self.presentationMode.wrappedValue.dismiss()
+        dismiss()
         name = newName
         accion()
     }

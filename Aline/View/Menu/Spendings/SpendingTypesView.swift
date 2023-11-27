@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct SpendingTypesView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var isLoading: Bool = false
     @State private var editableSpendingTypeAreaOpened: Bool = false
@@ -28,7 +28,7 @@ struct SpendingTypesView: View {
     
     private var editableSpendingTypeArea: some View {
         WhiteArea {
-            NewButton(pressed: $editableSpendingTypeAreaOpened, newText: "Nuevo tipo de gasto", action: toggleEditableSpendingTypeArea)
+            NewButton(pressed: $editableSpendingTypeAreaOpened, newText: "Nueva categoría", action: toggleEditableSpendingTypeArea)
             if editableSpendingTypeAreaOpened {
                 Divider()
                 TextField("Nombre", text: $editableSpendingType.name)

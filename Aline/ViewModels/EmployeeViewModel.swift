@@ -11,18 +11,36 @@ import SwiftUI
 class EmployeeViewModel: PublicCloud {
     private let keys: EmployeeKeys = EmployeeKeys()
     
-    func fetch(restaurantId: String, completion: @escaping ([Employee]?) -> Void) {
+    @Published var employees: [Employee] = []
+    
+    func create(_ record: CKRecord, saved: @escaping (Bool) -> Void) {
+        dataBase.save(record) { record, error in
+            withAnimation {
+                if let record = record {
+                    self.employees.append(Employee(record: record))
+                    self.employees.sort(by: <)
+                    saved(true)
+                } else {
+                    saved(false)
+                }
+            }
+        }
+    }
+    
+    func fetch(restaurantId: String, fetched: @escaping (Bool) -> Void) {
         let predicate = NSPredicate(format: "\(keys.restaurantId) == %@", restaurantId)
         let query = CKQuery(recordType: keys.type, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor (key: keys.lastName, ascending: true)]
         
         dataBase.fetch(withQuery: query) { result in
-            guard case .success(let data) = result else { completion(.none); return }
-            let employees: [Employee] = data.matchResults.compactMap { _, result in
-                guard case .success(let record) = result else {completion(.none); return nil }
-                return Employee(record: record)
+            guard case .success(let data) = result else { fetched(false); return }
+            withAnimation {
+                self.employees = data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else { fetched(false); return nil }
+                    return Employee(record: record)
+                }.sorted(by: <)
             }
-            completion(employees)
+            fetched(true)
         }
     }
     
@@ -38,6 +56,22 @@ class EmployeeViewModel: PublicCloud {
                 return Employee(record: record)
             }
             completion(employees)
+        }
+    }
+    
+    func update(_ record: CKRecord, updated: @escaping (Bool) -> Void) {
+        dataBase.save(record) { record, error in
+            withAnimation {
+                if let record = record {
+                    let employee = Employee(record: record)
+                    if let index = self.employees.firstIndex(where: { $0.id == employee.id }) {
+                        self.employees[index] = employee
+                    }
+                    updated(true)
+                } else {
+                    updated(false)
+                }
+            }
         }
     }
 }

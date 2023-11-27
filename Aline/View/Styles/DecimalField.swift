@@ -10,10 +10,13 @@ import SwiftUI
 struct DecimalField: View {
     @State private var decimalInText: String
     let titleKey: String
+    let alignment: TextAlignment
     @Binding var decimal: Double
     
-    init(_ titleKey: String, decimal: Binding<Double>) {
+    
+    init(_ titleKey: String, decimal: Binding<Double>, alignment: TextAlignment = .center) {
         self.titleKey = titleKey
+        self.alignment = alignment
         self._decimal = decimal
         self.decimalInText = decimal.wrappedValue > 0.0 ? String(decimal.wrappedValue) : ""
     }
@@ -21,9 +24,9 @@ struct DecimalField: View {
     var body: some View {
         TextField(titleKey, text: $decimalInText)
             .keyboardType(.decimalPad)
-            .foregroundStyle(.secondary)
             .onChange(of: decimalInText, validateTipsQuantity)
             .onChange(of: decimal, returnDecimalToCero)
+            .multilineTextAlignment(alignment)
     }
     
     private func validateTipsQuantity(oldValue: String, newValue: String) {
