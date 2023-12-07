@@ -127,3 +127,14 @@ struct EmptyTipsView: View {
         }
     }
 }
+
+struct EmptyEmployeesChecksView: View {
+    var body: some View {
+        ContentUnavailableView {
+            Label(
+                title: { Text("Sin empleados") },
+                icon: { Image(systemName: "person.3.fill").foregroundStyle(Color.blue) }
+            )
+        }
+    }
+}

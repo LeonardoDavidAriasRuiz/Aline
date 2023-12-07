@@ -11,6 +11,7 @@ import PDFKit
 struct PDFPayrollView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var employeeVM: EmployeeViewModel
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     @Environment(\.dismiss) private var dismiss
@@ -69,7 +70,7 @@ struct PDFPayrollView: View {
                         }
                         
                         HStack {
-                            Text("NAME").frame(maxWidth: .infinity)
+                            Text("NAME").frame(width: 180)
                             Text("SALARY").frame(maxWidth: .infinity)
                             Text("RATE").frame(maxWidth: .infinity)
                             Text("HOURS").frame(maxWidth: .infinity)
@@ -84,18 +85,31 @@ struct PDFPayrollView: View {
                             Divider()
                             HStack {
                                 Button(action: {selectRecord(worksheetRecords[index])}) {
-                                    Text(employeeVM.employees.first(where: {$0.id == worksheetRecords[index].employeeId})?.fullName ?? "Error").frame(maxWidth: .infinity, alignment: .leading).foregroundStyle(Color.black)
+                                    Text(employeeVM.employees.first(where: {$0.id == worksheetRecords[index].employeeId})?.fullName ?? "Error")
+                                        .frame(width: 180, alignment: .leading).foregroundStyle(Color.black)
+                                        .lineLimit(3)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
-                                Text("\(worksheetRecords[index].salary ? "\(worksheetRecords[index].quantity.comasTextWithDecimals)" : "0.00")").foregroundStyle(worksheetRecords[index].salary ? Color.black : Color.black.opacity(0.2)).frame(maxWidth: .infinity)
-                                Text("\(worksheetRecords[index].salary ? "0.00" : "\(worksheetRecords[index].quantity.comasTextWithDecimals)")").foregroundStyle(worksheetRecords[index].salary ? Color.black.opacity(0.2) : Color.black).frame(maxWidth: .infinity)
+                                Text("\(worksheetRecords[index].salary ? "\(worksheetRecords[index].quantity.comasTextWithDecimals)" : "0.00")")
+                                    .foregroundStyle(worksheetRecords[index].salary ? Color.black : Color.black.opacity(0.2))
+                                    .frame(maxWidth: .infinity)
+                                Text("\(worksheetRecords[index].salary ? "0.00" : "\(worksheetRecords[index].quantity.comasTextWithDecimals)")")
+                                    .foregroundStyle(worksheetRecords[index].salary ? Color.black.opacity(0.2) : Color.black)
+                                    .frame(maxWidth: .infinity)
                                 HourPicker(hours: $worksheetRecords[index].hours) {
-                                    Text("\(worksheetRecords[index].hours.fullHour)").foregroundStyle(worksheetRecords[index].hours.double == 0 ? Color.black.opacity(0.2) : Color.black).frame(maxWidth: .infinity)
+                                    Text("\(worksheetRecords[index].hours.fullHour)")
+                                        .foregroundStyle(worksheetRecords[index].hours.double == 0 ? Color.black.opacity(0.2) : Color.black)
+                                        .frame(maxWidth: .infinity)
                                 }
                                 HourPicker(hours: $worksheetRecords[index].overTime) {
-                                    Text("\(worksheetRecords[index].overTime.fullHour)").foregroundStyle(worksheetRecords[index].overTime.double == 0 ? Color.black.opacity(0.2) : Color.black).frame(maxWidth: .infinity)
+                                    Text("\(worksheetRecords[index].overTime.fullHour)")
+                                        .foregroundStyle(worksheetRecords[index].overTime.double == 0 ? Color.black.opacity(0.2) : Color.black)
+                                        .frame(maxWidth: .infinity)
                                 }
                                 HourPicker(hours: $worksheetRecords[index].sickTime) {
-                                    Text("\(worksheetRecords[index].sickTime.fullHour)").foregroundStyle(worksheetRecords[index].sickTime.double == 0 ? Color.black.opacity(0.2) : Color.black).frame(maxWidth: .infinity)
+                                    Text("\(worksheetRecords[index].sickTime.fullHour)")
+                                        .foregroundStyle(worksheetRecords[index].sickTime.double == 0 ? Color.black.opacity(0.2) : Color.black)
+                                        .frame(maxWidth: .infinity)
                                 }
                                 DecimalField("0.00", decimal: $worksheetRecords[index].cashTips).foregroundStyle(Color.black)
                                 DecimalField("0.00", decimal: $worksheetRecords[index].cargedTips).foregroundStyle(Color.black)
@@ -137,8 +151,10 @@ struct PDFPayrollView: View {
         }
         .onAppear(perform: getEmployees)
         .onAppear(perform: getSettings)
+        .onChange(of: menuSection.section, {dismiss()})
         .onChange(of: restaurantM.currentId, {dismiss()})
         .navigationBarBackButtonHidden()
+        .preferredColorScheme(.light)
     }
     
     private func save() {
@@ -209,24 +225,13 @@ struct PDFPayrollView: View {
     private func changeDates() {
         let calendar = Calendar.current
         if worksheet.payDate.dayInt == 5 {
-            if let lastMonth = calendar.date(byAdding: .month, value: -1, to: worksheet.payDate),
-               let secondary = calendar.date(byAdding: .day, value: 11, to: lastMonth) {
-                startDate = secondary
-            }
-            
-            if let firstDayOfCurrentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: worksheet.payDate)),
-               let lastDate = calendar.date(byAdding: .day, value: -1, to: firstDayOfCurrentMonth){
-                endDate = lastDate
+            if let lastMonth = calendar.date(byAdding: .day, value: -7, to: worksheet.payDate) {
+                startDate = lastMonth.firstDayOfFortnight
+                endDate = lastMonth.lastDayOfFortnight
             }
         } else {
-            if let firstDayOfCurrentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: worksheet.payDate)) {
-                startDate = firstDayOfCurrentMonth
-            }
-            
-            if let firstDayOfCurrentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: worksheet.payDate)),
-               let lastDate = calendar.date(byAdding: .day, value: 14, to: firstDayOfCurrentMonth){
-                endDate = lastDate
-            }
+            startDate = worksheet.payDate.firstDayOfMonth
+            endDate = startDate.lastDayOfFortnight
         }
     }
     

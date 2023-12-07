@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PDFCustomeView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -34,6 +35,7 @@ struct PDFCustomeView: View {
         .navigationTitle(worksheet.payDate.shortDate)
         .toolbarTitleDisplayMode(.automatic)
         .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private func delete() {

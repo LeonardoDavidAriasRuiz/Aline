@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SpendingTypesView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -24,6 +25,7 @@ struct SpendingTypesView: View {
             editableSpendingTypeArea
             spendingTypesListArea
         }
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private var editableSpendingTypeArea: some View {
@@ -114,7 +116,7 @@ struct SpendingTypesView: View {
         withAnimation {
             isLoading = true
             editableSpendingType.restaurantId = restaurantM.currentId
-            SpendingViewModel().saveType(editableSpendingType) { saved in
+            SpendingViewModel().save(editableSpendingType.record) { saved in
                 if saved {
                     if existingSpendingTypeSelected {
                         guard let index = spendingTypes.firstIndex(where: { $0.id == editableSpendingType.id }) else { return }
@@ -135,7 +137,7 @@ struct SpendingTypesView: View {
     private func delete() {
         withAnimation {
             isLoading = true
-            SpendingViewModel().deleteType(editableSpendingType) { deleted in
+            SpendingViewModel().delete(editableSpendingType.record) { deleted in
                 if deleted {
                     spendingTypes.removeAll { $0 == editableSpendingType }
                     toggleEditableSpendingTypeArea()

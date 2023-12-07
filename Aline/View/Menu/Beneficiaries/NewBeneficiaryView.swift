@@ -47,7 +47,7 @@ struct NewBeneficiaryView: View {
             }
             
             WhiteArea {
-                DatePicker("Inicio", selection: $newBeneficiary.startDate, displayedComponents: .date).padding(.vertical, 10)
+                DatePicker("", selection: $newBeneficiary.startDate, displayedComponents: .date).datePickerStyle(.graphical)
             }
         }
         .toolbar {
@@ -81,9 +81,8 @@ struct NewBeneficiaryView: View {
             BeneficiaryViewModel().save(newBeneficiary.record) {
                 dismiss()
             } ifNot: {
-                alertVM.show(.crearingError)
-            } alwaysDo: {
                 isLoading = false
+                alertVM.show(.crearingError)
             }
         }
     }

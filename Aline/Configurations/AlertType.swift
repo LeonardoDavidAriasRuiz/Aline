@@ -46,6 +46,7 @@ extension View {
 }
 
 enum AlertType {
+    case noiCloudConnected
     case dataObtainingError
     case crearingError
     case updatingError
@@ -69,6 +70,8 @@ enum AlertType {
     
     var message: String {
         switch self {
+            case .noiCloudConnected:
+                return "El dispositivo no esta connectado a iCloud."
             case .dataObtainingError:
                 return "No se pudieron obtener los datos."
             case .crearingError:

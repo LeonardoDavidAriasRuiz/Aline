@@ -14,8 +14,6 @@ struct SalesView: View {
     
     @State private var totalBy: TotalBy = .day
     @State private var rangeIn: RangeIn = .currentMonth
-    @State private var totalByChart: Calendar.Component = .day
-    @State private var componentBy: Date.FormatStyle = .dateTime.day()
     
     @State private var rangeInCurrentWeekAviable: Bool = true
     @State private var rangeInCurrentMonthAviable: Bool = true
@@ -46,11 +44,12 @@ struct SalesView: View {
     @State private var fridayShowed: Bool = true
     @State private var saturdayShowed: Bool = true
     @State private var sundayShowed: Bool = true
+    @State private var isLoading: Bool = true
     
     let invalidDate: Date = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1))!
     let invalidQuantity: Double = -10.0
     
-    @State private var isLoading: Bool = true
+    private let saleVM = SaleViewModel()
     
     var body: some View {
         FullSheet(isLoading: $isLoading) {
@@ -360,11 +359,9 @@ struct SalesView: View {
         withAnimation {
             getSales()
             totalBy = .day
-            totalByChart = .day
             rangeInCurrentWeekAviable = true
             rangeInCurrentMonthAviable = true
             rangeInCurrentYearAviable = true
-            componentBy = .dateTime.day()
         }
     }
     
@@ -375,11 +372,9 @@ struct SalesView: View {
                 rangeIn = .currentMonth
             }
             totalBy = .week
-            totalByChart = .weekOfYear
             rangeInCurrentWeekAviable = false
             rangeInCurrentMonthAviable = true
             rangeInCurrentYearAviable = true
-            componentBy = .dateTime.day(.twoDigits)
             sales = sales.groupByWeek
         }
     }
@@ -387,16 +382,13 @@ struct SalesView: View {
     private func selectTotalByMonth() {
         withAnimation {
             getSales()
-            if rangeIn == .currentWeek ||
-                rangeIn == .currentMonth {
+            if rangeIn == .currentWeek || rangeIn == .currentMonth {
                 rangeIn = .currentYear
             }
             totalBy = .month
-            totalByChart = .month
             rangeInCurrentWeekAviable = false
             rangeInCurrentMonthAviable = false
             rangeInCurrentYearAviable = true
-            componentBy = .dateTime.month(.wide)
             sales = sales.groupByMonth
         }
     }
@@ -404,45 +396,34 @@ struct SalesView: View {
     private func selectRange(_ rangeIn: RangeIn) {
         withAnimation {
             customRangeSelected = false
-            let calendar = Calendar.current
-            var firstDay: Date?
-            var lastDay: Date?
             
             switch rangeIn {
                 case .currentWeek:
-                    firstDay = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))
-                    lastDay = calendar.date(byAdding: .day, value: 6, to: firstDay!)
+                    customFrom = Date().firstDayOfWeek
+                    customTo = Date().lastDayOfWeek
                 case .currentMonth:
-                    firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))
-                    lastDay = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: firstDay!)
+                    customFrom = Date().firstDayOfMonth
+                    customTo = Date().lastDayOfMonth
                 case .currentYear:
-                    firstDay = calendar.date(from: calendar.dateComponents([.year], from: Date()))
-                    lastDay = calendar.date(byAdding: DateComponents(year: 1, day: -1), to: firstDay!)
+                    customFrom = Date().firstDayOfYear
+                    customTo = Date().lastDayOfYear
                 case .customRange:
-                    firstDay = customFrom
-                    lastDay = customTo
                     customRangeSelected = true
             }
-            
-            if let startDate = firstDay, let endDate = lastDay {
-                customFrom = startDate
-                customTo = endDate
-                getSales()
-            }
+            getSales()
         }
     }
     
     private func getSales() {
         withAnimation {
             isLoading = true
-            SaleViewModel().fetchSales(for: restaurantM.currentId, from: customFrom, to: customTo) { sales in
+            saleVM.fetchSales(for: restaurantM.currentId, from: customFrom, to: customTo) { sales in
                 if let sales = sales {
                     switch totalBy {
                         case .day: self.sales = sales.sorted(by: { $0.date < $1.date })
                         case .week: self.sales = sales.groupByWeek.sorted(by: { $0.date < $1.date })
                         case .month: self.sales = sales.groupByMonth.sorted(by: { $0.date < $1.date })
-                    }
-//                    SaleViewModel().delete(self.sales)
+                    }//SaleViewModel().delete(self.sales)
                 } else {
                     alertVM.show(.dataObtainingError)
                 }

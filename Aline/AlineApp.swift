@@ -14,7 +14,7 @@ struct AlineApp: App {
     private let spendingVM = SpendingViewModel()
     private let accentColor = AccentColor()
     private let conectionVM = ConectionViewModel()
-    private let alertVM = AlertViewModel()
+    @State private var alertVM = AlertViewModel()
     let employeeVM = EmployeeViewModel()
     private let restaurantM = RestaurantPickerManager()
     
@@ -24,7 +24,7 @@ struct AlineApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                contentView()
+                contentView().alertInfo(alertVM.alertType, showed: $alertVM.alertInfoShowed)
                 networkMonitor.isConnected ? nil : NoWifiConected()
             }
         }

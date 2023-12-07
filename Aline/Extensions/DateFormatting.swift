@@ -12,32 +12,50 @@ extension Date {
     var firstDayOfWeek: Date {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
-        return calendar.date(from: components)!
+        return calendar.date(from: components) ?? Date()
     }
     
     var lastDayOfWeek: Date {
-        return Calendar.current.date(byAdding: .day, value: 6, to: self.firstDayOfWeek)!
+        return Calendar.current.date(byAdding: .day, value: 6, to: self.firstDayOfWeek) ?? Date()
+    }
+    
+    var firstDayOfFortnight: Date {
+        if 1...15 ~= self.dayInt {
+            return self.firstDayOfMonth
+        } else {
+            let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 1, hour: 0, minute: 0, second: 0)
+            return Calendar.current.date(from: dateComponents) ?? Date()
+        }
+    }
+    
+    var lastDayOfFortnight: Date {
+        if Array(1...15).contains(self.dayInt) {
+            let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 15, hour: 23, minute: 59, second: 59)
+            return Calendar.current.date(from: dateComponents) ?? Date()
+        } else {
+            return self.lastDayOfMonth
+        }
     }
     
     var firstDayOfMonth: Date {
-        let components = Calendar.current.dateComponents([.year, .month], from: self)
-        return Calendar.current.date(from: components)!
+        let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 1, hour: 0, minute: 0, second: 0)
+        return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var lastDayOfMonth: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt == 12 ? 1 : self.monthInt + 1, day: 1)
-        let firstDayNextMonth = Calendar.current.date(from: dateComponents)!
-        return Calendar.current.date(byAdding: .day, value: -1, to: firstDayNextMonth)!
+        let lastDay = Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.firstDayOfMonth) ?? Date()
+        let dateComponents = DateComponents(year: lastDay.yearInt, month: lastDay.monthInt, day: lastDay.dayInt, hour: 23, minute: 59, second: 59)
+        return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var firstDayOfYear: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: 1, day: 1)
-        return Calendar.current.date(from: dateComponents)!
+        let dateComponents = DateComponents(year: self.yearInt, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+        return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var lastDayOfYear: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: 12, day: 31)
-        return Calendar.current.date(from: dateComponents)!
+        let dateComponents = DateComponents(year: self.yearInt, month: 12, day: 31, hour: 23, minute: 59, second: 59)
+        return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var shortDate: String {

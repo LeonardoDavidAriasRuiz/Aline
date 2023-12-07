@@ -129,7 +129,7 @@ struct TipsCashOutView: View {
             }
         }
         tipsForReview.restaurantId = restaurantM.currentId
-        TipsReviewViewModel().delete(tipsForReview.record) {
+        TipsReviewViewModel().save(tipsForReview.record) {
             tipsForReview = TipsReview()
             tipsTotal = 0.0
             getEmployees()

@@ -30,22 +30,28 @@ class UserViewModel: ObservableObject {
     
     func checkIfLoggedIn(completion: @escaping (Bool) -> Void) {
         if user.id.isNotEmpty {
+            var users: [User] = []
             let predicate = NSPredicate(format: "\(userKeys.id) == %@", self.user.id)
             let query = CKQuery(recordType: userKeys.type, predicate: predicate)
-            let queryOperation = CKQueryOperation(query: query)
             
-            queryOperation.recordMatchedBlock = { (_, result) in
-                switch result {
-                    case .failure: completion(false)
-                    case .success(let record):
-                        DispatchQueue.main.sync {
-                            self.user = User(record: record)
-                        }
-                        completion(true)
+            dataBase.fetch(withQuery: query) { result in
+                guard case .success(let data) = result else { print("Error en query"); completion(false); return }
+                withAnimation {
+                    users = data.matchResults.compactMap { _, result in
+                        guard case .success(let record) = result else { completion(false); return nil }
+                        return User(record: record)
+                    }
+                }
+                if let user = users.first {
+                    self.user = user
+                    completion(true)
+                } else {
+                    print("No pudo obtener un user")
+                    completion(false)
                 }
             }
-            dataBase.add(queryOperation)
         } else {
+            print("El id estaba vacio")
             completion(false)
         }
     }

@@ -13,7 +13,6 @@ struct NewSpendingView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var newSpending: Spending = Spending()
-    @State private var beneficiaries: [Beneficiary] = []
     @State private var isLoading: Bool = false
     @State private var defaultNote: Bool = false
     @State private var defaultNoteButNoTypeSlected: Bool = false
@@ -23,10 +22,9 @@ struct NewSpendingView: View {
     var body: some View {
         Sheet(section: .newSpending, isLoading: $isLoading) {
             spendingQuantityField
-            datePicker
             spendingTypePicker
-            beneficiaryPicker
             notesArea
+            datePicker
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
@@ -36,27 +34,11 @@ struct NewSpendingView: View {
                 saveToolBarButton
             }
         }
-        .navigationBarBackButtonHidden()
-        .onAppear(perform: onAppear)
     }
     
     private var datePicker: some View {
         WhiteArea {
-            MonthPicker(date: $newSpending.date) {
-                HStack {
-                    Text("Mes")
-                    Spacer()
-                    Text(newSpending.date.month)
-                }.padding(.vertical, 8)
-            }
-            Divider()
-            YearPicker(date: $newSpending.date) {
-                HStack {
-                    Text("Año")
-                    Spacer()
-                    Text(newSpending.date.year)
-                }.padding(.vertical, 8)
-            }
+            DatePicker("", selection: $newSpending.date, displayedComponents: .date).datePickerStyle(.graphical)
         }
     }
     
@@ -115,27 +97,6 @@ struct NewSpendingView: View {
         .onChange(of: newSpending.spendingTypeId, rewriteDefaultNote)
     }
     
-    private var beneficiaryPicker: some View {
-        Menu {
-            Picker("Beneficiario", selection: $newSpending.beneficiaryId) {
-                Label("Sin beneficiario", systemImage: "none" == newSpending.beneficiaryId ? "building.2.fill" : "building.2")
-                    .tag("none")
-                ForEach(beneficiaries, id: \.self) { beneficiary in
-                    Label(beneficiary.fullName, systemImage: beneficiary.id == newSpending.beneficiaryId ? "person.fill" : "person")
-                        .tag(beneficiary.id)
-                }
-            }.pickerStyle(InlinePickerStyle())
-        } label: {
-            WhiteArea(spacing: 8) {
-                HStack {
-                    Text("Beneficiario")
-                    Spacer()
-                    Text(getBeneficiaryName(for: newSpending))
-                }
-            }
-        }
-    }
-    
     private var notesArea: some View {
         WhiteArea(spacing: 8) {
             TextField("Notas", text: $newSpending.notes)
@@ -158,7 +119,7 @@ struct NewSpendingView: View {
     private func save() {
         isLoading = true
         newSpending.restaurantId = restaurantM.currentId
-        SpendingViewModel().saveSpending(newSpending) { saved in
+        SpendingViewModel().save(newSpending.record) { saved in
             DispatchQueue.main.async {
                 if saved {
                     dismiss()
@@ -207,33 +168,5 @@ struct NewSpendingView: View {
         } else {
             return ""
         }
-    }
-    
-    private func getBeneficiaryName(for spending: Spending) -> String {
-        if spending.beneficiaryId == "none" {
-            return "Sin beneficiario"
-        } else if let beneficiaryName = beneficiaries.first(where: {$0.id == spending.beneficiaryId})?.fullName {
-            return beneficiaryName
-        } else {
-            return ""
-        }
-    }
-    
-    private func fetchBeneficiaries() {
-        withAnimation {
-            isLoading = true
-            BeneficiaryViewModel().fetch(for: restaurantM.currentId) { beneficiaries in
-                if let beneficiaries = beneficiaries {
-                    self.beneficiaries = beneficiaries
-                } else {
-                    alertVM.show(.dataObtainingError)
-                }
-                isLoading = false
-            }
-        }
-    }
-    
-    private func onAppear() {
-        fetchBeneficiaries()
     }
 }

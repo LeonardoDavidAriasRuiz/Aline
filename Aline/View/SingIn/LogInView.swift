@@ -40,12 +40,9 @@ struct LogInView: View {
     
     var body: some View {
         Sheet(section: section) {
-            Text(section.title)
-                .bold()
-                .font(titleFont)
             WhiteArea {
                 HStack {
-                    Text(nameTitle)
+                    Text(nameTitle).padding(.vertical, 12)
                     TextField(nameTitle, text: self.$userVM.user.name)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)
@@ -60,7 +57,7 @@ struct LogInView: View {
                 }
                 Divider()
                 HStack {
-                    Text(emailTitle)
+                    Text(emailTitle).padding(.vertical, 12)
                     TextField(emailTitle, text: self.$userVM.user.email)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)

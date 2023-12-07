@@ -26,7 +26,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            if twoSecondsPassed, restaurantM.adminRts != nil, restaurantM.emploRts != nil, readyToLogOrSignIn, employeedFetched {
+            if twoSecondsPassed, restaurantM.adminRts != nil, restaurantM.emploRts != nil, readyToLogOrSignIn {
                 content
             } else if twoSecondsPassed, error {
                 ZStack {
@@ -58,8 +58,10 @@ struct ContentView: View {
     private func checkIfiCloudUser() {
         userVM.checkiCloudUser { isIcloudUser in
             if isIcloudUser {
+                print("Si tiene iCloud")
                 getUserId()
             } else {
+                alertVM.show(.noiCloudConnected)
                 content = AnyView(iCloudOffView())
                 error = true
             }
@@ -69,9 +71,11 @@ struct ContentView: View {
     private func getUserId() {
         userVM.getUserId { userId in
             if let userId = userId {
+                print("Si se obtuvo el Id")
                 userVM.user.id = userId
                 checkIfLoggedIn()
             } else {
+                alertVM.show(.noiCloudConnected)
                 content = AnyView(iCloudOffView())
                 error = true
             }
@@ -89,6 +93,7 @@ struct ContentView: View {
                     restaurantM.currentId = restaurant.id
                     fetchEmployees()
                 }
+            } else {
             }
             if let adminRts = adminRts {
                 restaurantM.adminRts = adminRts
@@ -114,10 +119,12 @@ struct ContentView: View {
     private func checkIfLoggedIn() {
         userVM.checkIfLoggedIn { loggedIn in
             if loggedIn {
+                print("Si tiene sesion")
                 setRestaurantList()
                 
                 content = AnyView(SignInView(signedIn: $signedIn))
             } else {
+                print("Se fue a registro")
                 content = AnyView(LogInView(loggedIn: $loggedIn))
             }
             readyToLogOrSignIn = true
@@ -133,8 +140,8 @@ struct ContentView: View {
 
 
 class RestaurantPickerManager: ObservableObject {
-    @Published var adminRts: [Restaurant]?
-    @Published var emploRts: [Restaurant]?
+    @Published var adminRts: [Restaurant]? = []
+    @Published var emploRts: [Restaurant]? = []
     @Published var restaurant: Restaurant?
     @Published var currentId: String = ""
 }

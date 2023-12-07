@@ -57,8 +57,8 @@ struct DepositsView: View {
         WhiteArea {
             HStack {
                 Gauge(value: deposited/toDeposit, label: {}).tint(deposited >= toDeposit ? Color.green : Color.red)
-                Gauge(value: deposited/(toDeposit + toDepositAvg()), label: {}).tint(Color.green)
-                Text((toDeposit - deposited).comasText)
+                Gauge(value: (deposited - toDeposit)/10_000, label: {}).tint(Color.green)
+                Text((deposited - toDeposit).comasText)
             }.padding(.vertical, 12)
         }
     }
@@ -98,11 +98,7 @@ struct DepositsView: View {
     
     private func selectDeposit(_ deposit: Deposit) {
         withAnimation {
-            if selectedDeposit == deposit {
-                selectedDeposit = nil
-            } else {
-                selectedDeposit = deposit
-            }
+            selectedDeposit = selectedDeposit == deposit ? nil : deposit
         }
     }
     
@@ -130,7 +126,6 @@ struct DepositsView: View {
             DepositViewModel().fetch(restaurantId: restaurantM.currentId, year: date) { deposits in
                 if let deposits = deposits {
                     self.deposits = deposits.sorted(by: {$0.date > $1.date})
-                    print(self.deposits)
                     getDeposited()
                     getToDeppsit()
                 } else {
@@ -139,11 +134,6 @@ struct DepositsView: View {
                 }
             }
         }
-    }
-    
-    private func toDepositAvg() -> Double {
-        let suma: Double = Double(deposits.map { $0.quantity }.reduce(0, +))
-        return suma / Double(deposits.count)
     }
     
     private func getDeposited() {

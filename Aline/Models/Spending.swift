@@ -15,7 +15,6 @@ struct Spending: Hashable, Equatable, Identifiable {
     var notes: String
     var date: Date
     var spendingTypeId: String
-    var beneficiaryId: String
     var restaurantId: String
     private var _record: CKRecord
     
@@ -24,7 +23,6 @@ struct Spending: Hashable, Equatable, Identifiable {
         _record[keys.notes] = notes
         _record[keys.date] = date
         _record[keys.spendingTypeId] = spendingTypeId
-        _record[keys.beneficiaryId] = beneficiaryId
         _record[keys.restaurantId] = restaurantId
         return _record
     }
@@ -34,7 +32,6 @@ struct Spending: Hashable, Equatable, Identifiable {
         self.notes = ""
         self.date = Date()
         self.spendingTypeId = ""
-        self.beneficiaryId = "none"
         self.restaurantId = ""
         self._record = CKRecord(recordType: keys.type)
     }
@@ -46,7 +43,6 @@ struct Spending: Hashable, Equatable, Identifiable {
         self.notes = record[keys.notes] ?? ""
         self.date = record[keys.date] ?? Date()
         self.spendingTypeId = record[keys.spendingTypeId] ?? ""
-        self.beneficiaryId = record[keys.beneficiaryId] ?? ""
         self.restaurantId = record[keys.restaurantId] ?? ""
     }
     
@@ -60,7 +56,6 @@ struct Spending: Hashable, Equatable, Identifiable {
         lhs.notes == rhs.notes &&
         lhs.date == rhs.date &&
         lhs.spendingTypeId == rhs.spendingTypeId &&
-        lhs.beneficiaryId == rhs.beneficiaryId &&
         lhs.restaurantId == rhs.restaurantId
     }
 }

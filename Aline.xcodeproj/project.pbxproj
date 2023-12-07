@@ -19,7 +19,7 @@
 		7E51BC5629D51CB200D6D33C /* ChecksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5529D51CB200D6D33C /* ChecksView.swift */; };
 		7E51BC5829D51CD300D6D33C /* EmployeesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5729D51CD300D6D33C /* EmployeesView.swift */; };
 		7E51BC5A29D51CD900D6D33C /* SpendingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5929D51CD900D6D33C /* SpendingsView.swift */; };
-		7E51BC5C29D51CE400D6D33C /* BeneficiariosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5B29D51CE400D6D33C /* BeneficiariosView.swift */; };
+		7E51BC5C29D51CE400D6D33C /* BeneficiariesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5B29D51CE400D6D33C /* BeneficiariesView.swift */; };
 		7E51BC5E29D51CF400D6D33C /* PayrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC5D29D51CF400D6D33C /* PayrollView.swift */; };
 		7E51BC6229D51E1000D6D33C /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC6129D51E1000D6D33C /* Employee.swift */; };
 		7E51BC6C29D540AD00D6D33C /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E51BC6B29D540AD00D6D33C /* Styles.swift */; };
@@ -57,6 +57,7 @@
 		A76F23762AAF65BF00A58294 /* EnumFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76F23752AAF65BF00A58294 /* EnumFilters.swift */; };
 		A772C4F82A965E4000B7632E /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A772C4F72A965E4000B7632E /* Buttons.swift */; };
 		A772C4FA2A967FC200B7632E /* Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = A772C4F92A967FC200B7632E /* Sections.swift */; };
+		A7744B162B1520F50089E343 /* CheckViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7744B152B1520F50089E343 /* CheckViewModel.swift */; };
 		A77AD2712B0FC74000B50C50 /* Check.swift in Sources */ = {isa = PBXBuildFile; fileRef = A77AD2702B0FC74000B50C50 /* Check.swift */; };
 		A77ECA5D2AB23D41004A0421 /* SalesTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A77ECA5C2AB23D41004A0421 /* SalesTable.swift */; };
 		A78AD50A2A9F06ED005495E7 /* SalesCashOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A78AD5092A9F06ED005495E7 /* SalesCashOutView.swift */; };
@@ -84,6 +85,7 @@
 		A7C300C02A735E2E006439B8 /* ConectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C300BF2A735E2E006439B8 /* ConectionsView.swift */; };
 		A7C300C22A736232006439B8 /* ConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C300C12A736232006439B8 /* ConectionView.swift */; };
 		A7CE7CCD2A73527F00CFC930 /* ConectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */; };
+		A7D34D152B22123A00D2FED8 /* BeneficiaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */; };
 		A7D7E0ED2A79E08200886BC8 /* NewConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */; };
 		A7DF8CA62AD6796300E18AFE /* Worksheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DF8CA52AD6796300E18AFE /* Worksheet.swift */; };
 		A7E009862ACC862D009E402B /* NewDepositView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E009852ACC862D009E402B /* NewDepositView.swift */; };
@@ -105,6 +107,8 @@
 		A7EEBEF92ABD37BD00AF10C3 /* TipsReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EEBEF82ABD37BD00AF10C3 /* TipsReviewViewModel.swift */; };
 		A7EEBEFD2ABE111C00AF10C3 /* TipsReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EEBEFC2ABE111C00AF10C3 /* TipsReviewView.swift */; };
 		A7F00BF82AE9978300568CE5 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F00BF72AE9978300568CE5 /* WelcomeView.swift */; };
+		A7F262CE2B19795D0091F2D6 /* UnionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F262CD2B19795D0091F2D6 /* UnionsView.swift */; };
+		A7F262D12B1988CF0091F2D6 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = A7F262D02B1988CF0091F2D6 /* Algorithms */; };
 		A7F617CE2AC5C78500B00AA5 /* NewSpendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617CD2AC5C78500B00AA5 /* NewSpendingView.swift */; };
 		A7F617EC2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */; };
 		A7F617EE2AC5EFAB00B00AA5 /* Beneficiary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617ED2AC5EFAB00B00AA5 /* Beneficiary.swift */; };
@@ -146,7 +150,7 @@
 		7E51BC5529D51CB200D6D33C /* ChecksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecksView.swift; sourceTree = "<group>"; };
 		7E51BC5729D51CD300D6D33C /* EmployeesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeesView.swift; sourceTree = "<group>"; };
 		7E51BC5929D51CD900D6D33C /* SpendingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendingsView.swift; sourceTree = "<group>"; };
-		7E51BC5B29D51CE400D6D33C /* BeneficiariosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiariosView.swift; sourceTree = "<group>"; };
+		7E51BC5B29D51CE400D6D33C /* BeneficiariesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiariesView.swift; sourceTree = "<group>"; };
 		7E51BC5D29D51CF400D6D33C /* PayrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayrollView.swift; sourceTree = "<group>"; };
 		7E51BC6129D51E1000D6D33C /* Employee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
 		7E51BC6329D51F9500D6D33C /* Aline.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Aline.entitlements; sourceTree = "<group>"; };
@@ -188,6 +192,7 @@
 		A76F23752AAF65BF00A58294 /* EnumFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnumFilters.swift; sourceTree = "<group>"; };
 		A772C4F72A965E4000B7632E /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
 		A772C4F92A967FC200B7632E /* Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sections.swift; sourceTree = "<group>"; };
+		A7744B152B1520F50089E343 /* CheckViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckViewModel.swift; sourceTree = "<group>"; };
 		A77AD2702B0FC74000B50C50 /* Check.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Check.swift; sourceTree = "<group>"; };
 		A77ECA5C2AB23D41004A0421 /* SalesTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesTable.swift; sourceTree = "<group>"; };
 		A78AD5092A9F06ED005495E7 /* SalesCashOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesCashOutView.swift; sourceTree = "<group>"; };
@@ -215,6 +220,7 @@
 		A7C300C12A736232006439B8 /* ConectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionView.swift; sourceTree = "<group>"; };
 		A7C329A92A69A23B002B4E41 /* Aline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionViewModel.swift; sourceTree = "<group>"; };
+		A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryView.swift; sourceTree = "<group>"; };
 		A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConectionView.swift; sourceTree = "<group>"; };
 		A7DF8CA52AD6796300E18AFE /* Worksheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Worksheet.swift; sourceTree = "<group>"; };
 		A7E009852ACC862D009E402B /* NewDepositView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDepositView.swift; sourceTree = "<group>"; };
@@ -236,6 +242,7 @@
 		A7EEBEF82ABD37BD00AF10C3 /* TipsReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsReviewViewModel.swift; sourceTree = "<group>"; };
 		A7EEBEFC2ABE111C00AF10C3 /* TipsReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsReviewView.swift; sourceTree = "<group>"; };
 		A7F00BF72AE9978300568CE5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		A7F262CD2B19795D0091F2D6 /* UnionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnionsView.swift; sourceTree = "<group>"; };
 		A7F617CD2AC5C78500B00AA5 /* NewSpendingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSpendingView.swift; sourceTree = "<group>"; };
 		A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBeneficiaryView.swift; sourceTree = "<group>"; };
 		A7F617ED2AC5EFAB00B00AA5 /* Beneficiary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beneficiary.swift; sourceTree = "<group>"; };
@@ -252,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7F262D12B1988CF0091F2D6 /* Algorithms in Frameworks */,
 				A7BB726C2A73825900FFF5AC /* MailCore2 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -319,12 +327,13 @@
 				7E51BC4829D51BF900D6D33C /* Sales */,
 				7E51BC4929D51C0800D6D33C /* Tips */,
 				7E51BC4A29D51C1300D6D33C /* Deposits */,
-				7E51BC4B29D51C1B00D6D33C /* Checks */,
-				7E51BC4C29D51C2400D6D33C /* Employees */,
 				7E51BC4D29D51C2D00D6D33C /* Spendings */,
-				7E51BC4E29D51C3400D6D33C /* Beneficiarios */,
+				7E51BC4E29D51C3400D6D33C /* Beneficiaries */,
+				7E51BC4B29D51C1B00D6D33C /* Checks */,
 				7E51BC4F29D51C3E00D6D33C /* Payroll */,
-				7E51BC7629D5646600D6D33C /* Cuenta */,
+				7E51BC4C29D51C2400D6D33C /* Employees */,
+				A7F262CC2B1979480091F2D6 /* Unions */,
+				7E51BC7629D5646600D6D33C /* Account */,
 			);
 			path = Menu;
 			sourceTree = "<group>";
@@ -388,13 +397,14 @@
 			path = Spendings;
 			sourceTree = "<group>";
 		};
-		7E51BC4E29D51C3400D6D33C /* Beneficiarios */ = {
+		7E51BC4E29D51C3400D6D33C /* Beneficiaries */ = {
 			isa = PBXGroup;
 			children = (
-				7E51BC5B29D51CE400D6D33C /* BeneficiariosView.swift */,
+				7E51BC5B29D51CE400D6D33C /* BeneficiariesView.swift */,
 				A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */,
+				A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */,
 			);
-			path = Beneficiarios;
+			path = Beneficiaries;
 			sourceTree = "<group>";
 		};
 		7E51BC4F29D51C3E00D6D33C /* Payroll */ = {
@@ -428,14 +438,14 @@
 			path = Styles;
 			sourceTree = "<group>";
 		};
-		7E51BC7629D5646600D6D33C /* Cuenta */ = {
+		7E51BC7629D5646600D6D33C /* Account */ = {
 			isa = PBXGroup;
 			children = (
 				7E51BC7729D5647D00D6D33C /* AccountView.swift */,
 				A7A45D292A82CB2100871C62 /* AccountViews */,
 				A7C300BD2A735DF3006439B8 /* Restaurants */,
 			);
-			path = Cuenta;
+			path = Account;
 			sourceTree = "<group>";
 		};
 		7E51BC7929D565D400D6D33C /* SingIn */ = {
@@ -495,6 +505,7 @@
 				A7E009872ACCAB10009E402B /* PublicCloud.swift */,
 				A7FC789A2ADCEEA7006F490F /* WorksheetSettingsViewModel.swift */,
 				A71D53D52ADE532C00D34ADB /* WorksheetViewModel.swift */,
+				A7744B152B1520F50089E343 /* CheckViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -590,6 +601,14 @@
 			path = Conection;
 			sourceTree = "<group>";
 		};
+		A7F262CC2B1979480091F2D6 /* Unions */ = {
+			isa = PBXGroup;
+			children = (
+				A7F262CD2B19795D0091F2D6 /* UnionsView.swift */,
+			);
+			path = Unions;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -608,6 +627,7 @@
 			name = Aline;
 			packageProductDependencies = (
 				A7BB726B2A73825900FFF5AC /* MailCore2 */,
+				A7F262D02B1988CF0091F2D6 /* Algorithms */,
 			);
 			productName = Jalisco_Dashboard;
 			productReference = A7C329A92A69A23B002B4E41 /* Aline.app */;
@@ -684,6 +704,7 @@
 			mainGroup = 7E4460CA29D49EFD00CC13A8;
 			packageReferences = (
 				A7BB726A2A73825900FFF5AC /* XCRemoteSwiftPackageReference "mailcore2" */,
+				A7F262CF2B1988CF0091F2D6 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			productRefGroup = 7E4460CA29D49EFD00CC13A8;
 			projectDirPath = "";
@@ -785,6 +806,7 @@
 				A7EDC38D2A9D21EA00C906A2 /* DecimalField.swift in Sources */,
 				A7EBA4DF2AD72358008A1144 /* Hour.swift in Sources */,
 				A7AEA0632ABCB3A2009A975F /* Tip.swift in Sources */,
+				A7D34D152B22123A00D2FED8 /* BeneficiaryView.swift in Sources */,
 				A78AD50C2A9F7747005495E7 /* TipsCashOutView.swift in Sources */,
 				A7F00BF82AE9978300568CE5 /* WelcomeView.swift in Sources */,
 				7E51BC7529D55EE800D6D33C /* UserViewModel.swift in Sources */,
@@ -800,8 +822,10 @@
 				7E51BC7B29D565F400D6D33C /* LogInView.swift in Sources */,
 				7E80B14729DFF03A006CAC82 /* EmployeeViewModel.swift in Sources */,
 				A7BB726F2A7382AC00FFF5AC /* MailSMTP.swift in Sources */,
+				A7744B162B1520F50089E343 /* CheckViewModel.swift in Sources */,
 				A70C61C72A7ACBF3005D640E /* ConectionReceivedView.swift in Sources */,
 				A7F617CE2AC5C78500B00AA5 /* NewSpendingView.swift in Sources */,
+				A7F262CE2B19795D0091F2D6 /* UnionsView.swift in Sources */,
 				7E697E0029D60B7400C500FA /* Restaurant.swift in Sources */,
 				A7EEBEF92ABD37BD00AF10C3 /* TipsReviewViewModel.swift in Sources */,
 				A7BB72712A741B9A00FFF5AC /* VerifyLoginEmail.swift in Sources */,
@@ -824,7 +848,7 @@
 				A76F23762AAF65BF00A58294 /* EnumFilters.swift in Sources */,
 				7E4460D929D49EFD00CC13A8 /* ContentView.swift in Sources */,
 				7E4460D729D49EFD00CC13A8 /* AlineApp.swift in Sources */,
-				7E51BC5C29D51CE400D6D33C /* BeneficiariosView.swift in Sources */,
+				7E51BC5C29D51CE400D6D33C /* BeneficiariesView.swift in Sources */,
 				A7E009862ACC862D009E402B /* NewDepositView.swift in Sources */,
 				A71D53DA2ADEEE6900D34ADB /* PDFCustomeView.swift in Sources */,
 				A74903FB2AE4D45E000D62FD /* EmptyContentViews.swift in Sources */,
@@ -1190,6 +1214,14 @@
 				kind = branch;
 			};
 		};
+		A7F262CF2B1988CF0091F2D6 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1197,6 +1229,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A7BB726A2A73825900FFF5AC /* XCRemoteSwiftPackageReference "mailcore2" */;
 			productName = MailCore2;
+		};
+		A7F262D02B1988CF0091F2D6 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A7F262CF2B1988CF0091F2D6 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

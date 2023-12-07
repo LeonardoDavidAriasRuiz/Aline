@@ -43,6 +43,33 @@ class SaleViewModel: PublicCloud {
         }
     }
     
+    func fetchSales(for restaurantId: String, completion: @escaping ([Sale]?) -> Void) {
+        var sales: [Sale] = []
+        let predicate = NSPredicate(format: "\(keys.restaurantId) == %@", restaurantId)
+        let query = CKQuery(recordType: keys.type, predicate: predicate)
+        
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            sales += data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else { completion(.none); return nil }
+                return Sale(record: record)
+            }
+            fetchNextPage(cursor: data.queryCursor)
+        }
+        
+        func fetchNextPage(cursor: CKQueryOperation.Cursor?) {
+            guard let cursor = cursor else { completion(sales); return }
+            self.dataBase.fetch(withCursor: cursor) { result in
+                guard case .success(let data) = result else { completion(.none); return }
+                sales += data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else { return nil }
+                    return Sale(record: record)
+                }
+                fetchNextPage(cursor: data.queryCursor)
+            }
+        }
+    }
+    
     func delete(_ sales: [Sale]) {
         for sale in sales {
             dataBase.delete(withRecordID: sale.record.recordID) { (recordID, _) in

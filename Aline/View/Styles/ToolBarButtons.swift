@@ -176,11 +176,24 @@ struct NewRecordToolbarButton: View {
 }
 
 struct NewRecordToolbarNaviagtion: View {
-    @Environment(\.dismiss) private var dismiss
     let destination: any View
     
     var body: some View {
         NavigationLink(destination: AnyView(destination)) {
+            Label("Nuevo Registro", systemImage: "square.and.pencil")
+        }
+    }
+}
+
+struct NewRecordToolbarMenu<Content: View>: View {
+    let content: () -> Content
+    
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+    }
+    
+    var body: some View {
+        Menu(content: content) {
             Label("Nuevo Registro", systemImage: "square.and.pencil")
         }
     }

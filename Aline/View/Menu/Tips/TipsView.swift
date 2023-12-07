@@ -11,7 +11,6 @@ struct TipsView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var employeeVM: EmployeeViewModel
     @EnvironmentObject private var alertVM: AlertViewModel
-    @Environment(\.dismiss) private var dismiss
     
     @State private var tipsReviews: [TipsReview] = []
     @State private var tipSeleceted: Tip = Tip()
@@ -157,6 +156,7 @@ struct TipsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.whiteArea)
                         .padding(2)
+                        .onSubmit(saveTip)
                 } else {
                     Button(action: {selectTip(tip)}) {
                         Text(tip.quantity.comasTextWithDecimals)
@@ -204,7 +204,7 @@ extension TipsView {
     
     private func getTips() {
         withAnimation {
-            tipVM.fetchTips(employees: employeeVM.employees, monthDate: date) { tips in
+            tipVM.fetchTips(employees: employeeVM.employees, date: date) { tips in
                 if let tips = tips {
                     self.tips = tips
                 } else {

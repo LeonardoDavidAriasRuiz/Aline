@@ -13,9 +13,9 @@ struct MenuView: View {
     @EnvironmentObject private var accentColor: AccentColor
     @EnvironmentObject private var alertVM: AlertViewModel
     
-    @State private var changingRestaurant: Bool = false
     @State private var isLoading: Bool = false
-    @State private var section: Section = .none
+    
+    @StateObject var menuSection = MenuSection()
     
     var body: some View {
         HStack(spacing: 0) {
@@ -23,20 +23,22 @@ struct MenuView: View {
             Divider()
             NavigationStack {
                 AnyView(
-                    self.section.destination
-                        .onAppear(perform: {accentColor.set(self.section.color)})
+                    self.menuSection.section.destination
+                        .onAppear(perform: {accentColor.set(self.menuSection.section.color)})
+                        
                 )
-                .navigationTitle(self.section.title)
+                .navigationTitle(self.menuSection.section.title)
                 .toolbar {
                     ToolbarItem(placement: .keyboard) {
                         HideKeyboardToolbarButton()
                     }
                 }
-            }.tint(self.section.color)
+            }.tint(self.menuSection.section.color)
         }
         .background(Color.background)
         .alertInfo(alertVM.alertType, showed: $alertVM.alertInfoShowed)
         .onChange(of: restaurantM.currentId, setRestaurant)
+        .environmentObject(menuSection)
     }
     
     private var menuList: some View {
@@ -54,6 +56,7 @@ struct MenuView: View {
                         MenuViewSection(section: .checks)
                         MenuViewSection(section: .payroll)
                         MenuViewSection(section: .employees)
+                        MenuViewSection(section: .unions)
                     }
                 }.padding(.horizontal, 7)
             }
@@ -106,18 +109,18 @@ struct MenuView: View {
     func MenuViewSection(section: Section) -> some View {
         Button {
             withAnimation {
-                self.section =  self.section == section ? .none : section
+                self.menuSection.section = self.menuSection.section == section ? .none : section
             }
         } label: {
             HStack {
                 section.icon
                     .padding(.horizontal, 4)
-                    .foregroundStyle(self.section == section ? .white : section.color)
+                    .foregroundStyle(self.menuSection.section == section ? .white : section.color)
                     .font(.title2)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(self.section.color.opacity(self.section == section ? 1 : 0))
+            .background(self.menuSection.section.color.opacity(self.menuSection.section == section ? 1 : 0))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -170,6 +173,7 @@ enum Section {
     case checks
     case payroll
     case employees
+    case unions
     case account
     
     var title: String {
@@ -184,6 +188,7 @@ enum Section {
             case .checks: "Cheques"
             case .payroll: "Payroll"
             case .employees: "Empleados"
+            case .unions: "Uniones"
             case .account: "Cuenta"
         }
     }
@@ -200,6 +205,7 @@ enum Section {
             case .checks: Color.blue
             case .payroll: Color.red
             case .employees: Color.orange
+            case .unions: Color.blue
             case .account: Color.green
         }
     }
@@ -212,10 +218,11 @@ enum Section {
             case .tips: TipsView()
             case .deposits: DepositsView()
             case .spendings: SpendingsView()
-            case .beneficiaries: BeneficiariosView()
+            case .beneficiaries: BeneficiariesView()
             case .checks: ChecksView()
             case .payroll: PayrollView()
             case .employees: EmployeesView()
+            case .unions: UnionsView()
             case .account: AccountView()
         }
     }
@@ -232,8 +239,12 @@ enum Section {
             case .checks: Image(systemName: "banknote.fill")
             case .payroll: Image(systemName: "calendar")
             case .employees: Image(systemName: "person.3.fill")
+            case .unions: Image("unions")
             case .account: Image(systemName: "person.crop.circle.fill")
         }
     }
 }
 
+class MenuSection: ObservableObject {
+    @Published var section: Section = .none
+}

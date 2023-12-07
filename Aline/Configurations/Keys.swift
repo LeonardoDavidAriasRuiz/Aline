@@ -95,7 +95,6 @@ struct SpendingKeys {
     let notes = "notes"
     let date = "date"
     let spendingTypeId = "spendingTypeId"
-    let beneficiaryId = "beneficiaryId"
     let restaurantId = "restaurantId"
 }
 
@@ -158,6 +157,8 @@ struct WorksheetSettingsKeys {
 struct CheckKeys {
     let type = "Checks"
     let id = "id"
+    let date = "date"
+    let fortnight = "fortnight"
     let cash = "cash"
     let direct = "direct"
     let employeeId = "employeeId"

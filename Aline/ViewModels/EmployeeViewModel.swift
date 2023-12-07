@@ -12,6 +12,11 @@ class EmployeeViewModel: PublicCloud {
     private let keys: EmployeeKeys = EmployeeKeys()
     
     @Published var employees: [Employee] = []
+    var activeEmployees: [Employee] {
+        employees.compactMap { employee in
+            return employee.isActive ? employee : nil
+        }
+    }
     
     func create(_ record: CKRecord, saved: @escaping (Bool) -> Void) {
         dataBase.save(record) { record, error in

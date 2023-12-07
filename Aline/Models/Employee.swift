@@ -42,7 +42,7 @@ struct Employee: Hashable, Equatable, Identifiable, Comparable {
         self.lastName = ""
         self.isActive = true
         self.restaurantId = ""
-        self.salary = true
+        self.salary = false
         self.quantity = 0.0
         self._record = CKRecord(recordType: keys.type)
     }

@@ -25,26 +25,20 @@ struct DecimalField: View {
         TextField(titleKey, text: $decimalInText)
             .keyboardType(.decimalPad)
             .onChange(of: decimalInText, validateTipsQuantity)
-            .onChange(of: decimal, returnDecimalToCero)
             .multilineTextAlignment(alignment)
     }
     
     private func validateTipsQuantity(oldValue: String, newValue: String) {
         if newValue.isEmpty {
-            decimal = 0.0
+            decimal = 0
+        } else if newValue == "-"{
+            
         } else if newValue.isNotEmpty {
             if let decimal = Double(newValue) {
-                decimalInText = newValue
                 self.decimal = decimal
             } else {
                 decimalInText = oldValue
             }
-        }
-    }
-    
-    private func returnDecimalToCero(oldDecimal: Double , newDecimal: Double) {
-        if newDecimal <= 0.0 {
-            decimalInText = ""
         }
     }
 }

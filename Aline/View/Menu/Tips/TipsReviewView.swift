@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TipsReviewView: View {
     @EnvironmentObject private var employeeVM: EmployeeViewModel
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -31,14 +32,16 @@ struct TipsReviewView: View {
         Sheet(section: .tipsReview, isLoading: $isLoading) {
             infoArea
             employeesList
+            noteArea
             SaveButtonWhite(action: saveTips)
             DeclineButtonWhite(action: declineTips)
         }
         .onAppear(perform: getEmployees)
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private var infoArea: some View {
-        WhiteArea(spacing: 8) {
+        WhiteArea(spacing: 12) {
             HStack {
                 Text(tipsReview.from.shortDate)
                 Spacer()
@@ -56,7 +59,7 @@ struct TipsReviewView: View {
     }
     
     private var employeesList: some View {
-        WhiteArea(spacing: 8) {
+        WhiteArea(spacing: 12) {
             ForEach(employeesWithTips, id: \.employee) { employeeWithTip in
                 if employeeWithTip != employeesWithTips.last ?? employeeWithTip {
                     Divider()
@@ -71,6 +74,15 @@ struct TipsReviewView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+        }
+    }
+    
+    private var noteArea: some View {
+        WhiteArea(spacing: 12) {
+            HStack {
+                Text(tipsReview.notes)
+                Spacer()
+            }.foregroundStyle(.secondary)
         }
     }
     
@@ -90,8 +102,9 @@ struct TipsReviewView: View {
     }
     
     private func declineTips() {
+        isLoading = true
         tipReviewVM.delete(tipsReview.record) {
-            DispatchQueue.main.async { dismiss() }
+            dismiss()
         } ifNot: {
             self.alertVM.show(.decliningError)
         }
@@ -111,9 +124,7 @@ struct TipsReviewView: View {
         
         for index in employeesWithTips.indices {
             tipVM.fetchTip(for: employeesWithTips[index].employee, date: tipsReview.from) { tip in
-                print(employeesWithTips[index].employee.fullName)
                 employeesWithTips[index] = (employeesWithTips[index].employee, tip)
-                print(employeesWithTips[index].employee.fullName)
                 if employeesWithTips[index] == employeesWithTips.last! {
                     isLoading = false
                 }

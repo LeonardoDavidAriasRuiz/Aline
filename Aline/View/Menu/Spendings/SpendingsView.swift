@@ -14,7 +14,6 @@ struct SpendingsView: View {
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var spendingTypes: [SpendingType] = []
-    @State private var beneficiaries: [Beneficiary] = []
     @State private var date: Date = Date()
     @State private var spendingTypeSlectedToView: SpendingType?
     @State private var spendingTypesSlectedToView: [SpendingType] = []
@@ -28,6 +27,7 @@ struct SpendingsView: View {
                 totalArea
             }
         }
+        .navigationTitle("Gostos - " + date.monthAndYear)
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
                 NewRecordToolbarButton(destination: NewSpendingView(spendingTypes: $spendingTypes))
@@ -48,7 +48,6 @@ struct SpendingsView: View {
         .overlay { if spendingTypes.isEmpty, !isLoading { EmptySpendingsView() } }
         .onAppear(perform: getTypes)
         .onChange(of: restaurantM.currentId, getTypes)
-        .onChange(of: restaurantM.currentId, getBeneficiaries)
     }
     
     private var spendingsByTypeList: some View {
@@ -77,8 +76,6 @@ struct SpendingsView: View {
                                         Text("$\(spending.quantity.comasTextWithDecimals)").foregroundStyle(Color.text)
                                         Text(spending.notes).foregroundStyle(Color.text.secondary)
                                         Spacer()
-                                        Text(getBeneficiaryName(spending: spending)).foregroundStyle(Color.text)
-                                        
                                     }.padding(.vertical, 8)
                                 }
                                 if spendingSelectedToEdit == spending {
@@ -126,7 +123,7 @@ struct SpendingsView: View {
     private func deleteSpending(_ spending: Spending) {
         isLoading = true
         withAnimation {
-            SpendingViewModel().deleteSpending(spending) { deleted in
+            SpendingViewModel().delete(spending.record) { deleted in
                 if deleted {
                     getTypes()
                 } else {
@@ -173,16 +170,6 @@ struct SpendingsView: View {
         return total
     }
     
-    private func getBeneficiaryName(spending: Spending) -> String {
-        if spending.beneficiaryId == "none" {
-            return ""
-        } else if let name = beneficiaries.first(where: { $0.id == spending.beneficiaryId})?.fullName {
-            return name
-        } else {
-            return "Error"
-        }
-    }
-    
     private func getTotalInMonth() -> Double {
         var total: Double = 0.0
         for type in spendingTypes {
@@ -200,7 +187,6 @@ struct SpendingsView: View {
                 if let spendingTypes = spendingTypes {
                     self.spendingTypes = spendingTypes.sorted(by: {$0.name < $1.name})
                     getSpendings()
-                    getBeneficiaries()
                 } else {
                     alertVM.show(.dataObtainingError)
                     isLoading = false
@@ -210,12 +196,18 @@ struct SpendingsView: View {
     }
     
     private func getSpendings() {
-        SpendingViewModel().fetchSpending(for: restaurantM.currentId, date: date) { spendings in
+        SpendingViewModel().fetchSpendings(for: restaurantM.currentId) { spendings in
             if let spendings = spendings {
-                for i in 0..<self.spendingTypes.count {
+                print(spendings)
+            }
+        }
+        SpendingViewModel().fetch(restaurantId: restaurantM.currentId, date: date) { spendings in
+            if let spendings = spendings {
+//                print(spendings)
+                for index in spendingTypes.indices {
                     for spending in spendings {
-                        if spending.spendingTypeId == spendingTypes[i].id {
-                            self.spendingTypes[i].spendings.append(spending)
+                        if spending.spendingTypeId == spendingTypes[index].id {
+                            self.spendingTypes[index].spendings.append(spending)
                         }
                     }
                 }
@@ -226,34 +218,14 @@ struct SpendingsView: View {
         }
     }
     
-    private func getBeneficiaries() {
-        withAnimation {
-            BeneficiaryViewModel().fetch(for: restaurantM.currentId) { beneficiaries in
-                if let beneficiaries = beneficiaries {
-                    self.beneficiaries = beneficiaries
-                } else {
-                    alertVM.show(.dataObtainingError)
-                }
-            }
-        }
-    }
-    
     func createCSV() -> Data? {
         var csvString = "Nombre,Descripción\n"
         for type in spendingTypes {
             csvString.append("\(type.name),\(type.description)\n")
-            csvString.append("Fecha,Notas,Cantidad,Id de Beneficiario\n")
+            csvString.append("Fecha,Notas,Cantidad\n")
             for spending in type.spendings {
-                csvString.append("\(spending.date.shortDate),\(spending.notes),\(spending.quantity),\(spending.beneficiaryId)\n")
+                csvString.append("\(spending.date.shortDate),\(spending.notes),\(spending.quantity)\n")
             }
-        }
-        return csvString.data(using: .utf8)
-    }
-    
-    func createCSVBeneficiaries() -> Data? {
-        var csvString = "Nombre,Descripción\n"
-        for beneficiary in beneficiaries {
-            csvString.append("\(beneficiary.id),\(beneficiary.name),\(beneficiary.lastName),\(beneficiary.percentage),\(beneficiary.startDate.shortDate),\(beneficiary.endDate?.shortDate ?? "Nil")\n")
         }
         return csvString.data(using: .utf8)
     }
