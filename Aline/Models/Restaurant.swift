@@ -16,6 +16,7 @@ struct Restaurant: Hashable, Equatable, Identifiable {
     var email: String
     var adminUsersIds: [String]
     var emploUsersIds: [String]
+    var fortnightChecksType: FortnightChecksType
     private var _record: CKRecord
     
     var record: CKRecord {
@@ -24,6 +25,7 @@ struct Restaurant: Hashable, Equatable, Identifiable {
         _record[keys.email] = email
         _record[keys.adminUsersIds] = adminUsersIds
         _record[keys.emploUsersIds] = emploUsersIds
+        _record[keys.fortnightChecksType] = fortnightChecksType.rawValue
         return _record
     }
     
@@ -33,6 +35,7 @@ struct Restaurant: Hashable, Equatable, Identifiable {
         self.email = ""
         self.adminUsersIds = [""]
         self.emploUsersIds = [""]
+        self.fortnightChecksType = .nextFortnight
         self._record = CKRecord(recordType: keys.type)
     }
     
@@ -42,6 +45,7 @@ struct Restaurant: Hashable, Equatable, Identifiable {
         self.email = record[keys.email] as? String ?? ""
         self.adminUsersIds = record[keys.adminUsersIds] as? [String] ?? [""]
         self.emploUsersIds = record[keys.emploUsersIds] as? [String] ?? [""]
+        self.fortnightChecksType = (record[keys.fortnightChecksType] as? Int ?? 2) == 1 ? .monthByMonth : .nextFortnight
         self._record = record
     }
     
@@ -54,6 +58,12 @@ struct Restaurant: Hashable, Equatable, Identifiable {
         lhs.name == rhs.name &&
         lhs.email == rhs.email &&
         lhs.adminUsersIds == rhs.adminUsersIds &&
-        lhs.emploUsersIds == rhs.emploUsersIds
+        lhs.emploUsersIds == rhs.emploUsersIds &&
+        lhs.fortnightChecksType == rhs.fortnightChecksType
     }
+}
+
+enum FortnightChecksType: Int {
+    case monthByMonth = 1
+    case nextFortnight = 2
 }

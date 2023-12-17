@@ -93,7 +93,7 @@ struct ConectionsView: View {
             self.conectionVM.fetchConections(for: self.restaurant.emploUsersIds) { users in
                 DispatchQueue.main.async {
                     if let users = users {
-                        emploUsers.append(contentsOf: users)
+                        emploUsers = users
                     } else {
                         alertVM.show(.dataObtainingError)
                     }

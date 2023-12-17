@@ -86,6 +86,9 @@
 		A7C300C22A736232006439B8 /* ConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C300C12A736232006439B8 /* ConectionView.swift */; };
 		A7CE7CCD2A73527F00CFC930 /* ConectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */; };
 		A7D34D152B22123A00D2FED8 /* BeneficiaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */; };
+		A7D34D172B22168500D2FED8 /* BeneficiarySpending.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D34D162B22168500D2FED8 /* BeneficiarySpending.swift */; };
+		A7D34D192B22304A00D2FED8 /* NewBeneficiarySpending.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D34D182B22304A00D2FED8 /* NewBeneficiarySpending.swift */; };
+		A7D34D1C2B22339A00D2FED8 /* BeneficiarySpendingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D34D1B2B22339A00D2FED8 /* BeneficiarySpendingViewModel.swift */; };
 		A7D7E0ED2A79E08200886BC8 /* NewConectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */; };
 		A7DF8CA62AD6796300E18AFE /* Worksheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DF8CA52AD6796300E18AFE /* Worksheet.swift */; };
 		A7E009862ACC862D009E402B /* NewDepositView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E009852ACC862D009E402B /* NewDepositView.swift */; };
@@ -107,12 +110,12 @@
 		A7EEBEF92ABD37BD00AF10C3 /* TipsReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EEBEF82ABD37BD00AF10C3 /* TipsReviewViewModel.swift */; };
 		A7EEBEFD2ABE111C00AF10C3 /* TipsReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EEBEFC2ABE111C00AF10C3 /* TipsReviewView.swift */; };
 		A7F00BF82AE9978300568CE5 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F00BF72AE9978300568CE5 /* WelcomeView.swift */; };
-		A7F262CE2B19795D0091F2D6 /* UnionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F262CD2B19795D0091F2D6 /* UnionsView.swift */; };
 		A7F262D12B1988CF0091F2D6 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = A7F262D02B1988CF0091F2D6 /* Algorithms */; };
 		A7F617CE2AC5C78500B00AA5 /* NewSpendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617CD2AC5C78500B00AA5 /* NewSpendingView.swift */; };
 		A7F617EC2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */; };
 		A7F617EE2AC5EFAB00B00AA5 /* Beneficiary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617ED2AC5EFAB00B00AA5 /* Beneficiary.swift */; };
 		A7F617F02AC608D900B00AA5 /* BeneficiaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F617EF2AC608D900B00AA5 /* BeneficiaryViewModel.swift */; };
+		A7F7E0D02B2A7CD9005CD9CC /* FortnightTotalTips.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F7E0CF2B2A7CD9005CD9CC /* FortnightTotalTips.swift */; };
 		A7FC78922ADC5097006F490F /* NewEmployeeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FC78912ADC5097006F490F /* NewEmployeeView.swift */; };
 		A7FC78952ADC574B006F490F /* HourPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FC78942ADC574B006F490F /* HourPicker.swift */; };
 		A7FC78972ADCEABF006F490F /* WorksheetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FC78962ADCEABF006F490F /* WorksheetSettingsView.swift */; };
@@ -221,6 +224,9 @@
 		A7C329A92A69A23B002B4E41 /* Aline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7CE7CCC2A73527F00CFC930 /* ConectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConectionViewModel.swift; sourceTree = "<group>"; };
 		A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryView.swift; sourceTree = "<group>"; };
+		A7D34D162B22168500D2FED8 /* BeneficiarySpending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiarySpending.swift; sourceTree = "<group>"; };
+		A7D34D182B22304A00D2FED8 /* NewBeneficiarySpending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBeneficiarySpending.swift; sourceTree = "<group>"; };
+		A7D34D1B2B22339A00D2FED8 /* BeneficiarySpendingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiarySpendingViewModel.swift; sourceTree = "<group>"; };
 		A7D7E0EC2A79E08200886BC8 /* NewConectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConectionView.swift; sourceTree = "<group>"; };
 		A7DF8CA52AD6796300E18AFE /* Worksheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Worksheet.swift; sourceTree = "<group>"; };
 		A7E009852ACC862D009E402B /* NewDepositView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDepositView.swift; sourceTree = "<group>"; };
@@ -242,11 +248,11 @@
 		A7EEBEF82ABD37BD00AF10C3 /* TipsReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsReviewViewModel.swift; sourceTree = "<group>"; };
 		A7EEBEFC2ABE111C00AF10C3 /* TipsReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsReviewView.swift; sourceTree = "<group>"; };
 		A7F00BF72AE9978300568CE5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
-		A7F262CD2B19795D0091F2D6 /* UnionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnionsView.swift; sourceTree = "<group>"; };
 		A7F617CD2AC5C78500B00AA5 /* NewSpendingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSpendingView.swift; sourceTree = "<group>"; };
 		A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBeneficiaryView.swift; sourceTree = "<group>"; };
 		A7F617ED2AC5EFAB00B00AA5 /* Beneficiary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beneficiary.swift; sourceTree = "<group>"; };
 		A7F617EF2AC608D900B00AA5 /* BeneficiaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeneficiaryViewModel.swift; sourceTree = "<group>"; };
+		A7F7E0CF2B2A7CD9005CD9CC /* FortnightTotalTips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FortnightTotalTips.swift; sourceTree = "<group>"; };
 		A7FC78912ADC5097006F490F /* NewEmployeeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEmployeeView.swift; sourceTree = "<group>"; };
 		A7FC78942ADC574B006F490F /* HourPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourPicker.swift; sourceTree = "<group>"; };
 		A7FC78962ADCEABF006F490F /* WorksheetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorksheetSettingsView.swift; sourceTree = "<group>"; };
@@ -332,7 +338,6 @@
 				7E51BC4B29D51C1B00D6D33C /* Checks */,
 				7E51BC4F29D51C3E00D6D33C /* Payroll */,
 				7E51BC4C29D51C2400D6D33C /* Employees */,
-				A7F262CC2B1979480091F2D6 /* Unions */,
 				7E51BC7629D5646600D6D33C /* Account */,
 			);
 			path = Menu;
@@ -403,6 +408,7 @@
 				7E51BC5B29D51CE400D6D33C /* BeneficiariesView.swift */,
 				A7F617EB2AC5EDAB00B00AA5 /* NewBeneficiaryView.swift */,
 				A7D34D142B22123A00D2FED8 /* BeneficiaryView.swift */,
+				A7D34D182B22304A00D2FED8 /* NewBeneficiarySpending.swift */,
 			);
 			path = Beneficiaries;
 			sourceTree = "<group>";
@@ -484,6 +490,8 @@
 				A7DF8CA52AD6796300E18AFE /* Worksheet.swift */,
 				A7FC78982ADCECEA006F490F /* WorksheetSettings.swift */,
 				A77AD2702B0FC74000B50C50 /* Check.swift */,
+				A7D34D162B22168500D2FED8 /* BeneficiarySpending.swift */,
+				A7F7E0CF2B2A7CD9005CD9CC /* FortnightTotalTips.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -506,6 +514,7 @@
 				A7FC789A2ADCEEA7006F490F /* WorksheetSettingsViewModel.swift */,
 				A71D53D52ADE532C00D34ADB /* WorksheetViewModel.swift */,
 				A7744B152B1520F50089E343 /* CheckViewModel.swift */,
+				A7D34D1B2B22339A00D2FED8 /* BeneficiarySpendingViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -599,14 +608,6 @@
 				A70C61C42A7AC1CC005D640E /* ConectionSentView.swift */,
 			);
 			path = Conection;
-			sourceTree = "<group>";
-		};
-		A7F262CC2B1979480091F2D6 /* Unions */ = {
-			isa = PBXGroup;
-			children = (
-				A7F262CD2B19795D0091F2D6 /* UnionsView.swift */,
-			);
-			path = Unions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -767,7 +768,9 @@
 				A76BD6D62A66B703007043CC /* Keys.swift in Sources */,
 				A7EBA51E2ADA3B7D008A1144 /* CSVDocument.swift in Sources */,
 				A7FC789B2ADCEEA7006F490F /* WorksheetSettingsViewModel.swift in Sources */,
+				A7F7E0D02B2A7CD9005CD9CC /* FortnightTotalTips.swift in Sources */,
 				7E51BC7029D5562B00D6D33C /* User.swift in Sources */,
+				A7D34D1C2B22339A00D2FED8 /* BeneficiarySpendingViewModel.swift in Sources */,
 				A77AD2712B0FC74000B50C50 /* Check.swift in Sources */,
 				A79E11162A798EE3004D59C8 /* EditableEmail.swift in Sources */,
 				A718C8FD2ACBB99400301129 /* ExportSalesEmail.swift in Sources */,
@@ -781,6 +784,7 @@
 				A7E185C42A81CE4300C71501 /* Sheet.swift in Sources */,
 				A772C4F82A965E4000B7632E /* Buttons.swift in Sources */,
 				A7A45D2B2A82CB4A00871C62 /* UserInformationView.swift in Sources */,
+				A7D34D172B22168500D2FED8 /* BeneficiarySpending.swift in Sources */,
 				A76F23742AAF609800A58294 /* Dates.swift in Sources */,
 				A7460F0F2A8996B400760BF3 /* EditableName.swift in Sources */,
 				A7C300C02A735E2E006439B8 /* ConectionsView.swift in Sources */,
@@ -788,6 +792,7 @@
 				A78AD52F2AA183DC005495E7 /* Collection.swift in Sources */,
 				A7E692312AC2150300133E83 /* SpendingTypeViewModel.swift in Sources */,
 				A70C61C12A7AB2BF005D640E /* Conection.swift in Sources */,
+				A7D34D192B22304A00D2FED8 /* NewBeneficiarySpending.swift in Sources */,
 				A70C61C32A7AB82F005D640E /* ConectionInvitation.swift in Sources */,
 				A78AD5102A9F91EF005495E7 /* SaleViewModel.swift in Sources */,
 				7E51BC6E29D5433400D6D33C /* Deposit.swift in Sources */,
@@ -825,7 +830,6 @@
 				A7744B162B1520F50089E343 /* CheckViewModel.swift in Sources */,
 				A70C61C72A7ACBF3005D640E /* ConectionReceivedView.swift in Sources */,
 				A7F617CE2AC5C78500B00AA5 /* NewSpendingView.swift in Sources */,
-				A7F262CE2B19795D0091F2D6 /* UnionsView.swift in Sources */,
 				7E697E0029D60B7400C500FA /* Restaurant.swift in Sources */,
 				A7EEBEF92ABD37BD00AF10C3 /* TipsReviewViewModel.swift in Sources */,
 				A7BB72712A741B9A00FFF5AC /* VerifyLoginEmail.swift in Sources */,

@@ -11,7 +11,6 @@ enum MenuSubsection {
     case none
     case newBeneficiary
     case cashOut
-    case checks
     case newDeposit
     case newWorksheet
     case pdfWorksheet
@@ -35,7 +34,6 @@ enum MenuSubsection {
             case .none: return ""
             case .newBeneficiary: return "Nuevo beneficiario"
             case .cashOut: return "Corte"
-            case .checks: return "Cheques"
             case .newDeposit: return "Nuevo deposito"
             case .login: return "Registro"
             case .spendingTypes: return "Categorías"

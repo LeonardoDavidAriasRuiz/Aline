@@ -23,6 +23,7 @@ struct RestaurantKeys {
     let email = "email"
     let adminUsersIds = "adminUsersIds"
     let emploUsersIds = "emploUsersIds"
+    let fortnightChecksType = "fortnightChecksType"
     let linkAdminNoPermited = "Vínculo Admin no permitido"
 }
 
@@ -77,6 +78,18 @@ struct TipKeys {
     let employeeId = "employeeId"
 }
 
+struct FortnightTotalTipsKeys {
+    let type = "FortnightTips"
+    let id = "id"
+    let date = "date"
+    let employeeId = "employeeId"
+    let employee = "employee"
+    let total = "total"
+    let direct = "direct"
+    let delivered = "delivered"
+    let restaurantId = "restaurantId"
+}
+
 struct TipReviewKeys {
     let type = "TipsReviews"
     let id = "id"
@@ -112,9 +125,18 @@ struct BeneficiaryKeys {
     let name = "name"
     let lastName = "lastName"
     let percentage = "percentage"
-    let startDate = "startDate"
-    let endDate = "endDate"
+    let status = "status"
+    let startEndDates = "startEndDates"
     let employeesIds = "employeesIds"
+    let restaurantId = "restaurantId"
+}
+struct BeneficiarySpendingKeys {
+    let type = "BeneficiariesSpendings"
+    let id = "id"
+    let beneficiaryId = "beneficiaryId"
+    let date = "date"
+    let quantity = "quantity"
+    let note = "note"
     let restaurantId = "restaurantId"
 }
 

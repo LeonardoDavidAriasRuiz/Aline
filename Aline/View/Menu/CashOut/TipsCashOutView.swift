@@ -67,17 +67,14 @@ struct TipsCashOutView: View {
             Divider()
             DatePicker("", selection: $tipsForReview.from, displayedComponents: .date)
                 .datePickerStyle(.graphical)
-//                .onTapGesture (perform: hideKeyboard)
             HStack {
                 DatePicker("De:", selection: $tipsForReview.from, displayedComponents: .hourAndMinute)
                     .frame(maxWidth: 200)
                     .datePickerStyle(.graphical)
-//                    .onTapGesture (perform: hideKeyboard)
                     .onChange(of: tipsForReview.from, validateCustomFrom)
                 DatePicker("A:", selection: $tipsForReview.to, displayedComponents: .hourAndMinute)
                     .frame(maxWidth: 200)
                     .datePickerStyle(.graphical)
-//                    .onTapGesture (perform: hideKeyboard)
                     .onChange(of: tipsForReview.to, validateCustomTo)
             }
         }

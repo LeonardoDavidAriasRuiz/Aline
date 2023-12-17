@@ -56,7 +56,6 @@ struct MenuView: View {
                         MenuViewSection(section: .checks)
                         MenuViewSection(section: .payroll)
                         MenuViewSection(section: .employees)
-                        MenuViewSection(section: .unions)
                     }
                 }.padding(.horizontal, 7)
             }
@@ -173,7 +172,6 @@ enum Section {
     case checks
     case payroll
     case employees
-    case unions
     case account
     
     var title: String {
@@ -181,14 +179,13 @@ enum Section {
             case .none: ""
             case .tipsCashOutView: "Tips del día"
             case .sales: "Ventas"
-            case .tips: "Tips"
+            case .tips: ""
             case .deposits: "Depositos"
             case .spendings: "Gastos"
             case .beneficiaries: "Beneficiarios"
-            case .checks: "Cheques"
+            case .checks: ""
             case .payroll: "Payroll"
             case .employees: "Empleados"
-            case .unions: "Uniones"
             case .account: "Cuenta"
         }
     }
@@ -205,7 +202,6 @@ enum Section {
             case .checks: Color.blue
             case .payroll: Color.red
             case .employees: Color.orange
-            case .unions: Color.blue
             case .account: Color.green
         }
     }
@@ -222,7 +218,6 @@ enum Section {
             case .checks: ChecksView()
             case .payroll: PayrollView()
             case .employees: EmployeesView()
-            case .unions: UnionsView()
             case .account: AccountView()
         }
     }
@@ -239,7 +234,6 @@ enum Section {
             case .checks: Image(systemName: "banknote.fill")
             case .payroll: Image(systemName: "calendar")
             case .employees: Image(systemName: "person.3.fill")
-            case .unions: Image("unions")
             case .account: Image(systemName: "person.crop.circle.fill")
         }
     }

@@ -18,21 +18,24 @@ struct TipsView: View {
     @State private var isLoading: Bool = false
     @State private var tips: [Tip] = []
     @State private var date: Date = Date()
+    @State private var totalsFirstFortnight: [FortnightTotalTips] = []
+    @State private var totalsSecondFortnight: [FortnightTotalTips] = []
+    @State private var totalSelected: String? = nil
     
     let tipVM = TipViewModel()
     let tipReviewVM = TipsReviewViewModel()
     
     private var firstFortnightDates: [Date] {
         return (1...15).compactMap { day in
-            let dateComponents = DateComponents(year: date.yearInt, month: date.monthInt, day: day)
-            return Calendar.current.date(from: dateComponents)
+            let components = DateComponents(year: date.yearInt, month: date.monthInt, day: day)
+            return Calendar.current.date(from: components)
         }
     }
     
     private var secondFortnightDates: [Date] {
         return (16...date.lastDayOfMonth.dayInt).compactMap { day in
-            let dateComponents = DateComponents(year: date.yearInt, month: date.monthInt, day: day)
-            return Calendar.current.date(from: dateComponents)
+            let components = DateComponents(year: date.yearInt, month: date.monthInt, day: day)
+            return Calendar.current.date(from: components)
         }
     }
     
@@ -41,12 +44,14 @@ struct TipsView: View {
             if employeeVM.employees.isNotEmpty {
                 tipsReviews.isNotEmpty ? tipsReviewsList : nil
                 firstFortnightTips
-                secondFortnightTips.padding(.top, 100)
+                totalsFirstFortnightArea
+                secondFortnightTips
+                totalsSecondFortnightArea
             }
         }
         .toolbar(content: toolbarItems)
         .overlay { if employeeVM.employees.isEmpty && !isLoading { EmptyTipsView() } }
-        .navigationTitle("Tips - " + date.monthAndYear)
+        .navigationTitle("Tips - " + date.monthAndYear + "    " + getTotal().comasTextWithDecimals)
         .onAppear(perform: getTipsReviews)
         .onChange(of: restaurantM.currentId, getTipsReviews)
         .onChange(of: date, getTipsReviews)
@@ -87,6 +92,106 @@ struct TipsView: View {
                     HStack(spacing: 0) {
                         ForEach(secondFortnightDates, id: \.self) { day in
                             dayColumn(day)
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 8)
+        }
+    }
+    
+    private var totalsFirstFortnightArea: some View {
+        WhiteArea {
+            HStack(spacing: 0) {
+                ScrollView(.horizontal){
+                    VStack(spacing: 10) {
+                        HStack(spacing: 0) {
+                            HStack {
+                                Text("Empleado")
+                            }
+                                .frame(width: 135)
+                            Text("Ω2")
+                                .frame(width: 135)
+                            Text("Cheque").foregroundStyle(Color.blue)
+                                .frame(width: 135)
+                            Text("Cash").foregroundStyle(Color.red)
+                                .frame(width: 135)
+                            Text("Entregado").foregroundStyle(Color.orange)
+                                .frame(width: 135)
+                        }.bold().font(.title3).frame(height: 60)
+                        ForEach(totalsFirstFortnight.sorted().indices, id: \.self) { index in
+                            Divider()
+                            HStack {
+                                Text(totalsFirstFortnight[index].employee?.fullName ?? "Error")
+                                    .frame(width: 135)
+                                Text(totalsFirstFortnight[index].total.comasTextWithDecimals)
+                                    .frame(width: 135)
+                                if totalSelected == totalsFirstFortnight[index].id {
+                                    DecimalField("0.0", decimal: $totalsFirstFortnight[index].direct)
+                                        .frame(width: 135)
+                                        .disabled(totalsFirstFortnight[index].delivered)
+                                        .onSubmit {saveTotal(total: totalsFirstFortnight[index])}
+                                } else {
+                                    Button(totalsFirstFortnight[index].direct.comasTextWithDecimals, action: {selectTotal(index: index, fortnight: 1)})
+                                        .frame(width: 135)
+                                        .disabled(totalsFirstFortnight[index].delivered)
+                                        .foregroundStyle(Color.text.opacity(totalsFirstFortnight[index].direct == 0 ? 0.5 : 1))
+                                }
+                                Text(totalsFirstFortnight[index].cahs.comasTextWithDecimals)
+                                    .frame(width: 135)
+                                Toggle("", isOn: $totalsFirstFortnight[index].delivered)
+                                    .frame(width: 135)
+                                    .onChange(of: totalsFirstFortnight[index].delivered) {saveTotal(total: totalsFirstFortnight[index])}
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 8)
+        }
+    }
+    
+    private var totalsSecondFortnightArea: some View {
+        WhiteArea {
+            HStack(spacing: 0) {
+                ScrollView(.horizontal){
+                    VStack(spacing: 10) {
+                        HStack(spacing: 0) {
+                            Text("Empleado")
+                                .frame(width: 135)
+                            Text("Ω2")
+                                .frame(width: 135)
+                            Text("Cheque").foregroundStyle(Color.blue)
+                                .frame(width: 135)
+                            Text("Cash").foregroundStyle(Color.red)
+                                .frame(width: 135)
+                            Text("Entregado").foregroundStyle(Color.orange)
+                                .frame(width: 135)
+                        }.bold().font(.title3).frame(height: 60)
+                        ForEach(totalsSecondFortnight.sorted().indices, id: \.self) { index in
+                            Divider()
+                            HStack {
+                                Text(totalsSecondFortnight[index].employee?.fullName ?? "Error")
+                                    .frame(width: 135)
+                                Text(totalsSecondFortnight[index].total.comasTextWithDecimals)
+                                    .frame(width: 135)
+                                if totalSelected == totalsSecondFortnight[index].id {
+                                    DecimalField("0.0", decimal: $totalsSecondFortnight[index].direct)
+                                        .frame(width: 135)
+                                        .disabled(totalsSecondFortnight[index].delivered)
+                                        .onSubmit {saveTotal(total: totalsSecondFortnight[index])}
+                                } else {
+                                    Button(totalsSecondFortnight[index].direct.comasTextWithDecimals, action: {selectTotal(index: index, fortnight: 2)})
+                                        .frame(width: 135)
+                                        .disabled(totalsSecondFortnight[index].delivered)
+                                        .foregroundStyle(Color.text.opacity(totalsSecondFortnight[index].direct == 0 ? 0.5 : 1))
+                                }
+                                Text(totalsSecondFortnight[index].cahs.comasTextWithDecimals)
+                                    .frame(width: 135)
+                                Toggle("", isOn: $totalsSecondFortnight[index].delivered)
+                                    .frame(width: 135)
+                                    .onChange(of: totalsSecondFortnight[index].delivered) {saveTotal(total: totalsSecondFortnight[index])}
+                            }
                         }
                     }
                 }
@@ -174,6 +279,19 @@ struct TipsView: View {
 }
 
 extension TipsView {
+    private func saveTotal(total: FortnightTotalTips) {
+        tipVM.save(total.record) {} ifNot: {
+            alertVM.show(.updatingError)
+        }
+    }
+    private func selectTotal(index: Int, fortnight: Int) {
+        if fortnight == 1 {
+            totalSelected = totalSelected == totalsFirstFortnight[index].id ? nil : totalsFirstFortnight[index].id
+        } else {
+            totalSelected = totalSelected == totalsSecondFortnight[index].id ? nil : totalsSecondFortnight[index].id
+        }
+    }
+    
     private func saveTip() {
         tipVM.save(tipSeleceted.record, ifNot: {
             alertVM.show(.updatingError)
@@ -207,10 +325,65 @@ extension TipsView {
             tipVM.fetchTips(employees: employeeVM.employees, date: date) { tips in
                 if let tips = tips {
                     self.tips = tips
+                    getTotalFortnights()
                 } else {
                     alertVM.show(.dataObtainingError)
                 }
                 isLoading = false
+            }
+        }
+    }
+    
+    private func getTotalFortnights() {
+        tipVM.fetchTotalFortnights(restaurantId: restaurantM.currentId, date: date) { totals in
+            if let totals = totals {
+                self.totalsFirstFortnight = []
+                self.totalsSecondFortnight = []
+                for employee in employeeVM.employees {
+                    var totalFirst = 0.0
+                    var totalSecond = 0.0
+                    
+                    for tip in tips where tip.employeeId == employee.id  {
+                        if tip.date.dayInt <= 15 {
+                            totalFirst += tip.quantity
+                        } else {
+                            totalSecond += tip.quantity
+                        }
+                    }
+                    
+                    let totalTipFirstFortnight = FortnightTotalTips(
+                        date: date.firstDayOfMonth,
+                        employee: employee,
+                        total: totalFirst,
+                        direct: totalFirst,
+                        restaurantId: restaurantM.currentId
+                    )
+                    
+                    let totalTipSecondFortnight = FortnightTotalTips(
+                        date: date.lastDayOfMonth.firstDayOfFortnight,
+                        employee: employee,
+                        total: totalSecond,
+                        direct: totalSecond,
+                        restaurantId: restaurantM.currentId
+                    )
+                    
+                    totalsFirstFortnight.append(totalTipFirstFortnight)
+                    totalsSecondFortnight.append(totalTipSecondFortnight)
+                    
+                    for total in totals where date.firstDayOfMonth == total.date  {
+                        for index in totalsFirstFortnight.indices where totalsFirstFortnight[index].employeeId == total.employeeId {
+                            let ayudante = totalsFirstFortnight[index]
+                            totalsFirstFortnight[index] = total
+                            totalsFirstFortnight[index].total = ayudante.total
+                        }
+                    }
+                    
+                    for total in totals where date.lastDayOfMonth.firstDayOfFortnight == total.date  {
+                        for index in totalsSecondFortnight.indices where totalsSecondFortnight[index].employeeId == total.employeeId {
+                            totalsSecondFortnight[index] = total
+                        }
+                    }
+                }
             }
         }
     }
@@ -230,6 +403,42 @@ extension TipsView {
         tipVM.delete(tipSeleceted.record, ifNot: {
             alertVM.show(.updatingError)
         })
+    }
+    
+    private func getTotalForEmployeeFirtsFortnight(_ employee: Employee) -> Double {
+        
+        var total = 0.0
+        
+        for tip in tips where Array(1...15).contains(tip.date.dayInt) &&
+        tip.employeeId == employee.id {
+            total += tip.quantity
+        }
+        
+        return total
+    }
+    
+    private func getTotalForEmployeeSecondFortnight(_ employee: Employee) -> Double {
+        
+        var total = 0.0
+        
+        let lastDaySecondFortNight = date.lastDayOfMonth
+        
+        for tip in tips where Array(16...lastDaySecondFortNight.dayInt).contains(tip.date.dayInt) &&
+        tip.date <= lastDaySecondFortNight && tip.employeeId == employee.id {
+            total += tip.quantity
+        }
+        
+        return total
+    }
+    
+    private func getTotal() -> Double {
+        var total = 0.0
+        
+        for tip in self.tips {
+            total += tip.quantity
+        }
+        
+        return total
     }
 }
 

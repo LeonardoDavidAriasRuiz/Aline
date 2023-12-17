@@ -15,10 +15,12 @@ struct Beneficiary: Equatable, Identifiable, Hashable {
     var name: String
     var lastName: String
     var percentage: Double
-    var startDate: Date
-    var endDate: Date?
+    var status: Double
+    var startEndDates: [Date]
     var employeesIds: [String]
     var restaurantId: String
+    var spendings: [BeneficiarySpendings] = []
+    var resumes: [BeneficiaryResume] = []
     
     private var _record: CKRecord
     
@@ -31,10 +33,8 @@ struct Beneficiary: Equatable, Identifiable, Hashable {
             _record[keys.name] = name
             _record[keys.lastName] = lastName
             _record[keys.percentage] = percentage
-            _record[keys.startDate] = startDate
-            if endDate != nil {
-                _record[keys.endDate] = endDate
-            }
+            _record[keys.status] = status
+            _record[keys.startEndDates] = startEndDates
             _record[keys.employeesIds] = employeesIds
             _record[keys.restaurantId] = restaurantId
             return _record
@@ -46,7 +46,8 @@ struct Beneficiary: Equatable, Identifiable, Hashable {
         self.name = ""
         self.lastName = ""
         self.percentage = 1
-        self.startDate = Date()
+        self.status = 0
+        self.startEndDates = [Date()]
         self.employeesIds = [""]
         self.restaurantId = ""
         self._record = CKRecord(recordType: keys.type)
@@ -57,8 +58,8 @@ struct Beneficiary: Equatable, Identifiable, Hashable {
         self.name = record[keys.name] ?? ""
         self.lastName = record[keys.lastName] ?? ""
         self.percentage = record[keys.percentage] ?? 0
-        self.startDate = record[keys.startDate] ?? Date()
-        self.endDate = record[keys.endDate]
+        self.status = record[keys.status] ?? 0
+        self.startEndDates = record[keys.startEndDates] ?? [Date()]
         self.employeesIds = record[keys.employeesIds] ?? [""]
         self.restaurantId = record[keys.restaurantId] ?? ""
         self._record = record
@@ -73,9 +74,11 @@ struct Beneficiary: Equatable, Identifiable, Hashable {
         lhs.name == rhs.name &&
         lhs.lastName == rhs.lastName &&
         lhs.percentage == rhs.percentage &&
-        lhs.startDate == rhs.startDate &&
-        lhs.endDate == rhs.endDate &&
+        lhs.status == rhs.status &&
+        lhs.startEndDates == rhs.startEndDates &&
         lhs.employeesIds == rhs.employeesIds &&
-        lhs.restaurantId == rhs.restaurantId
+        lhs.restaurantId == rhs.restaurantId &&
+        lhs.spendings == rhs.spendings &&
+        lhs.resumes == rhs.resumes
     }
 }

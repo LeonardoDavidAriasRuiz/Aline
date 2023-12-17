@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct RestaurantsListView: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var adminRestaurants: [Restaurant] = []
     @State private var emploRestaurants: [Restaurant] = []
@@ -30,6 +33,8 @@ struct RestaurantsListView: View {
         }
         .overlay { if adminRestaurants.isEmpty, emploRestaurants.isEmpty, !isLoading { EmptyRestaurantsView() } }
         .onAppear(perform: getRestaurants)
+        .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private var adminRestaurantsList: some View {

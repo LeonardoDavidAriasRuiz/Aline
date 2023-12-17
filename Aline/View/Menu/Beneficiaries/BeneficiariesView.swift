@@ -20,9 +20,9 @@ struct BeneficiariesView: View {
     @State private var tips: [Tip] = []
     @State private var spendings: [Spending] = []
     @State private var checks: [Check] = []
+    @State private var beneficiariesSpendings: [BeneficiarySpending] = []
     
     @State private var beneficiaries: [Beneficiary] = []
-    @State private var beneficiariesSpendingsOpened: [String : Bool] = [:]
     @State private var isLoading: Bool = false
     
     let beneficiaryVM = BeneficiaryViewModel()
@@ -82,19 +82,35 @@ struct BeneficiariesView: View {
         ForEach(beneficiaries, id: \.self) { beneficiary in
             WhiteArea(spacing: 10) {
                 HStack {
-                    Text(beneficiary.fullName).bold().font(.title)
+                    NavigationLink(beneficiary.fullName, destination: BeneficiaryView(beneficiary: beneficiary)).bold().font(.title)
                     Spacer()
                 }
                 HStack {
-                    Gauge(value: 0.3) {}.tint(Color.red)
-                    Text("100")
+                    let obteined = getTotalObteinedForBeneficiary(beneficiary) + (beneficiary.status > 0 ? beneficiary.status : 0)
+                    let earned = getTotalEarnedItForBeneficiary(beneficiary) + (beneficiary.status < 0 ? (beneficiary.status * -1) : 0)
+                    let gaugePercentege = obteined / earned
+                    let missing = obteined - earned
+                    let tint = gaugePercentege >= 1 ? Color.green : Color.red
+                    Gauge(value: gaugePercentege) {}.tint(tint)
+                    Text(missing.comasTextWithDecimals)
                 }
                 HStack{
                     beneficiariesTitles
                     ScrollView(.horizontal) {
                         HStack {
-                            ForEach(resumes, id: \.self) { resume in
-                                beneficiaryQuantities(beneficiary: beneficiary, resume: resume)
+                            ForEach(beneficiary.resumes, id: \.self) { resume in
+                                HStack(alignment: .bottom){
+                                    VStack(spacing: 20) {
+                                        Text(resume.date.monthInt == 1 ? resume.date.year : " ").bold().font(.title2).foregroundStyle(Color.green)
+                                        Text(resume.date.month).bold().font(.title3)
+                                        Divider()
+                                        Text(resume.earnings.comasTextWithDecimals)
+                                        Text(resume.spendings.comasTextWithDecimals)
+                                        Text(resume.free.comasTextWithDecimals)
+                                        Divider()
+                                        Text(resume.check.comasTextWithDecimals)
+                                    }.frame(width: 150, alignment: .top)
+                                }
                             }
                         }.padding(.bottom, 20)
                     }
@@ -102,6 +118,15 @@ struct BeneficiariesView: View {
 
             }
         }
+    }
+    
+    private func getEarningsForBeneficiaryInMonth(beneficiarySpendings: BeneficiarySpendings) -> Double {
+        for resume in resumes {
+            if beneficiarySpendings.date == resume.date {
+                return (resume.sale - resume.spending - resume.tip) * beneficiarySpendings.beneficiary.percentage
+            }
+        }
+        return 0
     }
     
     private var beneficiariesTitles: some View {
@@ -117,39 +142,15 @@ struct BeneficiariesView: View {
         }.padding(.bottom, 20)
     }
     
-    private func beneficiaryQuantities(beneficiary: Beneficiary, resume: Resume) -> some View {
-        HStack(alignment: .bottom){
-            VStack(spacing: 20) {
-                Text(resume.date.monthInt == 1 ? resume.date.year : " ").bold().font(.title2).foregroundStyle(Color.green)
-                Text(resume.date.month).bold().font(.title3)
-                Divider()
-                Text(((resume.sale - resume.spending - resume.tip) * beneficiary.percentage).comasTextWithDecimals)
-                Text(0.0.comasTextWithDecimals)
-                Text(0.0.comasTextWithDecimals)
-                Divider()
-                Text(0.0.comasTextWithDecimals)
-            }.frame(width: 150, alignment: .top)
-        }
+    private func getBeneficiarySpendingTotal(beneficiary: Beneficiary, resume: Resume) -> Double {
+        return beneficiary.spendings.first(where: {$0.date == resume.date})?.totalSpendings ?? 0
     }
 }
 
 extension BeneficiariesView {
     private func checkFistDate() -> Date {
-        var firstDate = Date()
-        for sale in self.sales {
-            firstDate = firstDate < sale.date ? firstDate : sale.date
-        }
-        for tip in self.tips {
-            firstDate = firstDate < tip.date ? firstDate : tip.date
-        }
-        for check in self.checks {
-            firstDate = firstDate < check.date ? firstDate : check.date
-        }
-        for spending in self.spendings {
-            firstDate = firstDate < spending.date ? firstDate : spending.date
-        }
-        
-        return firstDate
+        let dates = sales.map { $0.date } + tips.map { $0.date } + checks.map { $0.date } + spendings.map { $0.date }
+        return dates.min(by: <) ?? Date()
     }
     
     private func fillArrays() {
@@ -162,9 +163,6 @@ extension BeneficiariesView {
             beneficiaryVM.fetch(for: restaurantM.currentId) { beneficiaries in
                 if let beneficiaries = beneficiaries {
                     self.beneficiaries = beneficiaries
-                    for beneficiary in self.beneficiaries {
-                        self.beneficiariesSpendingsOpened[beneficiary.id] = false
-                    }
                     getSales()
                 } else {
                     isLoading = false
@@ -204,10 +202,8 @@ extension BeneficiariesView {
     }
     
     private func getSpendings() {
-        print("Entro a obtener gastos")
         spendingVM.fetchSpendings(for: restaurantM.currentId) { spendings in
             if let spendings = spendings {
-                print(spendings)
                 self.spendings = spendings
                 getChecks()
             } else {
@@ -218,7 +214,6 @@ extension BeneficiariesView {
     }
     
     private func getChecks() {
-        print("Entro a obtener cheques")
         isLoading = true
         checkVM.fetch(restaurantId: restaurantM.currentId) { checks in
             if let checks = checks {
@@ -227,62 +222,83 @@ extension BeneficiariesView {
             } else {
                 alertVM.show(.dataObtainingError)
             }
-            isLoading = false
         }
     }
     
     private func getResumesForDates() {
-        var currentDate = checkFistDate()
-        var firstDaysOfMonth = [Date]()
+        var date = checkFistDate().firstDayOfMonth
+        resumes = []
+        while date <= Date() {
+            var sales = 0.0
+            var spendings = 0.0
+            var tips = 0.0
+            
+            for sale in self.sales where sale.date >= date.firstDayOfMonth && sale.date <= date.lastDayOfMonth {
+                sales += sale.rtonos
+            }
+            
+            for spending in self.spendings where spending.date >= date.firstDayOfMonth && spending.date <= date.lastDayOfMonth {
+                spendings += spending.quantity
+            }
+            
+            for tip in self.tips where tip.date >= date.firstDayOfMonth && tip.date <= date.lastDayOfMonth {
+                tips += tip.quantity
+            }
+            
+            let resume = Resume(date: date, sale: sales, tip: tips, spending: spendings)
+            resumes.append(resume)
+            date = date.firstDayOfNextMonth
+        }
         
-        while currentDate <= Date() {
-            firstDaysOfMonth.append(currentDate.firstDayOfMonth)
-            let components = DateComponents(year: currentDate.yearInt, month: currentDate.monthInt + 1, day: 1, hour: 0, minute: 0, second: 0)
-            if let newtMonth = Calendar.current.date(from: components) {
-                currentDate = newtMonth
-            } else {
-                break
-            }
-        }
-        resumes = firstDaysOfMonth.map {Resume(date: $0, sale: 0, tip: 0, spending: 0, check: 0)}
-        groupSales()
+        getBeneficiariesSpendings()
     }
     
-    private func groupSales() {
-        for index in resumes.indices {
-            for sale in sales {
-                if sale.date >= resumes[index].date.firstDayOfMonth,
-                   sale.date <= resumes[index].date.lastDayOfMonth {
-                    resumes[index].sale += sale.rtonos
-                    sales.removeAll(where: {$0 == sale})
+    private func getBeneficiariesSpendings() {
+        withAnimation {
+            BeneficiarySpendingViewModel().fetch(for: restaurantM.currentId) { spendings in
+                if let spendings = spendings {
+                    self.beneficiariesSpendings = spendings
+                    for index in self.beneficiaries.indices {
+                        setBeneficiarySpendingsDates(beneficiaryIndex: index)
+                    }
+                } else {
+                    alertVM.show(.dataObtainingError)
                 }
             }
         }
-        groupSpendings()
     }
     
-    private func groupSpendings() {
-        for index in resumes.indices {
-            for spending in spendings {
-                if spending.date >= resumes[index].date.firstDayOfMonth,
-                   spending.date <= resumes[index].date.lastDayOfMonth {
-                    resumes[index].spending += spending.quantity
-                    spendings.removeAll(where: {$0 == spending})
+    private func setBeneficiarySpendingsDates(beneficiaryIndex index: Int) {
+        withAnimation {
+            let beneficiary = beneficiaries[index]
+            var date = beneficiary.startEndDates[0].firstDayOfMonth
+            let endDate: Date = beneficiary.startEndDates.count <= 1 ? Date() : beneficiary.startEndDates[1]
+            beneficiaries[index].resumes = []
+            
+            while date <= endDate {
+                let employeesIds = beneficiary.employeesIds
+                var sumEarnings = 0.0
+                var sumSpendings = 0.0
+                var sumChecks = 0.0
+                
+                for resume in resumes where resume.date == date {
+                    sumEarnings = (resume.sale - resume.spending - resume.tip) * beneficiary.percentage
                 }
-            }
-        }
-        groupTips()
-    }
-    
-    private func groupTips() {
-        for index in resumes.indices {
-            for tip in tips {
-                if tip.date >= resumes[index].date.firstDayOfMonth,
-                   tip.date <= resumes[index].date.lastDayOfMonth {
-                    resumes[index].tip += tip.quantity
-                    tips.removeAll(where: {$0 == tip})
+                
+                for spending in self.beneficiariesSpendings where beneficiary.id == spending.beneficiaryId && spending.date >= date.firstDayOfMonth && spending.date <= date.lastDayOfMonth {
+                    sumSpendings += spending.quantity
                 }
+                
+                for check in self.checks where employeesIds.contains(check.employeeId) && check.date >= date.firstDayOfMonth && check.date <= date.lastDayOfMonth {
+                    sumChecks += check.cash + check.direct
+                }
+                
+                let resume = BeneficiaryResume(date: date, earnings: sumEarnings, spendings: sumSpendings, check: sumChecks)
+                beneficiaries[index].resumes.append(resume)
+                date = date.firstDayOfNextMonth
             }
+            
+            isLoading = false
         }
     }
     
@@ -303,6 +319,28 @@ extension BeneficiariesView {
             resumes[i].sale = totalSales
         }
     }
+    
+    private func getTotalObteinedForBeneficiary(_ beneficiary: Beneficiary) -> Double {
+        
+        var total = 0.0
+        
+        for resume in beneficiary.resumes {
+            total += resume.check + resume.spendings
+        }
+        
+        return total
+    }
+    
+    private func getTotalEarnedItForBeneficiary(_ beneficiary: Beneficiary) -> Double {
+        
+        var total = 0.0
+        
+        for resume in beneficiary.resumes {
+            total += resume.earnings
+        }
+        
+        return total
+    }
 }
 
 extension BeneficiariesView {
@@ -312,24 +350,25 @@ extension BeneficiariesView {
                 NewRecordToolbarButton(destination: NewBeneficiaryView())
                 UpdateRecordsToolbarButton(action: fillArrays)
             }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu("Beneficiarios") {
-                    ForEach(beneficiaries, id: \.self) { beneficiary in
-                        Menu(beneficiary.fullName) {
-                            Button("Editar", action: {})
-                            Button("Termino", action: {})
-                        }
-                    }
-                }
-            }
         }
     }
     
     func createCSVBeneficiaries() -> Data? {
         var csvString = "Nombre,Descripción\n"
+        
         for beneficiary in beneficiaries {
-            csvString.append("\(beneficiary.id),\(beneficiary.name),\(beneficiary.lastName),\(beneficiary.percentage),\(beneficiary.startDate.shortDate),\(beneficiary.endDate?.shortDate ?? "Nil")\n")
+            
+            var endDateToCSV: String
+            
+            if beneficiary.startEndDates.count == 1 {
+                endDateToCSV = "nil"
+            } else {
+                endDateToCSV = beneficiary.startEndDates[0].shortDate
+            }
+            
+            csvString.append("\(beneficiary.id),\(beneficiary.name),\(beneficiary.lastName),\(beneficiary.percentage),\(beneficiary.startEndDates[0].shortDate),\(endDateToCSV)\n")
         }
+        
         return csvString.data(using: .utf8)
     }
 }
@@ -340,13 +379,13 @@ struct Resume: Hashable {
     var sale: Double
     var tip: Double
     var spending: Double
-    var check: Double
-//    var beneficiaries
 }
 
-struct BeneficiarySpending: Hashable {
+struct BeneficiaryResume: Hashable {
     var id = UUID().uuidString
-    let beneficiaryId: String
-    var quantity: Double
-    var note: String
+    let date: Date
+    var earnings: Double
+    var spendings: Double
+    var free: Double { earnings - spendings }
+    var check: Double
 }

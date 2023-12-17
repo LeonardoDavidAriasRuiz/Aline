@@ -47,7 +47,7 @@ struct NewBeneficiaryView: View {
             }
             
             WhiteArea {
-                DatePicker("", selection: $newBeneficiary.startDate, displayedComponents: .date).datePickerStyle(.graphical)
+                DatePicker("", selection: $newBeneficiary.startEndDates[0], displayedComponents: .date).datePickerStyle(.graphical)
             }
         }
         .toolbar {

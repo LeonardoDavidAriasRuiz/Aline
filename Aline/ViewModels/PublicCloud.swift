@@ -45,11 +45,11 @@ class PublicCloud: ObservableObject {
     }
     
     
-    func delete(_ record: CKRecord, saved: @escaping () -> Void = {}, ifNot: @escaping () -> Void = {}, alwaysDo: @escaping () -> Void = {}) {
+    func delete(_ record: CKRecord, deleted: @escaping () -> Void = {}, ifNot: @escaping () -> Void = {}, alwaysDo: @escaping () -> Void = {}) {
         dataBase.delete(withRecordID: record.recordID) { recordID, _ in
             if recordID != nil {
                 DispatchQueue.main.async {
-                    saved()
+                    deleted()
                 }
             } else {
                 DispatchQueue.main.async {

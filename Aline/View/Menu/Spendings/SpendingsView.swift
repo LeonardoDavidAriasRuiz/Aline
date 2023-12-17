@@ -196,14 +196,8 @@ struct SpendingsView: View {
     }
     
     private func getSpendings() {
-        SpendingViewModel().fetchSpendings(for: restaurantM.currentId) { spendings in
-            if let spendings = spendings {
-                print(spendings)
-            }
-        }
         SpendingViewModel().fetch(restaurantId: restaurantM.currentId, date: date) { spendings in
             if let spendings = spendings {
-//                print(spendings)
                 for index in spendingTypes.indices {
                     for spending in spendings {
                         if spending.spendingTypeId == spendingTypes[index].id {

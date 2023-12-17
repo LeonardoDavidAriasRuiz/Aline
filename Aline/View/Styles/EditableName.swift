@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct EditableName: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var menuSection: MenuSection
     @Environment(\.dismiss) private var dismiss
     
     @Binding var name: String
@@ -21,8 +23,6 @@ struct EditableName: View {
                     .textInputAutocapitalization(.words)
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled(true)
-                    .onAppear(perform: onApper)
-                    .onChange(of: newName, isValidName)
                     .padding(.vertical, 8)
             }
             .toolbar {
@@ -35,6 +35,10 @@ struct EditableName: View {
                 }
             }
         }
+        .onAppear(perform: onApper)
+        .onChange(of: newName, isValidName)
+        .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private func onApper() {

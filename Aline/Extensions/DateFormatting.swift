@@ -11,7 +11,8 @@ extension Date {
     
     var firstDayOfWeek: Date {
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
+        var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
+        components.timeZone = TimeZone(identifier: "America/Los_Angeles")
         return calendar.date(from: components) ?? Date()
     }
     
@@ -23,14 +24,14 @@ extension Date {
         if 1...15 ~= self.dayInt {
             return self.firstDayOfMonth
         } else {
-            let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 1, hour: 0, minute: 0, second: 0)
+            let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: self.monthInt, day: 16, hour: 0, minute: 0, second: 0)
             return Calendar.current.date(from: dateComponents) ?? Date()
         }
     }
     
     var lastDayOfFortnight: Date {
         if Array(1...15).contains(self.dayInt) {
-            let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 15, hour: 23, minute: 59, second: 59)
+            let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: self.monthInt, day: 15, hour: 23, minute: 59, second: 59)
             return Calendar.current.date(from: dateComponents) ?? Date()
         } else {
             return self.lastDayOfMonth
@@ -38,23 +39,34 @@ extension Date {
     }
     
     var firstDayOfMonth: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: self.monthInt, day: 1, hour: 0, minute: 0, second: 0)
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: self.monthInt, day: 1, hour: 0, minute: 0, second: 1)
+        return Calendar.current.date(from: dateComponents) ?? Date()
+    }
+    
+    var firstDayOfNextMonth: Date {
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: self.monthInt + 1, day: 1, hour: 0, minute: 0, second: 1)
+        return Calendar.current.date(from: dateComponents) ?? Date()
+    }
+    
+    var lastDayOfNextMonth: Date {
+        let lastDay = Calendar.current.date(byAdding: DateComponents(month: 2, day: -1), to: self.firstDayOfMonth) ?? Date()
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: lastDay.yearInt, month: lastDay.monthInt, day: lastDay.dayInt, hour: 23, minute: 59, second: 59)
         return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var lastDayOfMonth: Date {
         let lastDay = Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.firstDayOfMonth) ?? Date()
-        let dateComponents = DateComponents(year: lastDay.yearInt, month: lastDay.monthInt, day: lastDay.dayInt, hour: 23, minute: 59, second: 59)
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: lastDay.yearInt, month: lastDay.monthInt, day: lastDay.dayInt, hour: 23, minute: 59, second: 59)
         return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var firstDayOfYear: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: 1, day: 1, hour: 0, minute: 0, second: 0)
         return Calendar.current.date(from: dateComponents) ?? Date()
     }
     
     var lastDayOfYear: Date {
-        let dateComponents = DateComponents(year: self.yearInt, month: 12, day: 31, hour: 23, minute: 59, second: 59)
+        let dateComponents = DateComponents(timeZone: TimeZone(identifier: "America/Los_Angeles"), year: self.yearInt, month: 12, day: 31, hour: 23, minute: 59, second: 59)
         return Calendar.current.date(from: dateComponents) ?? Date()
     }
     

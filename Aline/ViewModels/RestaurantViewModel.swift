@@ -52,14 +52,29 @@ class RestaurantViewModel: PublicCloud {
     }
 
     
-    func getRestaurants(adminIds: [String], emploIds: [String], completion: @escaping (_ admin: [Restaurant]?, _ emplo: [Restaurant]?) -> Void) {
+    func fetchRestaurants(adminIds: [String], emploIds: [String], completion: @escaping (_ admin: [Restaurant]?, _ emplo: [Restaurant]?) -> Void) {
         var adminRts: [Restaurant]?
         var emploRts: [Restaurant]?
-        fetchRestaurants(for: adminIds) { restaurants in
-            adminRts = restaurants
+        
+        let predicate = NSPredicate(format: "\(keys.id) IN %@", adminIds)
+        let query = CKQuery(recordType: keys.type, predicate: predicate)
+        
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(adminRts, emploRts); return }
+            adminRts = data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else {completion(adminRts, emploRts); return nil }
+                return Restaurant(record: record)
+            }
             
-            self.fetchRestaurants(for: emploIds) { restaurants in
-                emploRts = restaurants
+            let predicate = NSPredicate(format: "\(self.keys.id) IN %@", emploIds)
+            let query = CKQuery(recordType: self.keys.type, predicate: predicate)
+            
+            self.dataBase.fetch(withQuery: query) { result in
+                guard case .success(let data) = result else { completion(adminRts, emploRts); return }
+                emploRts = data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else {completion(adminRts, emploRts); return nil }
+                    return Restaurant(record: record)
+                }
                 completion(adminRts, emploRts)
             }
         }

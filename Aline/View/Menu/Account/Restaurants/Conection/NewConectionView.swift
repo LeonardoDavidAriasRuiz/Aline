@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct NewConectionView: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var conectionVM: ConectionViewModel
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -39,6 +41,8 @@ struct NewConectionView: View {
             }
             .toolbar { ToolbarItem(placement: .navigationBarTrailing) { sendButton } }
         }
+        .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
     }
     
     private var sendButton: some View {

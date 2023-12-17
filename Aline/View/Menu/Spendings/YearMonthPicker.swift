@@ -48,8 +48,9 @@ struct MonthPicker<Label: View>: View {
     }
     
     func selectMonth(_ month: Int) {
-        var dateComponents = Calendar.current.dateComponents([.year, .month], from: selectedDate)
+        var dateComponents = Calendar.current.dateComponents([.year], from: selectedDate)
         dateComponents.month = month
+        dateComponents.day = 5
         if let newDate = Calendar.current.date(from: dateComponents) {
             selectedDate = newDate
         }
@@ -85,8 +86,10 @@ struct YearPicker<Label: View>: View {
     }
     
     func selectYear(_ year: Int) {
-        var dateComponents = Calendar.current.dateComponents([.year, .month], from: selectedDate)
+        var dateComponents = Calendar.current.dateComponents([.month], from: selectedDate)
         dateComponents.year = year
+        dateComponents.day = 5
+        dateComponents.timeZone = TimeZone(identifier: "America/Los_Angeles")
         if let newDate = Calendar.current.date(from: dateComponents) {
             selectedDate = newDate
         }
@@ -117,6 +120,7 @@ struct YearListToPick<Label: View>: View {
     func selectYear(_ year: Int) {
         var dateComponents = Calendar.current.dateComponents([.year, .month], from: selectedDate)
         dateComponents.year = year
+        dateComponents.timeZone = TimeZone(identifier: "America/Los_Angeles")
         if let newDate = Calendar.current.date(from: dateComponents) {
             selectedDate = newDate
         }

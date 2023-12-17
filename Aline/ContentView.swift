@@ -58,7 +58,6 @@ struct ContentView: View {
     private func checkIfiCloudUser() {
         userVM.checkiCloudUser { isIcloudUser in
             if isIcloudUser {
-                print("Si tiene iCloud")
                 getUserId()
             } else {
                 alertVM.show(.noiCloudConnected)
@@ -71,7 +70,6 @@ struct ContentView: View {
     private func getUserId() {
         userVM.getUserId { userId in
             if let userId = userId {
-                print("Si se obtuvo el Id")
                 userVM.user.id = userId
                 checkIfLoggedIn()
             } else {
@@ -85,19 +83,13 @@ struct ContentView: View {
     private func setRestaurantList() {
         let adminIds = userVM.user.adminIds
         let emploIds = userVM.user.emploIds
-        RestaurantViewModel().getRestaurants(adminIds: adminIds, emploIds: emploIds) { adminRts, emploRts in
-            if let emploRts = emploRts {
-                restaurantM.emploRts = emploRts
-                if let restaurant = emploRts.first{
-                    restaurantM.restaurant = restaurant
-                    restaurantM.currentId = restaurant.id
-                    fetchEmployees()
-                }
-            } else {
-            }
-            if let adminRts = adminRts {
+        RestaurantViewModel().fetchRestaurants(adminIds: adminIds, emploIds: emploIds) { adminRts, emploRts in
+            if let adminRts = adminRts,
+               let emploRts = emploRts{
                 restaurantM.adminRts = adminRts
-                if let restaurant = adminRts.first {
+                restaurantM.emploRts = emploRts
+                let restaurants = adminRts + emploRts
+                if let restaurant = restaurants.first {
                     restaurantM.restaurant = restaurant
                     restaurantM.currentId = restaurant.id
                     fetchEmployees()
@@ -119,12 +111,10 @@ struct ContentView: View {
     private func checkIfLoggedIn() {
         userVM.checkIfLoggedIn { loggedIn in
             if loggedIn {
-                print("Si tiene sesion")
                 setRestaurantList()
                 
                 content = AnyView(SignInView(signedIn: $signedIn))
             } else {
-                print("Se fue a registro")
                 content = AnyView(LogInView(loggedIn: $loggedIn))
             }
             readyToLogOrSignIn = true

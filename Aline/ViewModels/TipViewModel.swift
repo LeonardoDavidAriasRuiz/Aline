@@ -108,4 +108,37 @@ class TipViewModel: PublicCloud {
             completion(Tip(record: record))
         }
     }
+    
+    func fetchTotalFortnights(restaurantId: String, date: Date, completion: @escaping ([FortnightTotalTips]?) -> Void) {
+        let fnKeys = FortnightTotalTipsKeys()
+        let predicates = [
+            NSPredicate(format: "\(fnKeys.restaurantId) == %@", restaurantId),
+            NSPredicate(format: "\(fnKeys.date) >= %@", date.firstDayOfMonth as NSDate),
+            NSPredicate(format: "\(fnKeys.date) <= %@", date.lastDayOfMonth as NSDate)
+        ]
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        let query = CKQuery(recordType: fnKeys.type, predicate: compoundPredicate)
+        var totals: [FortnightTotalTips] = []
+        
+        dataBase.fetch(withQuery: query) { result in
+            guard case .success(let data) = result else { completion(.none); return }
+            totals += data.matchResults.compactMap { _, result in
+                guard case .success(let record) = result else { completion(.none); return nil }
+                return FortnightTotalTips(record: record)
+            }
+            fetchNextPage(cursor: data.queryCursor)
+        }
+        
+        func fetchNextPage(cursor: CKQueryOperation.Cursor?) {
+            guard let cursor = cursor else { completion(totals); return }
+            self.dataBase.fetch(withCursor: cursor) { result in
+                guard case .success(let data) = result else { completion(.none); return }
+                totals += data.matchResults.compactMap { _, result in
+                    guard case .success(let record) = result else { return nil }
+                    return FortnightTotalTips(record: record)
+                }
+                fetchNextPage(cursor: data.queryCursor)
+            }
+        }
+    }
 }

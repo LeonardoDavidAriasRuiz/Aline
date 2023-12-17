@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct EditableEmail: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var menuSection: MenuSection
     @Environment(\.dismiss) private var dismiss
     
     @Binding var email: String
@@ -38,6 +40,10 @@ struct EditableEmail: View {
                 HideKeyboardToolbarButton()
             }
         }
+        .onAppear(perform: onApper)
+        .onChange(of: newEmail, isValidEmail)
+        .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
         .alertInfo(.sendingVerificationCodeError, showed: $alertShowed)
     }
     
@@ -47,8 +53,6 @@ struct EditableEmail: View {
                 .textInputAutocapitalization(.never)
                 .keyboardType(.emailAddress)
                 .autocorrectionDisabled(true)
-                .onAppear(perform: onApper)
-                .onChange(of: newEmail, isValidEmail)
                 .padding(.vertical, 8)
         }
     }

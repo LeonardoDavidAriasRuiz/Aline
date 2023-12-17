@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct RestaurantView: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var conectionVM: ConectionViewModel
+    @EnvironmentObject private var menuSection: MenuSection
+    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var restaurantEditable: Restaurant
     
@@ -21,7 +25,7 @@ struct RestaurantView: View {
     private let emailText = "correo@ejemplo.com"
     
     init(restaurant: Restaurant) {
-        self.restaurantEditable = restaurant
+        self._restaurantEditable = State<Restaurant>(initialValue: restaurant)
         self.restaurant = restaurant
     }
     
@@ -66,7 +70,26 @@ struct RestaurantView: View {
                         }.padding(.vertical, 8)
                     }
                 )
+                Divider()
+                HStack {
+                    Text("Tipo de distribución en checques")
+                    Spacer()
+                    Picker("", selection: $restaurantEditable.fortnightChecksType) {
+                        Text("Mes en Mes").tag(FortnightChecksType.monthByMonth)
+                        Text("A la siguinete quincena").tag(FortnightChecksType.nextFortnight)
+                    }
+                    .pickerStyle(.menu)
+                }
             }
+        }
+        .onChange(of: restaurantEditable.fortnightChecksType, save)
+        .onChange(of: restaurantM.currentId, {dismiss()})
+        .onChange(of: menuSection.section, {dismiss()})
+    }
+    
+    private func save() {
+        RestaurantViewModel().save(restaurantEditable.record) {} ifNot: {
+            alertVM.show(.updatingError)
         }
     }
 }
