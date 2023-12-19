@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct NewRestaurantView: View {
+    @EnvironmentObject private var restaurantM: RestaurantPickerManager
     @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     @Environment(\.dismiss) private var dismiss
@@ -83,6 +84,11 @@ struct NewRestaurantView: View {
         userVM.user.adminIds.append(newRestaurant.id)
         userVM.save()
         RestaurantViewModel().save(newRestaurant.record) {
+            if restaurantM.currentId.isEmpty {
+                restaurantM.currentId = newRestaurant.id
+                restaurantM.restaurant = newRestaurant
+                restaurantM.adminRts = [newRestaurant]
+            }
             dismiss()
         } ifNot: {
             alertVM.show(.crearingError)

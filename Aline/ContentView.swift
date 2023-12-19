@@ -115,7 +115,7 @@ struct ContentView: View {
                 
                 content = AnyView(SignInView(signedIn: $signedIn))
             } else {
-                content = AnyView(LogInView(loggedIn: $loggedIn))
+                content = AnyView(LogInView(loggedIn: $loggedIn, content: $content))
             }
             readyToLogOrSignIn = true
         }

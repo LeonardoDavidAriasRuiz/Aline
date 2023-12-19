@@ -151,7 +151,6 @@ struct PDFPayrollView: View {
         }
         .onAppear(perform: getEmployees)
         .onAppear(perform: getSettings)
-        .onChange(of: menuSection.section, {dismiss()})
         .onChange(of: restaurantM.currentId, {dismiss()})
         .navigationBarBackButtonHidden()
         .preferredColorScheme(.light)

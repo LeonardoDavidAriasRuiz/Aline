@@ -83,7 +83,6 @@ struct FortnightTotalTipsKeys {
     let id = "id"
     let date = "date"
     let employeeId = "employeeId"
-    let employee = "employee"
     let total = "total"
     let direct = "direct"
     let delivered = "delivered"

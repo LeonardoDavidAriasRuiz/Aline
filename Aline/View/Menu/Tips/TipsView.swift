@@ -335,10 +335,14 @@ extension TipsView {
     }
     
     private func getTotalFortnights() {
+        print("Va a buscar")
         tipVM.fetchTotalFortnights(restaurantId: restaurantM.currentId, date: date) { totals in
+            print("Entro a buscarlo")
             if let totals = totals {
+                
                 self.totalsFirstFortnight = []
                 self.totalsSecondFortnight = []
+                print(employeeVM.employees)
                 for employee in employeeVM.employees {
                     var totalFirst = 0.0
                     var totalSecond = 0.0
@@ -384,6 +388,8 @@ extension TipsView {
                         }
                     }
                 }
+            } else {
+                alertVM.show(.dataObtainingError)
             }
         }
     }

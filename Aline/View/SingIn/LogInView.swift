@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct LogInView: View {
-    @EnvironmentObject private var alertVM: AlertViewModel
     @EnvironmentObject private var userVM: UserViewModel
     
     @State private var fieldsValidated: Bool = false
@@ -21,8 +20,11 @@ struct LogInView: View {
     @State private var rightCode: String = ""
     @State private var wrongCodeAlertActive: Bool = false
     @State private var codeValid: Bool = false
+    @State private var notSentCodeAlert: Bool = false
+    @State private var mismatchCodeAlert: Bool = false
     
     @Binding var loggedIn: Bool
+    @Binding private var content: AnyView
     
     private var section: MenuSubsection = .login
     
@@ -34,8 +36,10 @@ struct LogInView: View {
     private let saveButtonText: String = "Guardar"
     private let verifyEmailText: String = "Verificar email"
     
-    init(loggedIn: Binding<Bool>) {
+    init(loggedIn: Binding<Bool>, content: Binding<AnyView>) {
         self._loggedIn = loggedIn
+        self._content = content
+        
     }
     
     var body: some View {
@@ -50,10 +54,6 @@ struct LogInView: View {
                         .keyboardType(.alphabet)
                         .autocorrectionDisabled(true)
                         .onChange(of: self.userVM.user.name, isValidName)
-                    Image(systemName: nameValided ? checkmarkImageName : xmarkImageName)
-                        .foregroundStyle(nameValided ? Color.green : Color.red)
-                        .font(.title2)
-                        .symbolEffect(.bounce, value: nameValided)
                 }
                 Divider()
                 HStack {
@@ -65,10 +65,6 @@ struct LogInView: View {
                         .keyboardType(.emailAddress)
                         .autocorrectionDisabled(true)
                         .onChange(of: self.userVM.user.email, isValidEmail)
-                    Image(systemName: emailValided ? checkmarkImageName : xmarkImageName)
-                        .foregroundStyle(emailValided ? Color.green : Color.red)
-                        .font(.title2)
-                        .symbolEffect(.bounce, value: emailValided)
                 }
             }
             if fieldsValidated {
@@ -92,6 +88,8 @@ struct LogInView: View {
                 .modifier(ButtonColor(color: emailSent ? codeValid ? Color.green : Color.red : Color.blue ))
             }
         }
+        .alertInfo(.sendingVerificationCodeError, showed: $notSentCodeAlert)
+        .alertInfo(.verificationCodeMismatch, showed: $mismatchCodeAlert)
     }
     
     private func cancelVerification() {
@@ -102,7 +100,7 @@ struct LogInView: View {
         let code = Int.random(in: 100000...999999)
         let emailInfo: VerifyLoginEmail = VerifyLoginEmail()
         MailSMTP().send(to: userVM.user, subject: emailInfo.subject, body: emailInfo.body(code: "\(code)")) {} ifNot: {
-            alertVM.show(.sendingVerificationCodeError)
+            notSentCodeAlert = true
         } alwaysDo: {}
         withAnimation {
             rightCode = String(code)
@@ -117,7 +115,7 @@ struct LogInView: View {
                     codeValid = true
                 } else {
                     codeValid = false
-                    alertVM.show(.verificationCodeMismatch)
+                    mismatchCodeAlert = true
                 }
             }
         }
@@ -126,6 +124,7 @@ struct LogInView: View {
     private func createCustomUser() {
         userVM.save()
         loggedIn = true
+        content = AnyView(MenuView())
     }
     
     private func isValidFields() {
@@ -158,10 +157,7 @@ struct LogInView: View {
     
     private func isValidEmail() {
         withAnimation {
-            let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-            
-            let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
-            emailValided = emailPredicate.evaluate(with: self.userVM.user.email) && !self.userVM.user.email.isEmpty
+            emailValided = self.userVM.user.email.isNotEmpty
             isValidFields()
         }
     }

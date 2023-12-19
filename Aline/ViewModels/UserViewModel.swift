@@ -71,5 +71,22 @@ class UserViewModel: ObservableObject {
             }
         }
     }
+    
+    func save(saved: @escaping (Bool) -> Void) {
+        let record: CKRecord = self.user.record
+        record[userKeys.id] = self.user.id
+        record[userKeys.name] = self.user.name
+        record[userKeys.email] = self.user.email
+        record[userKeys.adminRestaurantsIds] = self.user.adminIds
+        record[userKeys.emploRestaurantsIds] = self.user.emploIds
+        
+        dataBase.save(record) { (record, error) in
+            guard let record = record else {saved(false); return }
+            DispatchQueue.main.async {
+                self.user = User(record: record)
+                saved(true)
+            }
+        }
+    }
 }
 

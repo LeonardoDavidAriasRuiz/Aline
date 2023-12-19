@@ -10,7 +10,11 @@ import PDFKit
 
 struct PayrollView: View {
     @EnvironmentObject private var restaurantM: RestaurantPickerManager
+    @EnvironmentObject private var employeeVM: EmployeeViewModel
+    @EnvironmentObject private var menuSection: MenuSection
     @EnvironmentObject private var alertVM: AlertViewModel
+    @EnvironmentObject private var userVM: UserViewModel
+    @Environment(\.dismiss) private var dismiss
     
     @State private var isLoading: Bool = false
     @State private var worksheets: [Worksheet] = []
@@ -28,8 +32,6 @@ struct PayrollView: View {
                             Image(systemName: "chevron.right").font(.footnote).foregroundStyle(.secondary)
                         }.padding(.vertical, 8)
                     }
-
-                    
                     
                     if worksheet != worksheets.last {
                         Divider()
@@ -45,6 +47,11 @@ struct PayrollView: View {
                     FullSheet(section: .newWorksheet) {
                         PDFPayrollView()
                     }
+                    .environmentObject(restaurantM)
+                    .environmentObject(employeeVM)
+                    .environmentObject(menuSection)
+                    .environmentObject(alertVM)
+                    .environmentObject(userVM)
                 } label: {
                     Label("Nuevo", systemImage: "square.and.pencil")
                 }
